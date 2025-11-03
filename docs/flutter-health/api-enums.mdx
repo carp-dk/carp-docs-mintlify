@@ -1,0 +1,535 @@
+# Enumerations
+
+Reference for all enumeration types in the Health plugin.
+
+## HealthDataType
+
+Types of health data that can be read or written.
+
+### Body Measurements
+
+```dart
+WEIGHT                    // kg
+HEIGHT                    // cm
+BODY_MASS_INDEX          // BMI
+BODY_FAT_PERCENTAGE      // %
+WAIST_CIRCUMFERENCE      // cm
+LEAN_BODY_MASS           // kg
+```
+
+### Activity & Fitness
+
+```dart
+STEPS                           // count
+DISTANCE_DELTA                  // meters
+DISTANCE_WALKING_RUNNING        // meters
+FLIGHTS_CLIMBED                 // count
+MOVE_MINUTES                    // minutes
+ACTIVE_ENERGY_BURNED           // kcal
+BASAL_ENERGY_BURNED            // kcal
+WORKOUT                         // exercise session
+```
+
+### Cardiovascular
+
+```dart
+HEART_RATE                      // bpm
+RESTING_HEART_RATE             // bpm
+WALKING_HEART_RATE_AVERAGE     // bpm
+HEART_RATE_VARIABILITY_SDNN    // ms
+BLOOD_PRESSURE_SYSTOLIC        // mmHg
+BLOOD_PRESSURE_DIASTOLIC       // mmHg
+BLOOD_OXYGEN                    // %
+ELECTROCARDIOGRAM              // ECG/EKG
+```
+
+### Blood & Laboratory
+
+```dart
+BLOOD_GLUCOSE                   // mg/dL
+BLOOD_PRESSURE_SYSTOLIC        // mmHg
+BLOOD_PRESSURE_DIASTOLIC       // mmHg
+BLOOD_OXYGEN                    // %
+ELECTRODERMAL_ACTIVITY         // microsiemens
+```
+
+### Vital Signs
+
+```dart
+BODY_TEMPERATURE               // Celsius
+RESPIRATORY_RATE               // breaths/min
+FORCED_EXPIRATORY_VOLUME      // liters
+FORCED_VITAL_CAPACITY         // liters
+PEAK_EXPIRATORY_FLOW_RATE     // L/min
+```
+
+### Nutrition
+
+```dart
+NUTRITION                      // meal data
+WATER                          // ml
+DIETARY_CAFFEINE              // mg
+```
+
+### Sleep
+
+```dart
+SLEEP_ASLEEP                   // minutes
+SLEEP_AWAKE                    // minutes
+SLEEP_IN_BED                   // minutes
+SLEEP_DEEP                     // minutes
+SLEEP_REM                      // minutes
+SLEEP_SESSION                  // sleep session
+```
+
+### Reproductive Health
+
+```dart
+MENSTRUATION_FLOW             // cycle tracking
+```
+
+### Hearing
+
+```dart
+AUDIOGRAM                      // hearing test
+```
+
+### Diabetes
+
+```dart
+INSULIN_DELIVERY              // units
+```
+
+### All Types
+
+Over **100 types** available. See plugin source for complete list.
+
+## HealthDataAccess
+
+Permission access levels.
+
+```dart
+enum HealthDataAccess {
+  READ,           // Read data only
+  WRITE,          // Write data only
+  READ_WRITE,     // Both read and write
+}
+```
+
+**Example:**
+
+```dart
+// Read-only permission
+await health.requestAuthorization(
+  [HealthDataType.STEPS],
+  permissions: [HealthDataAccess.READ],
+);
+
+// Write-only permission
+await health.requestAuthorization(
+  [HealthDataType.WEIGHT],
+  permissions: [HealthDataAccess.WRITE],
+);
+
+// Both read and write
+await health.requestAuthorization(
+  [HealthDataType.HEART_RATE],
+  permissions: [HealthDataAccess.READ_WRITE],
+);
+```
+
+## HealthDataUnit
+
+Units of measurement for health data.
+
+```dart
+// Mass
+KILOGRAM                // kg
+GRAM                    // g
+OUNCE                   // oz
+POUND                   // lb
+
+// Length
+METER                   // m
+CENTIMETER              // cm
+INCH                    // in
+FOOT                    // ft
+
+// Energy
+KILOCALORIE             // kcal
+JOULE                   // J
+
+// Volume
+LITER                   // L
+MILLILITER              // ml
+FLUID_OUNCE             // fl oz
+
+// Frequency
+HERTZ                   // Hz
+
+// Pressure
+MILLIMETER_OF_MERCURY   // mmHg
+
+// Temperature
+DEGREE_CELSIUS          // °C
+DEGREE_FAHRENHEIT       // °F
+
+// Percentage
+PERCENT                 // %
+
+// Time
+SECOND                  // s
+MINUTE                  // min
+HOUR                    // h
+DAY                     // day
+
+// Count
+COUNT                   // count
+
+// Beats per minute
+BEATS_PER_MINUTE        // bpm
+
+// Decibel
+DECIBEL_HEARING_LEVEL   // dB HL
+
+// Concentration
+MILLIGRAM_PER_DECILITER // mg/dL
+MILLIMOLE_PER_LITER     // mmol/L
+
+// And more...
+```
+
+## HealthWorkoutActivityType
+
+Types of workout activities.
+
+### Cardio
+
+```dart
+WALKING
+RUNNING
+CYCLING
+SWIMMING_OPEN_WATER
+SWIMMING_POOL
+ELLIPTICAL
+ROWING
+STAIR_CLIMBING
+```
+
+### Strength
+
+```dart
+TRADITIONAL_STRENGTH_TRAINING
+FUNCTIONAL_STRENGTH_TRAINING
+CROSS_TRAINING
+```
+
+### Sports
+
+```dart
+SOCCER
+BASKETBALL
+TENNIS
+GOLF
+BASEBALL
+SOFTBALL
+FOOTBALL_AMERICAN
+FOOTBALL_SOCCER
+VOLLEYBALL
+HOCKEY
+CRICKET
+RUGBY
+```
+
+### Mind & Body
+
+```dart
+YOGA
+PILATES
+TAI_CHI
+MEDITATION
+BARRE
+CORE_TRAINING
+FLEXIBILITY
+MINDFULNESS
+```
+
+### Outdoor
+
+```dart
+HIKING
+CLIMBING
+SKIING_DOWNHILL
+SKIING_CROSS_COUNTRY
+SNOWBOARDING
+SKATING
+SURFING
+```
+
+### High Intensity
+
+```dart
+HIGH_INTENSITY_INTERVAL_TRAINING
+MIXED_CARDIO
+JUMP_ROPE
+```
+
+### Dance
+
+```dart
+DANCING
+DANCE_INSPIRED_TRAINING
+```
+
+### Water Sports
+
+```dart
+PADDLE_SPORTS
+WATER_FITNESS
+WATER_POLO
+WATER_SPORTS
+```
+
+### Winter Sports
+
+```dart
+ICE_SKATING
+CURLING
+SNOW_SPORTS
+```
+
+### Other
+
+```dart
+OTHER
+MIXED_METABOLIC_CARDIO_TRAINING
+HAND_CYCLING
+DISC_SPORTS
+FITNESS_GAMING
+WHEELCHAIR_WALK_PACE
+WHEELCHAIR_RUN_PACE
+```
+
+**Example:**
+
+```dart
+await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.RUNNING,
+  start: workoutStart,
+  end: workoutEnd,
+  totalDistance: 5000.0,
+  totalEnergyBurned: 350.0,
+);
+```
+
+## MealType
+
+Types of meals.
+
+```dart
+enum MealType {
+  BREAKFAST,
+  LUNCH,
+  DINNER,
+  SNACK,
+  UNKNOWN,
+}
+```
+
+**Example:**
+
+```dart
+await health.writeMeal(
+  startTime: DateTime.now(),
+  mealType: MealType.BREAKFAST,
+  name: 'Oatmeal',
+  calories: 350.0,
+);
+```
+
+## MenstruationFlow
+
+Menstrual flow intensity levels.
+
+```dart
+enum MenstruationFlow {
+  UNSPECIFIED,
+  LIGHT,
+  MEDIUM,
+  HEAVY,
+  SPOTTING,
+}
+```
+
+**Example:**
+
+```dart
+await health.writeMenstruationFlow(
+  flow: MenstruationFlow.MEDIUM,
+  startTime: DateTime.now(),
+);
+```
+
+## RecordingMethod
+
+How health data was recorded.
+
+```dart
+enum RecordingMethod {
+  AUTOMATIC,           // Automatically recorded
+  MANUAL_ENTRY,        // User entered manually
+  UNKNOWN,            // Recording method unknown
+}
+```
+
+**Example:**
+
+```dart
+// Filter for automatically recorded data
+final autoData = dataPoints.where((p) => 
+  p.recordingMethod == RecordingMethod.AUTOMATIC
+).toList();
+
+// Filter for manual entries
+final manualData = dataPoints.where((p) => 
+  p.recordingMethod == RecordingMethod.MANUAL_ENTRY
+).toList();
+```
+
+## HealthConnectSdkStatus
+
+Android Health Connect SDK installation status.
+
+```dart
+enum HealthConnectSdkStatus {
+  SDK_UNAVAILABLE,
+  SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
+  SDK_AVAILABLE,
+}
+```
+
+**Example:**
+
+```dart
+final status = await health.getHealthConnectSdkStatus();
+
+switch (status) {
+  case HealthConnectSdkStatus.SDK_AVAILABLE:
+    print('Health Connect ready');
+    break;
+  case HealthConnectSdkStatus.SDK_UNAVAILABLE:
+    print('Health Connect not installed');
+    await health.installHealthConnect();
+    break;
+  case HealthConnectSdkStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED:
+    print('Health Connect needs update');
+    break;
+}
+```
+
+## ElectrocardiogramClassification
+
+ECG/EKG reading classifications.
+
+```dart
+enum ElectrocardiogramClassification {
+  NOT_SET,
+  SINUS_RHYTHM,
+  ATRIAL_FIBRILLATION,
+  INCONCLUSIVE_LOW_HEART_RATE,
+  INCONCLUSIVE_HIGH_HEART_RATE,
+  INCONCLUSIVE_POOR_READING,
+  INCONCLUSIVE_OTHER,
+  UNRECOGNIZED,
+}
+```
+
+## Common Enum Patterns
+
+### Type Lists
+
+```dart
+// All activity types
+final activityTypes = [
+  HealthDataType.STEPS,
+  HealthDataType.DISTANCE_WALKING_RUNNING,
+  HealthDataType.ACTIVE_ENERGY_BURNED,
+  HealthDataType.FLIGHTS_CLIMBED,
+];
+
+// All vital signs
+final vitalSigns = [
+  HealthDataType.HEART_RATE,
+  HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
+  HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+  HealthDataType.BLOOD_OXYGEN,
+  HealthDataType.BODY_TEMPERATURE,
+  HealthDataType.RESPIRATORY_RATE,
+];
+
+// All body measurements
+final bodyMeasurements = [
+  HealthDataType.WEIGHT,
+  HealthDataType.HEIGHT,
+  HealthDataType.BODY_MASS_INDEX,
+  HealthDataType.BODY_FAT_PERCENTAGE,
+];
+```
+
+### Permission Mapping
+
+```dart
+// Map types to permissions
+final typePermissions = <HealthDataType, HealthDataAccess>{
+  HealthDataType.STEPS: HealthDataAccess.READ,
+  HealthDataType.WEIGHT: HealthDataAccess.READ_WRITE,
+  HealthDataType.HEART_RATE: HealthDataAccess.READ,
+};
+
+// Request with mapping
+final types = typePermissions.keys.toList();
+final permissions = typePermissions.values.toList();
+await health.requestAuthorization(types, permissions: permissions);
+```
+
+### Unit Conversion
+
+```dart
+double convertUnit(
+  double value,
+  HealthDataUnit from,
+  HealthDataUnit to,
+) {
+  // Weight conversions
+  if (from == HealthDataUnit.KILOGRAM && to == HealthDataUnit.POUND) {
+    return value * 2.20462;
+  }
+  if (from == HealthDataUnit.POUND && to == HealthDataUnit.KILOGRAM) {
+    return value / 2.20462;
+  }
+  
+  // Length conversions
+  if (from == HealthDataUnit.CENTIMETER && to == HealthDataUnit.INCH) {
+    return value / 2.54;
+  }
+  if (from == HealthDataUnit.INCH && to == HealthDataUnit.CENTIMETER) {
+    return value * 2.54;
+  }
+  
+  // Temperature conversions
+  if (from == HealthDataUnit.DEGREE_CELSIUS && to == HealthDataUnit.DEGREE_FAHRENHEIT) {
+    return (value * 9/5) + 32;
+  }
+  if (from == HealthDataUnit.DEGREE_FAHRENHEIT && to == HealthDataUnit.DEGREE_CELSIUS) {
+    return (value - 32) * 5/9;
+  }
+  
+  return value;
+}
+```
+
+## See Also
+
+- [Health Class API](api-health-class) - Main API reference
+- [Data Models](api-data-models) - Data structures
+- [Data Types](data-types) - Understanding health data types

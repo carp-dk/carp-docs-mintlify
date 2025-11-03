@@ -1,0 +1,35 @@
+# Platform setup (iOS)
+
+The plugin uses Apple HealthKit on iOS.
+
+## Enable HealthKit capability
+
+In your Xcode project (Runner):
+
+- Targets → Runner → Signing & Capabilities → add “HealthKit”.
+
+## Info.plist usage descriptions
+
+Add the following keys with your user-facing rationale:
+
+```xml
+<!-- ios/Runner/Info.plist -->
+<key>NSHealthShareUsageDescription</key>
+<string>We will sync your data with the Apple Health app to give you better insights</string>
+<key>NSHealthUpdateUsageDescription</key>
+<string>We will sync your data with the Apple Health app to give you better insights</string>
+```
+
+## Permissions
+
+On iOS, certain types only support READ (e.g., ECG events). The plugin will throw if you request WRITE for these.
+
+- Examples that cannot be written: `ELECTROCARDIOGRAM`, heart-rate event types (high/low/irregular), `WALKING_HEART_RATE`, `ATRIAL_FIBRILLATION_BURDEN`.
+- `recordingMethod` must be `manual` or `automatic` when writing.
+
+## Special types
+
+- Audiogram can be written on iOS only.
+- Insulin delivery can be written on iOS only (requires a valid reason: basal or bolus).
+
+Refer to the [Writing data](write-data) page for examples.

@@ -1,0 +1,162 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "CARP Documentation",
+  "colors": {
+    "primary": "#C30E32",
+    "light": "#FF6467",
+    "dark": "#C30E32"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Home",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "index",
+              "quickstart",
+              "development"
+            ]
+          },
+          {
+            "group": "Essentials",
+            "pages": [
+              "essentials/markdown",
+              "essentials/code",
+              "essentials/images",
+              "essentials/settings",
+              "essentials/navigation",
+              "essentials/reusable-snippets"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Flutter Plugins",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "flutter-health/overview",
+              "flutter-health/install",
+              "flutter-health/quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "icon": "lightbulb",
+            "pages": [
+              "flutter-health/permissions",
+              "flutter-health/data-types",
+              "flutter-health/health-connect"
+            ]
+          },
+          {
+            "group": "Reading Data",
+            "icon": "book-open",
+            "pages": [
+              "flutter-health/read-overview",
+              "flutter-health/read-basic",
+              "flutter-health/read-interval",
+              "flutter-health/read-aggregate",
+              "flutter-health/read-steps"
+            ]
+          },
+          {
+            "group": "Writing Data",
+            "icon": "pen-to-square",
+            "pages": [
+              "flutter-health/write-overview",
+              "flutter-health/write-basic",
+              "flutter-health/write-workouts",
+              "flutter-health/write-blood",
+              "flutter-health/write-nutrition",
+              "flutter-health/write-specialized"
+            ]
+          },
+          {
+            "group": "Deleting Data",
+            "icon": "trash",
+            "pages": [
+              "flutter-health/delete-data"
+            ]
+          },
+          {
+            "group": "Platform Setup",
+            "icon": "mobile",
+            "pages": [
+              "flutter-health/platform-android",
+              "flutter-health/platform-ios"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "icon": "code",
+            "pages": [
+              "flutter-health/api-health-class",
+              "flutter-health/api-data-models",
+              "flutter-health/api-enums"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API Documentation",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Endpoint Examples",
+            "pages": [
+              "api-reference/endpoint/get",
+              "api-reference/endpoint/create",
+              "api-reference/endpoint/delete",
+              "api-reference/endpoint/webhook"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "CARP",
+          "href": "https://carp.dk",
+          "icon": "book-open-cover"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hi@mintlify.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://dashboard.mintlify.com"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/mintlify",
+      "github": "https://github.com/mintlify",
+      "linkedin": "https://linkedin.com/company/mintlify"
+    }
+  }
+}
