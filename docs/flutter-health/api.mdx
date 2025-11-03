@@ -1,0 +1,82 @@
+# API reference (Dart)
+
+This section summarizes the primary methods on the `Health` class. See the source under `carp-health-flutter/lib/health.dart` for details and edge cases.
+
+## Initialization
+
+- `Health({ DeviceInfoPlugin? deviceInfo })`
+- `Future<void> configure()` – must be called before usage
+- `HealthPlatformType get platformType` – `appleHealth` or `googleHealthConnect`
+- `String get deviceId` – stable device identifier (best-effort)
+
+## Health Connect (Android)
+
+- `Future<HealthConnectSdkStatus?> getHealthConnectSdkStatus()`
+- `Future<bool> isHealthConnectAvailable()`
+- `Future<void> installHealthConnect()`
+
+History/background permissions:
+
+- `Future<bool> isHealthDataHistoryAvailable()`
+- `Future<bool> isHealthDataHistoryAuthorized()`
+- `Future<bool> requestHealthDataHistoryAuthorization()`
+- `Future<bool> isHealthDataInBackgroundAvailable()`
+- `Future<bool> isHealthDataInBackgroundAuthorized()`
+- `Future<bool> requestHealthDataInBackgroundAuthorization()`
+
+## Permissions
+
+- `Future<bool?> hasPermissions(List<HealthDataType> types, { List<HealthDataAccess>? permissions })`
+- `Future<bool> requestAuthorization(List<HealthDataType> types, { List<HealthDataAccess>? permissions })`
+- `Future<void> revokePermissions()` – Android only
+
+## Reading
+
+- `Future<List<HealthDataPoint>> getHealthDataFromTypes({ required List<HealthDataType> types, DateTime startTime, DateTime endTime, Map<HealthDataType, HealthDataUnit>? preferredUnits, List<RecordingMethod> recordingMethodsToFilter = const [] })`
+- `Future<List<HealthDataPoint>> getHealthIntervalDataFromTypes({ required DateTime startDate, required DateTime endDate, required List<HealthDataType> types, required int interval, List<RecordingMethod> recordingMethodsToFilter = const [] })`
+- `Future<List<HealthDataPoint>> getHealthAggregateDataFromTypes({ required List<HealthDataType> types, required DateTime startDate, required DateTime endDate, int activitySegmentDuration = 1, bool includeManualEntry = true })`
+- `Future<HealthDataPoint?> getHealthDataByUUID({ required String uuid, required HealthDataType type })` – iOS only
+- `Future<int?> getTotalStepsInInterval(DateTime start, DateTime end, { bool includeManualEntry = true })`
+
+Helpers:
+
+- `List<HealthDataPoint> removeDuplicates(List<HealthDataPoint> points)`
+
+## Writing
+
+- `Future<bool> writeHealthData({ required double value, HealthDataUnit? unit, required HealthDataType type, required DateTime startTime, DateTime? endTime, RecordingMethod recordingMethod = RecordingMethod.automatic, String? clientRecordId, double? clientRecordVersion })`
+- `Future<bool> writeWorkoutData({ required HealthWorkoutActivityType activityType, required DateTime start, required DateTime end, int? totalEnergyBurned, HealthDataUnit totalEnergyBurnedUnit = HealthDataUnit.KILOCALORIE, int? totalDistance, HealthDataUnit totalDistanceUnit = HealthDataUnit.METER, String? title, RecordingMethod recordingMethod = RecordingMethod.automatic })`
+- `Future<bool> writeBloodPressure({ required int systolic, required int diastolic, required DateTime startTime, DateTime? endTime, RecordingMethod recordingMethod = RecordingMethod.automatic, String? clientRecordId, double? clientRecordVersion })`
+- `Future<bool> writeBloodOxygen({ required double saturation, required DateTime startTime, DateTime? endTime, RecordingMethod recordingMethod = RecordingMethod.automatic })`
+- `Future<bool> writeMeal({ required MealType mealType, required DateTime startTime, required DateTime endTime, String? name, double? caloriesConsumed, double? carbohydrates, double? protein, double? fatTotal, /* many micronutrients */ RecordingMethod recordingMethod = RecordingMethod.automatic, String? clientRecordId, double? clientRecordVersion })`
+- `Future<bool> writeMenstruationFlow({ required MenstrualFlow flow, required DateTime startTime, required DateTime endTime, required bool isStartOfCycle, RecordingMethod recordingMethod = RecordingMethod.automatic })`
+- `Future<bool> writeAudiogram({ required List<double> frequencies, required List<double> leftEarSensitivities, required List<double> rightEarSensitivities, required DateTime startTime, DateTime? endTime, Map<String, dynamic>? metadata })` – iOS only
+- `Future<bool> writeInsulinDelivery(double units, InsulinDeliveryReason reason, DateTime startTime, DateTime endTime)` – iOS only
+
+## Deleting
+
+- `Future<bool> delete({ required HealthDataType type, required DateTime startTime, DateTime? endTime })`
+- `Future<bool> deleteByUUID({ required String uuid, HealthDataType? type })` – iOS requires type
+- `Future<bool> deleteByClientRecordId({ required HealthDataType dataTypeKey, required String clientRecordId, String? recordId })`
+
+## Models
+
+- `HealthDataPoint` – carries `value`, `type`, `unit`, `dateFrom/to`, `source*`, `recordingMethod`, optional `workoutSummary`, `metadata`, and `deviceModel` (iOS only)
+- `HealthValue` variants:
+  - `NumericHealthValue`
+  - `WorkoutHealthValue`
+  - `AudiogramHealthValue`
+  - `ElectrocardiogramHealthValue` (+ `ElectrocardiogramVoltageValue`)
+  - `NutritionHealthValue`
+  - `InsulinDeliveryHealthValue`
+  - `MenstruationFlowHealthValue`
+
+## Enums
+
+- `HealthDataType`, `HealthDataUnit`, `HealthDataAccess`
+- `RecordingMethod` (iOS restricts writes to `manual` or `automatic`)
+- `HealthWorkoutActivityType` (platform-dependent availability)
+- `MealType`, `InsulinDeliveryReason`, `ElectrocardiogramClassification`
+- Android-only: `HealthConnectSdkStatus`
+
+For exhaustive type/unit mappings, see `lib/src/health_value_types.dart` and `lib/src/heath_data_types.dart`.

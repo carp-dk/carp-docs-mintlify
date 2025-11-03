@@ -1,0 +1,331 @@
+# Basic Data Writing
+
+Write numeric health data using `writeHealthData`.
+
+## Method Signature
+
+```dart
+Future<bool> writeHealthData({
+  required double value,
+  required HealthDataType type,
+  required DateTime startTime,
+  DateTime? endTime,
+  String? sourceId,
+  String? sourceName,
+  DateTime? recordingTime,
+})
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `value` | `double` | Yes | Numeric value to write |
+| `type` | `HealthDataType` | Yes | Type of health data |
+| `startTime` | `DateTime` | Yes | When the measurement was taken |
+| `endTime` | `DateTime` | No | End time (for duration-based metrics) |
+| `sourceId` | `String` | No | Custom source identifier |
+| `sourceName` | `String` | No | Custom source name |
+| `recordingTime` | `DateTime` | No | When the data was recorded (defaults to `startTime`) |
+
+## Returns
+
+- `true`: Data written successfully
+- `false`: Write failed (check permissions or platform availability)
+
+## Supported Data Types
+
+### Body Measurements
+
+```dart
+// Weight
+await health.writeHealthData(
+  value: 70.5,
+  type: HealthDataType.WEIGHT,
+  startTime: DateTime.now(),
+);
+
+// Height
+await health.writeHealthData(
+  value: 175.0,
+  type: HealthDataType.HEIGHT,
+  startTime: DateTime.now(),
+);
+
+// Body Fat Percentage
+await health.writeHealthData(
+  value: 18.5,
+  type: HealthDataType.BODY_FAT_PERCENTAGE,
+  startTime: DateTime.now(),
+);
+
+// BMI
+await health.writeHealthData(
+  value: 23.0,
+  type: HealthDataType.BODY_MASS_INDEX,
+  startTime: DateTime.now(),
+);
+```
+
+### Vital Signs
+
+```dart
+// Heart Rate
+await health.writeHealthData(
+  value: 72.0,
+  type: HealthDataType.HEART_RATE,
+  startTime: DateTime.now(),
+);
+
+// Resting Heart Rate
+await health.writeHealthData(
+  value: 60.0,
+  type: HealthDataType.RESTING_HEART_RATE,
+  startTime: DateTime.now(),
+);
+
+// Body Temperature
+await health.writeHealthData(
+  value: 36.8,
+  type: HealthDataType.BODY_TEMPERATURE,
+  startTime: DateTime.now(),
+);
+
+// Respiratory Rate
+await health.writeHealthData(
+  value: 16.0,
+  type: HealthDataType.RESPIRATORY_RATE,
+  startTime: DateTime.now(),
+);
+```
+
+### Blood Metrics
+
+```dart
+// Blood Glucose
+await health.writeHealthData(
+  value: 95.0, // mg/dL
+  type: HealthDataType.BLOOD_GLUCOSE,
+  startTime: DateTime.now(),
+);
+
+// Electrodermal Activity
+await health.writeHealthData(
+  value: 2.5,
+  type: HealthDataType.ELECTRODERMAL_ACTIVITY,
+  startTime: DateTime.now(),
+);
+```
+
+### Activity Metrics
+
+```dart
+// Steps
+await health.writeHealthData(
+  value: 1000.0,
+  type: HealthDataType.STEPS,
+  startTime: DateTime.now().subtract(Duration(hours: 1)),
+  endTime: DateTime.now(),
+);
+
+// Distance
+await health.writeHealthData(
+  value: 2500.0, // meters
+  type: HealthDataType.DISTANCE_DELTA,
+  startTime: DateTime.now().subtract(Duration(hours: 1)),
+  endTime: DateTime.now(),
+);
+
+// Active Energy Burned
+await health.writeHealthData(
+  value: 150.0, // kcal
+  type: HealthDataType.ACTIVE_ENERGY_BURNED,
+  startTime: DateTime.now().subtract(Duration(hours: 1)),
+  endTime: DateTime.now(),
+);
+
+// Flights Climbed
+await health.writeHealthData(
+  value: 5.0,
+  type: HealthDataType.FLIGHTS_CLIMBED,
+  startTime: DateTime.now().subtract(Duration(hours: 1)),
+  endTime: DateTime.now(),
+);
+```
+
+## Using Source Information
+
+Add custom source tracking:
+
+```dart
+await health.writeHealthData(
+  value: 70.5,
+  type: HealthDataType.WEIGHT,
+  startTime: DateTime.now(),
+  sourceId: 'my-smart-scale',
+  sourceName: 'Smart Scale Pro',
+);
+```
+
+## Time Ranges (Start and End)
+
+For duration-based measurements:
+
+```dart
+// Steps during a specific hour
+await health.writeHealthData(
+  value: 1500.0,
+  type: HealthDataType.STEPS,
+  startTime: DateTime(2024, 1, 15, 14, 0), // 2:00 PM
+  endTime: DateTime(2024, 1, 15, 15, 0),   // 3:00 PM
+);
+
+// Calories burned during workout
+await health.writeHealthData(
+  value: 250.0,
+  type: HealthDataType.ACTIVE_ENERGY_BURNED,
+  startTime: workoutStart,
+  endTime: workoutEnd,
+);
+```
+
+## Recording Time
+
+Specify when data was actually recorded vs. when it was measured:
+
+```dart
+final measurementTime = DateTime(2024, 1, 15, 8, 0); // Morning measurement
+final recordingTime = DateTime.now(); // Recorded later
+
+await health.writeHealthData(
+  value: 70.5,
+  type: HealthDataType.WEIGHT,
+  startTime: measurementTime,
+  recordingTime: recordingTime,
+);
+```
+
+## Complete Example: Weight Tracker
+
+```dart
+class WeightTracker {
+  final Health health;
+  
+  WeightTracker(this.health);
+  
+  Future<bool> saveWeight({
+    required double weightKg,
+    DateTime? measurementTime,
+  }) async {
+    // Request permission if needed
+    final hasPermission = await health.hasPermissions(
+      [HealthDataType.WEIGHT],
+      permissions: [HealthDataAccess.WRITE],
+    );
+    
+    if (hasPermission != true) {
+      final granted = await health.requestAuthorization(
+        [HealthDataType.WEIGHT],
+        permissions: [HealthDataAccess.WRITE],
+      );
+      
+      if (!granted) {
+        return false;
+      }
+    }
+    
+    // Write the weight
+    return await health.writeHealthData(
+      value: weightKg,
+      type: HealthDataType.WEIGHT,
+      startTime: measurementTime ?? DateTime.now(),
+      sourceId: 'weight-tracker-app',
+      sourceName: 'Weight Tracker',
+    );
+  }
+}
+
+// Usage
+final tracker = WeightTracker(health);
+final success = await tracker.saveWeight(weightKg: 70.5);
+
+if (success) {
+  print('Weight saved!');
+} else {
+  print('Failed to save weight');
+}
+```
+
+## Validation Recommendations
+
+Validate data before writing:
+
+```dart
+Future<bool> writeValidatedWeight(double weightKg) async {
+  // Validate weight range
+  if (weightKg < 20 || weightKg > 300) {
+    print('Invalid weight: $weightKg kg');
+    return false;
+  }
+  
+  // Validate timestamp (not in future)
+  final now = DateTime.now();
+  if (now.isBefore(DateTime.now().subtract(Duration(days: 365)))) {
+    print('Measurement too old');
+    return false;
+  }
+  
+  return await health.writeHealthData(
+    value: weightKg,
+    type: HealthDataType.WEIGHT,
+    startTime: now,
+  );
+}
+```
+
+## Error Handling
+
+```dart
+Future<void> saveHealthMetric(double value, HealthDataType type) async {
+  try {
+    final success = await health.writeHealthData(
+      value: value,
+      type: type,
+      startTime: DateTime.now(),
+    );
+    
+    if (success) {
+      print('✓ ${type.name} saved');
+    } else {
+      print('✗ Failed to save ${type.name}');
+      print('  Check permissions or platform availability');
+    }
+  } catch (e) {
+    print('✗ Error saving ${type.name}: $e');
+  }
+}
+```
+
+## Platform Considerations
+
+<Tabs>
+  <Tab title="iOS (HealthKit)">
+    - Supports all numeric types
+    - Data appears immediately in Health app
+    - Cannot verify write success by reading without READ permission
+    - Automatic unit conversion (e.g., kg &lt;-&gt; lbs)
+  </Tab>
+  <Tab title="Android (Health Connect)">
+    - Requires Health Connect SDK
+    - Returns `false` if Health Connect not available
+    - Check `isHealthConnectAvailable()` before writing
+    - Some types may have platform-specific limitations
+  </Tab>
+</Tabs>
+
+## See Also
+
+- [Writing Workouts](write-workouts) - Exercise sessions
+- [Blood Pressure](write-blood) - Systolic/diastolic readings
+- [Nutrition](write-nutrition) - Meal data
+- [Data Types](data-types) - All available health data types

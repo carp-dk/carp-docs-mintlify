@@ -1,0 +1,366 @@
+# Reading Data - Overview
+
+The Health plugin provides multiple methods for reading health data with different levels of granularity and aggregation.
+
+## Reading Methods
+
+The plugin offers four primary reading approaches:
+
+### 1. Basic Data Points (`getHealthDataFromTypes`)
+
+Fetch individual health data points for specified time ranges.
+
+**Best for:**
+- Viewing detailed raw data
+- Analyzing individual measurements
+- Displaying timelines
+- Export/backup operations
+
+**See:** [Basic Reading](read-basic)
+
+### 2. Interval/Bucketed Data (`getHealthIntervalDataFromTypes`)
+
+Fetch data aggregated into fixed time intervals (e.g., hourly, daily).
+
+**Best for:**
+- Charts and graphs
+- Daily/weekly/monthly summaries
+- Trend analysis
+- Statistical overviews
+
+**See:** [Interval Reading](read-interval)
+
+### 3. Aggregate Data (`getHealthAggregateDataFromTypes`)
+
+Fetch pre-aggregated summaries across multiple types.
+
+**Best for:**
+- Workout summaries
+- Multi-metric dashboards
+- Performance analytics
+- Activity overviews
+
+**See:** [Aggregate Reading](read-aggregate)
+
+### 4. Steps Total (`getTotalStepsInInterval`)
+
+Get the total step count for a time period.
+
+**Best for:**
+- Step counters
+- Daily step goals
+- Quick step queries
+- Activity badges
+
+**See:** [Reading Steps](read-steps)
+
+## Quick Comparison
+
+| Method | Granularity | Types | Aggregation | Performance |
+|--------|-------------|-------|-------------|-------------|
+| `getHealthDataFromTypes` | Individual points | Multiple | None | Good for small ranges |
+| `getHealthIntervalDataFromTypes` | Time buckets | Multiple | Platform-native | Optimized for charts |
+| `getHealthAggregateDataFromTypes` | Multi-type summaries | Multiple | Cross-type | Best for workouts |
+| `getTotalStepsInInterval` | Single number | Steps only | Full sum | Fastest for steps |
+
+## Data Flow
+
+```dart
+// 1. Configure Health
+await health.configure();
+
+// 2. Request permissions
+await health.requestAuthorization([HealthDataType.STEPS]);
+
+// 3. Choose reading method based on use case
+final data = await health.getHealthDataFromTypes(
+  types: [HealthDataType.STEPS],
+  startTime: DateTime.now().subtract(Duration(hours: 24)),
+  endTime: DateTime.now(),
+);
+
+// 4. Process results
+for (var point in data) {
+  print('${point.type}: ${point.value} ${point.unit}');
+}
+```
+
+## Common Patterns
+
+### Single Type Query
+
+```dart
+final heartRateData = await health.getHealthDataFromTypes(
+  types: [HealthDataType.HEART_RATE],
+  startTime: start,
+  endTime: end,
+);
+```
+
+### Multiple Types Query
+
+```dart
+final vitalSigns = await health.getHealthDataFromTypes(
+  types: [
+    HealthDataType.HEART_RATE,
+    HealthDataType.BLOOD_OXYGEN,
+    HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
+    HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+  ],
+  startTime: start,
+  endTime: end,
+);
+```
+
+### Time Range Patterns
+
+```dart
+// Last 24 hours
+final now = DateTime.now();
+final yesterday = now.subtract(Duration(hours: 24));
+
+// Today (since midnight)
+final today = DateTime(now.year, now.month, now.day);
+
+// This week
+final weekStart = now.subtract(Duration(days: now.weekday - 1));
+final weekStartMidnight = DateTime(weekStart.year, weekStart.month, weekStart.day);
+
+// This month
+final monthStart = DateTime(now.year, now.month, 1);
+
+// Custom range
+final customStart = DateTime(2024, 1, 1);
+final customEnd = DateTime(2024, 12, 31);
+```
+
+## Data Processing
+
+### Filtering by Recording Method
+
+```dart
+final data = await health.getHealthDataFromTypes(
+  types: [HealthDataType.STEPS],
+  startTime: start,
+  endTime: end,
+  // Exclude manual entries
+  recordingMethodsToFilter: [RecordingMethod.manual],
+);
+```
+
+### Removing Duplicates
+
+The plugin automatically removes duplicates, but you can also call explicitly:
+
+```dart
+List<HealthDataPoint> data = await health.getHealthDataFromTypes(...);
+data = health.removeDuplicates(data);
+```
+
+### Sorting Data
+
+```dart
+// Sort by date (newest first)
+data.sort((a, b) => b.dateTo.compareTo(a.dateTo));
+
+// Sort by date (oldest first)
+data.sort((a, b) => a.dateTo.compareTo(b.dateTo));
+
+// Sort by value
+data.sort((a, b) {
+  final aValue = (a.value as NumericHealthValue).numericValue;
+  final bValue = (b.value as NumericHealthValue).numericValue;
+  return bValue.compareTo(aValue);
+});
+```
+
+### Grouping by Type
+
+```dart
+Map<HealthDataType, List<HealthDataPoint>> groupByType(
+  List<HealthDataPoint> data,
+) {
+  final Map<HealthDataType, List<HealthDataPoint>> grouped = {};
+  
+  for (var point in data) {
+    grouped.putIfAbsent(point.type, () => []);
+    grouped[point.type]!.add(point);
+  }
+  
+  return grouped;
+}
+
+// Usage
+final allData = await health.getHealthDataFromTypes(...);
+final grouped = groupByType(allData);
+
+print('Heart rate points: ${grouped[HealthDataType.HEART_RATE]?.length ?? 0}');
+print('Step points: ${grouped[HealthDataType.STEPS]?.length ?? 0}');
+```
+
+## Performance Considerations
+
+### Large Datasets
+
+For large time ranges, the plugin offloads parsing to isolates:
+
+```dart
+// The plugin automatically uses isolates for > 100 data points
+final data = await health.getHealthDataFromTypes(
+  types: [HealthDataType.HEART_RATE],
+  startTime: DateTime.now().subtract(Duration(days: 365)),
+  endTime: DateTime.now(),
+);
+// Parsing happens in background isolate automatically
+```
+
+### Pagination Pattern
+
+For very large datasets, fetch in chunks:
+
+```dart
+Future<List<HealthDataPoint>> fetchPaginated({
+  required List<HealthDataType> types,
+  required DateTime start,
+  required DateTime end,
+  Duration chunkSize = const Duration(days: 7),
+}) async {
+  final allData = <HealthDataPoint>[];
+  var currentStart = start;
+  
+  while (currentStart.isBefore(end)) {
+    final currentEnd = currentStart.add(chunkSize);
+    final chunk = await health.getHealthDataFromTypes(
+      types: types,
+      startTime: currentStart,
+      endTime: currentEnd.isAfter(end) ? end : currentEnd,
+    );
+    
+    allData.addAll(chunk);
+    currentStart = currentEnd;
+  }
+  
+  return health.removeDuplicates(allData);
+}
+```
+
+### Caching Strategy
+
+```dart
+class HealthDataCache {
+  final Map<String, CachedData> _cache = {};
+  final Duration _cacheExpiry = Duration(minutes: 5);
+  
+  Future<List<HealthDataPoint>> getWithCache({
+    required List<HealthDataType> types,
+    required DateTime start,
+    required DateTime end,
+  }) async {
+    final key = '${types.join(',')}_${start.toIso8601String()}_${end.toIso8601String()}';
+    
+    // Check cache
+    if (_cache.containsKey(key)) {
+      final cached = _cache[key]!;
+      if (DateTime.now().difference(cached.timestamp) < _cacheExpiry) {
+        return cached.data;
+      }
+    }
+    
+    // Fetch fresh data
+    final data = await health.getHealthDataFromTypes(
+      types: types,
+      startTime: start,
+      endTime: end,
+    );
+    
+    // Update cache
+    _cache[key] = CachedData(
+      data: data,
+      timestamp: DateTime.now(),
+    );
+    
+    return data;
+  }
+  
+  void clearCache() => _cache.clear();
+}
+
+class CachedData {
+  final List<HealthDataPoint> data;
+  final DateTime timestamp;
+  
+  CachedData({required this.data, required this.timestamp});
+}
+```
+
+## Error Handling
+
+### Common Errors
+
+```dart
+try {
+  final data = await health.getHealthDataFromTypes(
+    types: [HealthDataType.HEART_RATE],
+    startTime: start,
+    endTime: end,
+  );
+} on HealthException catch (e) {
+  // Specific health-related errors
+  print('Health error: ${e.dataType} - ${e.cause}');
+} on PlatformException catch (e) {
+  // Platform-specific errors
+  print('Platform error: ${e.code} - ${e.message}');
+} catch (e) {
+  // General errors
+  print('Unexpected error: $e');
+}
+```
+
+### Validation
+
+```dart
+Future<List<HealthDataPoint>> fetchHealthDataSafely({
+  required List<HealthDataType> types,
+  required DateTime start,
+  required DateTime end,
+}) async {
+  // Validate inputs
+  if (types.isEmpty) {
+    throw ArgumentError('types cannot be empty');
+  }
+  
+  if (start.isAfter(end)) {
+    throw ArgumentError('start must be before end');
+  }
+  
+  // Check permissions
+  final hasPerms = await health.hasPermissions(types);
+  if (hasPerms != true) {
+    throw StateError('Insufficient permissions');
+  }
+  
+  // Check availability (Android)
+  if (Platform.isAndroid) {
+    final available = await health.isHealthConnectAvailable();
+    if (!available) {
+      throw UnsupportedError('Health Connect not available');
+    }
+  }
+  
+  // Fetch data
+  return await health.getHealthDataFromTypes(
+    types: types,
+    startTime: start,
+    endTime: end,
+  );
+}
+```
+
+## Next Steps
+
+Choose the reading method that fits your use case:
+
+- **[Basic Reading](read-basic)** - Individual data points with full details
+- **[Interval Reading](read-interval)** - Time-bucketed aggregations
+- **[Aggregate Reading](read-aggregate)** - Multi-type summaries
+- **[Reading Steps](read-steps)** - Optimized step count queries

@@ -1,0 +1,71 @@
+---
+title: Install & Configure
+description: Flutter Health Plugin Installation and Configuration
+icon: download
+---
+
+Use this page to add the plugin dependency, initialize it, and wire permissions at a high level. Platform-specific configuration is on separate pages.
+
+<Steps>
+  <Step title="Add dependency">
+    <CodeGroup>
+    ```bash pub.dev
+    flutter pub add health
+    ```
+
+    ```yaml Manully from path
+    # pubspec.yaml
+    dependencies:
+    health:
+        path: ../carp-health-flutter  # or use your published package source
+    ```
+    </CodeGroup>
+
+    If you use a published version instead of the local path, replace with the appropriate version constraint.
+  </Step>
+  <Step title="Initialize the plugin">
+    ```dart
+    import 'package:health/health.dart';
+
+    final health = Health();
+
+    Future<void> bootstrap() async {
+    // Must be called once before using any methods
+    await health.configure();
+    }
+    ```
+    The `configure()` resolves a stable device identifier and registers JSON factories. You can pass a custom `DeviceInfoPlugin` to `Health()` for testing.
+        
+  </Step>
+  <Step title="Request permissions when needed">
+    
+    ```dart
+    final types = [
+    HealthDataType.STEPS,
+    HealthDataType.HEART_RATE,
+    HealthDataType.WEIGHT,
+    ];
+
+    final permissions = types.map((t) => HealthDataAccess.READ_WRITE).toList();
+
+    final hasPerms = await health.hasPermissions(types, permissions: permissions);
+    if (hasPerms != true) {
+    final ok = await health.requestAuthorization(types, permissions: permissions);
+    if (!ok) {
+        // Show guidance to user
+    }
+    }
+    ```
+
+    On iOS, some types only support READ. On Android, WRITE for certain ECG-related event types is not allowed. The plugin validates and throws `ArgumentError` for illegal combinations.
+  </Step>
+  <Step title="Platform-specific setup">
+    - Android: Health Connect permissions in `AndroidManifest.xml`, activity recognition, optional history/background permissions, and Health Connect install flow.
+    - iOS: Enable HealthKit capability and add `NSHealthShareUsageDescription` and `NSHealthUpdateUsageDescription` to `Info.plist`.
+  </Step>
+</Steps>
+
+Follow the dedicated guides:
+
+- [Platform setup (Android)](platform-android)
+- [Platform setup (iOS)](platform-ios)

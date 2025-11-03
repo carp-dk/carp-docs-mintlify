@@ -1,0 +1,146 @@
+# Writing & deleting data
+
+## Generic write
+
+Use `writeHealthData` for most numerical types. Units default per type but can be provided on iOS.
+
+```dart
+final ok = await health.writeHealthData(
+  value: 70,
+  type: HealthDataType.HEART_RATE,
+  startTime: start,
+  endTime: end,
+  recordingMethod: RecordingMethod.manual, // iOS: only manual/automatic
+);
+```
+
+> Values for Sleep and Headache types are ignored; the plugin sets the correct categorical value automatically based on the type.
+
+## Workouts
+
+```dart
+final ok = await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.RUNNING,
+  start: start,
+  end: end,
+  totalEnergyBurned: 400, // kcal (iOS)
+  totalDistance: 3000,    // meter (iOS)
+  title: 'Evening run',    // used on Android Health Connect
+  recordingMethod: RecordingMethod.automatic,
+);
+```
+
+- Activity types are platform-specific. The plugin validates and throws if unsupported on the current platform.
+
+## Blood pressure
+
+```dart
+await health.writeBloodPressure(
+  systolic: 120,
+  diastolic: 80,
+  startTime: time,
+  clientRecordId: 'my-id-1', // optional
+  clientRecordVersion: 1.0,  // optional
+);
+```
+
+## Blood oxygen
+
+```dart
+await health.writeBloodOxygen(
+  saturation: 98.0,
+  startTime: time,
+  recordingMethod: RecordingMethod.automatic,
+);
+```
+
+## Nutrition (meal)
+
+```dart
+await health.writeMeal(
+  mealType: MealType.DINNER,
+  startTime: start,
+  endTime: end,
+  name: 'Pasta',
+  caloriesConsumed: 850,
+  protein: 32,
+  fatTotal: 28,
+  carbohydrates: 110,
+  // ...many micronutrients supported; pass what you have
+);
+```
+
+## Menstruation flow
+
+```dart
+await health.writeMenstruationFlow(
+  flow: MenstrualFlow.medium,
+  isStartOfCycle: true,
+  startTime: start,
+  endTime: end,
+);
+```
+
+## Audiogram (iOS only)
+
+```dart
+await health.writeAudiogram(
+  frequencies: [125, 500, 1000, 2000, 4000, 8000],
+  leftEarSensitivities:  [49, 54, 89, 52, 77, 35],
+  rightEarSensitivities: [76, 66, 90, 22, 85, 45],
+  startTime: start,
+  endTime: end,
+  metadata: {
+    'HKExternalUUID': 'your-id',
+    'HKDeviceName': 'device name',
+  },
+);
+```
+
+## Insulin delivery (iOS only)
+
+```dart
+await health.writeInsulinDelivery(
+  5.0,
+  InsulinDeliveryReason.BOLUS,
+  start,
+  end,
+);
+```
+
+## Delete data
+
+Delete by type and interval:
+
+```dart
+await health.delete(
+  type: HealthDataType.STEPS,
+  startTime: start,
+  endTime: end,
+);
+```
+
+Delete a specific record by UUID:
+
+```dart
+await health.deleteByUUID(
+  uuid: 'A91A2F10-3D7B-486A-B140-5ADCD3C9C6D0',
+  type: HealthDataType.WORKOUT, // required on iOS
+);
+```
+
+Delete by client record id (Android Health Connect):
+
+```dart
+await health.deleteByClientRecordId(
+  dataTypeKey: HealthDataType.ACTIVE_ENERGY_BURNED,
+  clientRecordId: 'my-id-1',
+);
+```
+
+## Constraints & errors
+
+- Start time must be less than or equal to end time (&lt;=); otherwise an `ArgumentError` is thrown.
+- For ECG/events (`ELECTROCARDIOGRAM`, `HIGH_HEART_RATE_EVENT`, `LOW_HEART_RATE_EVENT`, `IRREGULAR_HEART_RATE_EVENT`, `WALKING_HEART_RATE`, `ATRIAL_FIBRILLATION_BURDEN`), WRITE is not allowed; requesting WRITE permissions throws.
+- On iOS, `recordingMethod` must be `manual` or `automatic`.
+- If the data type is not supported on the current platform, a `HealthException` is thrown.

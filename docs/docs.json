@@ -35,6 +35,76 @@
         ]
       },
       {
+        "tab": "Flutter Plugins",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "flutter-health/overview",
+              "flutter-health/install",
+              "flutter-health/quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "icon": "lightbulb",
+            "pages": [
+              "flutter-health/permissions",
+              "flutter-health/data-types",
+              "flutter-health/health-connect"
+            ]
+          },
+          {
+            "group": "Reading Data",
+            "icon": "book-open",
+            "pages": [
+              "flutter-health/read-overview",
+              "flutter-health/read-basic",
+              "flutter-health/read-interval",
+              "flutter-health/read-aggregate",
+              "flutter-health/read-steps"
+            ]
+          },
+          {
+            "group": "Writing Data",
+            "icon": "pen-to-square",
+            "pages": [
+              "flutter-health/write-overview",
+              "flutter-health/write-basic",
+              "flutter-health/write-workouts",
+              "flutter-health/write-blood",
+              "flutter-health/write-nutrition",
+              "flutter-health/write-specialized"
+            ]
+          },
+          {
+            "group": "Deleting Data",
+            "icon": "trash",
+            "pages": [
+              "flutter-health/delete-data"
+            ]
+          },
+          {
+            "group": "Platform Setup",
+            "icon": "mobile",
+            "pages": [
+              "flutter-health/platform-android",
+              "flutter-health/platform-ios"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "icon": "code",
+            "pages": [
+              "flutter-health/api-health-class",
+              "flutter-health/api-data-models",
+              "flutter-health/api-enums"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "API Reference",
         "groups": [
           {

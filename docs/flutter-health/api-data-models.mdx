@@ -1,0 +1,352 @@
+# Data Models
+
+Reference for health data models and value types.
+
+## HealthDataPoint
+
+The primary model representing a single health data point.
+
+### Properties
+
+```dart
+class HealthDataPoint {
+  final String uuid;
+  final double value;
+  final HealthDataType type;
+  final HealthDataUnit unit;
+  final DateTime dateFrom;
+  final DateTime dateTo;
+  final String sourcePlatform;
+  final String sourceId;
+  final String sourceName;
+  final RecordingMethod recordingMethod;
+  final HealthValue healthValue;
+}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `uuid` | `String` | Unique identifier (iOS) |
+| `value` | `double` | Numeric value (deprecated, use `healthValue`) |
+| `type` | `HealthDataType` | Type of health data |
+| `unit` | `HealthDataUnit` | Unit of measurement |
+| `dateFrom` | `DateTime` | Start time/measurement time |
+| `dateTo` | `DateTime` | End time |
+| `sourcePlatform` | `String` | Platform (iOS/Android) |
+| `sourceId` | `String` | Source application ID |
+| `sourceName` | `String` | Source application name |
+| `recordingMethod` | `RecordingMethod` | How data was recorded |
+| `healthValue` | `HealthValue` | Polymorphic value object |
+
+### Example Usage
+
+```dart
+final dataPoints = await health.getHealthDataFromTypes(
+  types: [HealthDataType.STEPS],
+  startDate: DateTime.now().subtract(Duration(days: 1)),
+  endDate: DateTime.now(),
+);
+
+for (var point in dataPoints) {
+  print('Type: ${point.type}');
+  print('Value: ${point.value}');
+  print('Unit: ${point.unit}');
+  print('From: ${point.dateFrom}');
+  print('To: ${point.dateTo}');
+  print('Source: ${point.sourceName}');
+}
+```
+
+## HealthValue Types
+
+The `healthValue` property contains type-specific data.
+
+### NumericHealthValue
+
+For numeric measurements (steps, weight, heart rate, etc.)
+
+```dart
+class NumericHealthValue extends HealthValue {
+  final double numericValue;
+}
+```
+
+**Example:**
+
+```dart
+final point = dataPoints.first;
+if (point.value is NumericHealthValue) {
+  final numeric = point.value as NumericHealthValue;
+  print('Value: ${numeric.numericValue}');
+}
+```
+
+**Used by:** STEPS, WEIGHT, HEIGHT, HEART_RATE, BLOOD_GLUCOSE, BODY_TEMPERATURE, etc.
+
+### WorkoutHealthValue
+
+For workout/exercise data.
+
+```dart
+class WorkoutHealthValue extends HealthValue {
+  final HealthWorkoutActivityType workoutActivityType;
+  final double? totalEnergyBurned;
+  final HealthDataUnit? totalEnergyBurnedUnit;
+  final double? totalDistance;
+  final HealthDataUnit? totalDistanceUnit;
+}
+```
+
+**Example:**
+
+```dart
+if (point.value is WorkoutHealthValue) {
+  final workout = point.value as WorkoutHealthValue;
+  print('Activity: ${workout.workoutActivityType.name}');
+  print('Calories: ${workout.totalEnergyBurned ?? 0}');
+  print('Distance: ${workout.totalDistance ?? 0}');
+}
+```
+
+**Used by:** WORKOUT
+
+### AudiogramHealthValue
+
+For hearing test results.
+
+```dart
+class AudiogramHealthValue extends HealthValue {
+  final List<double> frequencies;
+  final List<double> leftEarSensitivities;
+  final List<double> rightEarSensitivities;
+}
+```
+
+**Example:**
+
+```dart
+if (point.value is AudiogramHealthValue) {
+  final audiogram = point.value as AudiogramHealthValue;
+  print('Frequencies: ${audiogram.frequencies}');
+  print('Left ear: ${audiogram.leftEarSensitivities}');
+  print('Right ear: ${audiogram.rightEarSensitivities}');
+}
+```
+
+**Used by:** AUDIOGRAM
+
+### ElectrocardiogramHealthValue
+
+For ECG/EKG data.
+
+```dart
+class ElectrocardiogramHealthValue extends HealthValue {
+  final List<ElectrocardiogramVoltageValue> voltageValues;
+  final double averageHeartRate;
+  final ElectrocardiogramClassification classification;
+  final double samplingFrequency;
+}
+```
+
+**Example:**
+
+```dart
+if (point.value is ElectrocardiogramHealthValue) {
+  final ecg = point.value as ElectrocardiogramHealthValue;
+  print('Heart rate: ${ecg.averageHeartRate} bpm');
+  print('Classification: ${ecg.classification}');
+  print('Samples: ${ecg.voltageValues.length}');
+}
+```
+
+**Used by:** ELECTROCARDIOGRAM
+
+### NutritionHealthValue
+
+For meal/nutrition data.
+
+```dart
+class NutritionHealthValue extends HealthValue {
+  final String? name;
+  final double? calories;
+  final double? protein;
+  final double? carbs;
+  final double? fat;
+  final double? fiber;
+  final double? sugar;
+  final double? caffeine;
+  final double? vitaminA;
+  final double? vitaminC;
+  // ... many more micronutrients
+  final MealType? mealType;
+}
+```
+
+**Example:**
+
+```dart
+if (point.value is NutritionHealthValue) {
+  final nutrition = point.value as NutritionHealthValue;
+  print('Meal: ${nutrition.name}');
+  print('Type: ${nutrition.mealType}');
+  print('Calories: ${nutrition.calories ?? 0}');
+  print('Protein: ${nutrition.protein ?? 0}g');
+  print('Carbs: ${nutrition.carbs ?? 0}g');
+  print('Fat: ${nutrition.fat ?? 0}g');
+}
+```
+
+**Used by:** NUTRITION
+
+### InsulinDeliveryHealthValue
+
+For insulin dose data.
+
+```dart
+class InsulinDeliveryHealthValue extends HealthValue {
+  final double units;
+}
+```
+
+**Example:**
+
+```dart
+if (point.value is InsulinDeliveryHealthValue) {
+  final insulin = point.value as InsulinDeliveryHealthValue;
+  print('Insulin: ${insulin.units} units');
+}
+```
+
+**Used by:** INSULIN_DELIVERY
+
+### MenstruationFlowHealthValue
+
+For menstrual cycle data.
+
+```dart
+class MenstruationFlowHealthValue extends HealthValue {
+  final MenstruationFlow flow;
+  final bool isStartOfCycle;
+}
+```
+
+**Example:**
+
+```dart
+if (point.value is MenstruationFlowHealthValue) {
+  final menstruation = point.value as MenstruationFlowHealthValue;
+  print('Flow: ${menstruation.flow.name}');
+  print('Start of cycle: ${menstruation.isStartOfCycle}');
+}
+```
+
+**Used by:** MENSTRUATION_FLOW
+
+## WorkoutSummary
+
+Aggregated workout information (deprecated in favor of `WorkoutHealthValue`).
+
+```dart
+class WorkoutSummary {
+  final HealthWorkoutActivityType workoutType;
+  final DateTime startTime;
+  final DateTime endTime;
+  final double? totalDistance;
+  final HealthDataUnit? totalDistanceUnit;
+  final double? totalEnergyBurned;
+  final HealthDataUnit? totalEnergyBurnedUnit;
+}
+```
+
+## Type Checking Pattern
+
+```dart
+void processHealthValue(HealthDataPoint point) {
+  final value = point.healthValue;
+  
+  if (value is NumericHealthValue) {
+    print('Numeric: ${value.numericValue}');
+  } else if (value is WorkoutHealthValue) {
+    print('Workout: ${value.workoutActivityType.name}');
+  } else if (value is NutritionHealthValue) {
+    print('Meal: ${value.name}');
+  } else if (value is AudiogramHealthValue) {
+    print('Audiogram: ${value.frequencies.length} frequencies');
+  } else if (value is ElectrocardiogramHealthValue) {
+    print('ECG: ${value.averageHeartRate} bpm');
+  } else if (value is InsulinDeliveryHealthValue) {
+    print('Insulin: ${value.units} units');
+  } else if (value is MenstruationFlowHealthValue) {
+    print('Flow: ${value.flow.name}');
+  }
+}
+```
+
+## Value Type Summary
+
+| Value Type | Used For | Key Properties |
+|------------|----------|----------------|
+| `NumericHealthValue` | Most metrics | `numericValue` |
+| `WorkoutHealthValue` | Workouts | `workoutActivityType`, `totalEnergyBurned`, `totalDistance` |
+| `AudiogramHealthValue` | Hearing tests | `frequencies`, `leftEarSensitivities`, `rightEarSensitivities` |
+| `ElectrocardiogramHealthValue` | ECG data | `voltageValues`, `averageHeartRate`, `classification` |
+| `NutritionHealthValue` | Meals | `calories`, `protein`, `carbs`, `fat`, `mealType` |
+| `InsulinDeliveryHealthValue` | Insulin | `units` |
+| `MenstruationFlowHealthValue` | Menstruation | `flow`, `isStartOfCycle` |
+
+## Data Processing Helpers
+
+### Extracting Numeric Values
+
+```dart
+List<double> extractNumericValues(List<HealthDataPoint> points) {
+  return points
+      .where((p) => p.healthValue is NumericHealthValue)
+      .map((p) => (p.healthValue as NumericHealthValue).numericValue)
+      .toList();
+}
+```
+
+### Grouping by Type
+
+```dart
+Map<HealthDataType, List<HealthDataPoint>> groupByType(
+  List<HealthDataPoint> points,
+) {
+  final grouped = <HealthDataType, List<HealthDataPoint>>{};
+  
+  for (var point in points) {
+    grouped.putIfAbsent(point.type, () => []).add(point);
+  }
+  
+  return grouped;
+}
+```
+
+### Filtering by Source
+
+```dart
+List<HealthDataPoint> filterBySource(
+  List<HealthDataPoint> points,
+  String sourceName,
+) {
+  return points.where((p) => p.sourceName == sourceName).toList();
+}
+```
+
+### Filtering by Recording Method
+
+```dart
+List<HealthDataPoint> filterByRecordingMethod(
+  List<HealthDataPoint> points,
+  RecordingMethod method,
+) {
+  return points.where((p) => p.recordingMethod == method).toList();
+}
+```
+
+## See Also
+
+- [Health Class API](api-health-class) - Main API reference
+- [Enums](api-enums) - Enumeration types
+- [Basic Reading](read-basic) - Reading data points

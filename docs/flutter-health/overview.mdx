@@ -1,0 +1,263 @@
+---
+title: Overview
+description: Cross-platform Flutter plugin for health and fitness data
+icon: "heart-pulse"
+---
+
+<img
+  className="block"
+  src="/images/hero-light.svg"
+  alt="Hero Light"
+  style={{ display: 'none' }}
+/>
+
+## What is Flutter Health Plugin?
+
+The Flutter Health Plugin is a **cross-platform solution** for accessing health and fitness data in your Flutter apps. It provides a unified API that works seamlessly with:
+
+<CardGroup cols={2}>
+  <Card title="Apple HealthKit" icon="apple" iconType="duotone">
+    Access health data on iOS devices through Apple's native HealthKit framework
+  </Card>
+  <Card title="Google Health Connect" icon="android" iconType="duotone">
+    Read and write health data on Android using Google Health Connect
+  </Card>
+</CardGroup>
+
+## Why Use This Plugin?
+
+<AccordionGroup>
+  <Accordion title="Single API for Both Platforms" icon="code">
+    Write once, run everywhere. No need to learn platform-specific APIs or write separate code for iOS and Android.
+  </Accordion>
+  
+  <Accordion title="100+ Health Data Types" icon="database">
+    Access steps, heart rate, workouts, sleep, nutrition, blood pressure, and many more health metrics.
+  </Accordion>
+  
+  <Accordion title="Consistent Data Models" icon="table">
+    Get standardized data structures across platforms with automatic type conversions and unit handling.
+  </Accordion>
+  
+  <Accordion title="Built-in Helpers" icon="wand-magic-sparkles">
+    Special methods for workouts, nutrition, blood pressure, menstruation tracking, audiograms, and more.
+  </Accordion>
+</AccordionGroup>
+
+## What Can You Build?
+
+<CardGroup cols={2}>
+  <Card title="Fitness Apps" icon="dumbbell">
+    Track workouts, steps, calories, and activity levels
+  </Card>
+  <Card title="Health Monitoring" icon="heart-pulse">
+    Monitor vital signs like heart rate, blood pressure, and oxygen levels
+  </Card>
+  <Card title="Wellness Apps" icon="spa">
+    Track sleep, mindfulness, water intake, and daily activities
+  </Card>
+  <Card title="Medical Apps" icon="stethoscope">
+    Record blood glucose, medications, symptoms, and health measurements
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<Tabs>
+  <Tab title="Reading Data">
+    <Icon icon="book-open" size={32} />
+    
+    **Flexible Data Queries**
+    - Read individual data points
+    - Get time-bucketed aggregates (hourly, daily, weekly)
+    - Fetch workout summaries
+    - Calculate step totals
+    
+    ```dart
+    // Get last 24 hours of step data
+    final data = await health.getHealthDataFromTypes(
+      types: [HealthDataType.STEPS],
+      startDate: yesterday,
+      endDate: now,
+    );
+    ```
+  </Tab>
+  
+  <Tab title="Writing Data">
+    <Icon icon="pen-to-square" size={32} />
+    
+    **Easy Data Recording**
+    - Write numeric health data
+    - Save workout sessions
+    - Log meals with nutrition info
+    - Record specialized data (ECG, audiograms, etc.)
+    
+    ```dart
+    // Save weight measurement
+    await health.writeHealthData(
+      value: 70.5,
+      type: HealthDataType.WEIGHT,
+      startTime: DateTime.now(),
+    );
+    ```
+  </Tab>
+  
+  <Tab title="Permissions">
+    <Icon icon="shield-halved" size={32} />
+    
+    **Permission Management**
+    - Request granular permissions
+    - Check permission status
+    - Handle read/write access separately
+    - Platform-specific permission flows
+    
+    ```dart
+    // Request read access
+    final granted = await health.requestAuthorization(
+      [HealthDataType.STEPS],
+      permissions: [HealthDataAccess.READ],
+    );
+    ```
+  </Tab>
+</Tabs>
+
+## Requirements
+
+<Note>
+  **Minimum Versions**
+  - iOS 13.0 or higher
+  - Android with Health Connect (typically Android 9+)
+  - Flutter SDK 2.0 or higher
+</Note>
+
+### Platform Requirements
+
+<Tabs>
+  <Tab title="iOS" icon="apple">
+    - iOS 13.0+
+    - Xcode 12.0+
+    - HealthKit capability enabled
+    - Privacy descriptions in Info.plist
+  </Tab>
+  
+  <Tab title="Android" icon="android">
+    - Android API level 26+ (Android 8.0)
+    - Google Health Connect app installed
+    - Health Connect permissions in manifest
+    - Activity recognition permission (for steps)
+  </Tab>
+</Tabs>
+
+## How It Works
+
+<Steps>
+  <Step title="Setup Your Project">
+    Add the plugin to your `pubspec.yaml` and configure platform-specific settings
+    
+    [Go to Installation →](/flutter-health/install)
+  </Step>
+  
+  <Step title="Request Permissions">
+    Ask users for permission to access specific health data types
+    
+    [Learn about Permissions →](/flutter-health/permissions)
+  </Step>
+  
+  <Step title="Read or Write Data">
+    Use the Health API to read existing data or write new measurements
+    
+    [Reading Guide →](/flutter-health/read-overview) | [Writing Guide →](/flutter-health/write-overview)
+  </Step>
+</Steps>
+
+## Quick Example
+
+Here's a complete example to get you started:
+
+```dart
+import 'package:health/health.dart';
+
+// 1. Create Health instance
+final health = Health();
+await health.configure();
+
+// 2. Request permissions
+final types = [HealthDataType.STEPS];
+final granted = await health.requestAuthorization(types);
+
+if (granted) {
+  // 3. Read today's steps
+  final now = DateTime.now();
+  final midnight = DateTime(now.year, now.month, now.day);
+  final steps = await health.getTotalStepsInInterval(midnight, now);
+  
+  print('Steps today: ${steps ?? 0}');
+}
+```
+
+<Card title="Try the Full Example" icon="play" href="/flutter-health/quickstart">
+  Follow our quickstart guide for a step-by-step tutorial with more features
+</Card>
+
+## Supported Data
+
+The plugin supports over 100 health data types including:
+
+<CardGroup cols={3}>
+  <Card title="Activity" icon="person-running">
+    Steps, distance, calories, workouts, flights climbed
+  </Card>
+  <Card title="Body Measurements" icon="weight-scale">
+    Weight, height, BMI, body fat %, lean mass
+  </Card>
+  <Card title="Vital Signs" icon="heart-pulse">
+    Heart rate, blood pressure, blood oxygen, temperature
+  </Card>
+  <Card title="Nutrition" icon="utensils">
+    Meals, water, calories, macros, micronutrients
+  </Card>
+  <Card title="Sleep" icon="bed">
+    Sleep stages, in bed time, asleep time, REM, deep sleep
+  </Card>
+  <Card title="Reproductive" icon="venus">
+    Menstruation flow, cycle tracking
+  </Card>
+</CardGroup>
+
+[See all data types →](/flutter-health/data-types)
+
+## Platform Setup
+
+Before using the plugin, you need to configure each platform:
+
+<CardGroup cols={2}>
+  <Card title="Android Setup" icon="android" href="/flutter-health/platform-android">
+    Configure Health Connect permissions and manifest settings
+  </Card>
+  <Card title="iOS Setup" icon="apple" href="/flutter-health/platform-ios">
+    Enable HealthKit capability and add privacy descriptions
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/flutter-health/install">
+    Add the plugin to your Flutter project
+  </Card>
+  <Card title="Quickstart" icon="bolt" href="/flutter-health/quickstart">
+    Get up and running in 5 minutes
+  </Card>
+  <Card title="Core Concepts" icon="lightbulb" href="/flutter-health/permissions">
+    Understand permissions and data types
+  </Card>
+  <Card title="API Reference" icon="code" href="/flutter-health/api-health-class">
+    Explore the complete API documentation
+  </Card>
+</CardGroup>
+
+---
+
+<Tip>
+  **Need Help?** Check out the [example app](https://github.com/cph-cachet/flutter-plugins/tree/master/packages/health/example) for a complete working implementation with UI.
+</Tip>

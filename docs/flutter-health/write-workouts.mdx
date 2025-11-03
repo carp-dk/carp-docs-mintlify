@@ -1,0 +1,374 @@
+# Writing Workouts
+
+Write exercise sessions using `writeWorkoutData`.
+
+## Method Signature
+
+```dart
+Future<bool> writeWorkoutData({
+  required HealthWorkoutActivityType activityType,
+  required DateTime start,
+  required DateTime end,
+  double? totalEnergyBurned,
+  int? totalEnergyBurnedUnit,
+  double? totalDistance,
+  int? totalDistanceUnit,
+})
+```
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `activityType` | `HealthWorkoutActivityType` | Yes | Type of workout activity |
+| `start` | `DateTime` | Yes | Workout start time |
+| `end` | `DateTime` | Yes | Workout end time |
+| `totalEnergyBurned` | `double` | No | Calories burned |
+| `totalEnergyBurnedUnit` | `int` | No | Energy unit (default: kilocalories) |
+| `totalDistance` | `double` | No | Distance covered |
+| `totalDistanceUnit` | `int` | No | Distance unit (default: meters) |
+
+## Returns
+
+- `true`: Workout saved successfully
+- `false`: Write failed
+
+## Common Workout Types
+
+### Running
+
+```dart
+await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.RUNNING,
+  start: workoutStart,
+  end: workoutEnd,
+  totalDistance: 5000.0, // 5 km in meters
+  totalEnergyBurned: 350.0, // kcal
+);
+```
+
+### Cycling
+
+```dart
+await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.CYCLING,
+  start: DateTime.now().subtract(Duration(hours: 1)),
+  end: DateTime.now(),
+  totalDistance: 15000.0, // 15 km
+  totalEnergyBurned: 400.0,
+);
+```
+
+### Swimming
+
+```dart
+await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.SWIMMING_OPEN_WATER,
+  start: workoutStart,
+  end: workoutEnd,
+  totalDistance: 1500.0, // 1.5 km
+  totalEnergyBurned: 300.0,
+);
+```
+
+### Strength Training
+
+```dart
+await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.TRADITIONAL_STRENGTH_TRAINING,
+  start: workoutStart,
+  end: workoutEnd,
+  totalEnergyBurned: 200.0,
+  // No distance for strength training
+);
+```
+
+### Yoga
+
+```dart
+await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.YOGA,
+  start: DateTime.now().subtract(Duration(minutes: 60)),
+  end: DateTime.now(),
+  totalEnergyBurned: 150.0,
+);
+```
+
+## Available Activity Types
+
+Common workout types include:
+
+- `WALKING`
+- `RUNNING`
+- `CYCLING`
+- `SWIMMING_OPEN_WATER`
+- `SWIMMING_POOL`
+- `HIKING`
+- `YOGA`
+- `TRADITIONAL_STRENGTH_TRAINING`
+- `FUNCTIONAL_STRENGTH_TRAINING`
+- `HIGH_INTENSITY_INTERVAL_TRAINING`
+- `DANCING`
+- `ELLIPTICAL`
+- `STAIR_CLIMBING`
+- `ROWING`
+- `SOCCER`
+- `BASKETBALL`
+- `TENNIS`
+- `GOLF`
+- `SKIING`
+- And many more...
+
+See the full list in `HealthWorkoutActivityType` enum.
+
+## Complete Workout Tracking Example
+
+```dart
+class WorkoutSession {
+  final HealthWorkoutActivityType type;
+  final DateTime startTime;
+  DateTime? endTime;
+  double distance = 0.0;
+  double calories = 0.0;
+  
+  WorkoutSession({
+    required this.type,
+    DateTime? start,
+  }) : startTime = start ?? DateTime.now();
+  
+  void finish({double? distance, double? calories}) {
+    endTime = DateTime.now();
+    this.distance = distance ?? 0.0;
+    this.calories = calories ?? 0.0;
+  }
+  
+  Future<bool> save(Health health) async {
+    if (endTime == null) {
+      throw StateError('Workout not finished');
+    }
+    
+    return await health.writeWorkoutData(
+      activityType: type,
+      start: startTime,
+      end: endTime!,
+      totalDistance: distance,
+      totalEnergyBurned: calories,
+    );
+  }
+}
+
+// Usage
+final workout = WorkoutSession(
+  type: HealthWorkoutActivityType.RUNNING,
+);
+
+// ... workout in progress ...
+
+workout.finish(distance: 5000.0, calories: 350.0);
+final saved = await workout.save(health);
+
+if (saved) {
+  print('Workout saved!');
+}
+```
+
+## Automatic Calorie Estimation
+
+Estimate calories if not measured:
+
+```dart
+double estimateCalories({
+  required HealthWorkoutActivityType type,
+  required Duration duration,
+  required double weightKg,
+}) {
+  // MET values (Metabolic Equivalent of Task)
+  final metValues = {
+    HealthWorkoutActivityType.WALKING: 3.5,
+    HealthWorkoutActivityType.RUNNING: 9.8,
+    HealthWorkoutActivityType.CYCLING: 7.5,
+    HealthWorkoutActivityType.SWIMMING_OPEN_WATER: 8.0,
+    HealthWorkoutActivityType.YOGA: 2.5,
+    // Add more as needed
+  };
+  
+  final met = metValues[type] ?? 5.0; // Default to moderate intensity
+  final hours = duration.inMinutes / 60.0;
+  
+  // Calories = MET × weight (kg) × duration (hours)
+  return met * weightKg * hours;
+}
+
+// Usage
+final duration = workoutEnd.difference(workoutStart);
+final estimatedCalories = estimateCalories(
+  type: HealthWorkoutActivityType.RUNNING,
+  duration: duration,
+  weightKg: 70.0,
+);
+
+await health.writeWorkoutData(
+  activityType: HealthWorkoutActivityType.RUNNING,
+  start: workoutStart,
+  end: workoutEnd,
+  totalDistance: 5000.0,
+  totalEnergyBurned: estimatedCalories,
+);
+```
+
+## Workout with Tracking
+
+```dart
+class LiveWorkoutTracker {
+  final Health health;
+  final HealthWorkoutActivityType type;
+  late DateTime startTime;
+  double totalDistance = 0.0;
+  double totalCalories = 0.0;
+  
+  LiveWorkoutTracker({
+    required this.health,
+    required this.type,
+  });
+  
+  void start() {
+    startTime = DateTime.now();
+    print('Workout started: ${type.name}');
+  }
+  
+  void updateMetrics(double distance, double calories) {
+    totalDistance += distance;
+    totalCalories += calories;
+    print('Distance: ${totalDistance}m, Calories: ${totalCalories}');
+  }
+  
+  Future<bool> finish() async {
+    final endTime = DateTime.now();
+    final duration = endTime.difference(startTime);
+    
+    print('Workout finished: ${duration.inMinutes} minutes');
+    
+    return await health.writeWorkoutData(
+      activityType: type,
+      start: startTime,
+      end: endTime,
+      totalDistance: totalDistance,
+      totalEnergyBurned: totalCalories,
+    );
+  }
+}
+
+// Usage
+final tracker = LiveWorkoutTracker(
+  health: health,
+  type: HealthWorkoutActivityType.RUNNING,
+);
+
+tracker.start();
+
+// During workout
+tracker.updateMetrics(500.0, 35.0); // Every 500m
+tracker.updateMetrics(500.0, 35.0);
+// ...
+
+final saved = await tracker.finish();
+```
+
+## Multi-Segment Workouts
+
+For complex workouts with different phases:
+
+```dart
+Future<void> saveMultiSegmentWorkout() async {
+  final workoutStart = DateTime.now().subtract(Duration(hours: 1));
+  
+  // Warm-up: 10 minutes walking
+  await health.writeWorkoutData(
+    activityType: HealthWorkoutActivityType.WALKING,
+    start: workoutStart,
+    end: workoutStart.add(Duration(minutes: 10)),
+    totalDistance: 800.0,
+    totalEnergyBurned: 40.0,
+  );
+  
+  // Main workout: 30 minutes running
+  await health.writeWorkoutData(
+    activityType: HealthWorkoutActivityType.RUNNING,
+    start: workoutStart.add(Duration(minutes: 10)),
+    end: workoutStart.add(Duration(minutes: 40)),
+    totalDistance: 5000.0,
+    totalEnergyBurned: 300.0,
+  );
+  
+  // Cool-down: 10 minutes walking
+  await health.writeWorkoutData(
+    activityType: HealthWorkoutActivityType.WALKING,
+    start: workoutStart.add(Duration(minutes: 40)),
+    end: workoutStart.add(Duration(minutes: 50)),
+    totalDistance: 600.0,
+    totalEnergyBurned: 30.0,
+  );
+}
+```
+
+## Platform Differences
+
+<Tabs>
+  <Tab title="iOS (HealthKit)">
+    - Supports all `HealthWorkoutActivityType` values
+    - Workouts appear in Apple Fitness app
+    - Can include route data (requires separate API)
+    - Automatic heart rate association if available
+  </Tab>
+  <Tab title="Android (Health Connect)">
+    - Activity types mapped to Health Connect exercise types
+    - Some iOS-specific types may not have exact Android equivalent
+    - Requires Health Connect SDK
+    - May not display all workout details in all apps
+  </Tab>
+</Tabs>
+
+## Validation
+
+```dart
+Future<bool> writeValidatedWorkout({
+  required HealthWorkoutActivityType type,
+  required DateTime start,
+  required DateTime end,
+  double? distance,
+  double? calories,
+}) async {
+  // Validate duration
+  final duration = end.difference(start);
+  if (duration.isNegative || duration.inSeconds < 60) {
+    print('Invalid workout duration');
+    return false;
+  }
+  
+  // Validate distance
+  if (distance != null && distance < 0) {
+    print('Invalid distance');
+    return false;
+  }
+  
+  // Validate calories
+  if (calories != null && (calories < 0 || calories > 10000)) {
+    print('Invalid calorie value');
+    return false;
+  }
+  
+  return await health.writeWorkoutData(
+    activityType: type,
+    start: start,
+    end: end,
+    totalDistance: distance,
+    totalEnergyBurned: calories,
+  );
+}
+```
+
+## See Also
+
+- [Aggregate Reading](read-aggregate) - Read workout summaries
+- [Basic Writing](write-basic) - Write simple numeric data
+- [Data Types](data-types) - Understanding workout data

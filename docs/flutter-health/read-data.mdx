@@ -1,0 +1,84 @@
+# Reading data
+
+The `Health` class provides multiple ways to read data points.
+
+## Granular data points
+
+Use `getHealthDataFromTypes` to fetch individual points between two timestamps.
+
+```dart
+final points = await health.getHealthDataFromTypes(
+  types: [
+    HealthDataType.HEART_RATE,
+    HealthDataType.STEPS,
+  ],
+  startTime: start,
+  endTime: end,
+  // Optional: filter out entries by recording method
+  recordingMethodsToFilter: const [
+    // RecordingMethod.manual,
+  ],
+  // Optional: request a specific unit per type
+  preferredUnits: {
+    HealthDataType.HEIGHT: HealthDataUnit.METER,
+  },
+);
+```
+
+Notes
+
+- Some types will normalize their value (e.g., sleep/headache types convert to minutes based on the time interval).
+- On Android, BMI values are computed by the plugin using the latest weight and height if requested.
+
+## Interval (bucketed) data
+
+Use `getHealthIntervalDataFromTypes` to aggregate into fixed-length buckets (e.g., daily sums or averages as defined by the native APIs):
+
+```dart
+final buckets = await health.getHealthIntervalDataFromTypes(
+  startDate: DateTime.now().subtract(const Duration(days: 7)),
+  endDate: DateTime.now(),
+  types: [HealthDataType.BLOOD_OXYGEN, HealthDataType.STEPS],
+  interval: 86400, // seconds (1 day)
+);
+```
+
+## Aggregate data (multi-type)
+
+Use `getHealthAggregateDataFromTypes` for aggregate summaries across multiple types in one call (e.g., workouts summary data). You can control whether manual entries are included and the activity segment duration.
+
+```dart
+final aggregates = await health.getHealthAggregateDataFromTypes(
+  types: [
+    HealthDataType.WORKOUT,
+    HealthDataType.TOTAL_CALORIES_BURNED,
+  ],
+  startDate: start,
+  endDate: end,
+  activitySegmentDuration: 1, // minutes
+  includeManualEntry: true,
+);
+```
+
+## Fetch by UUID (iOS only)
+
+Fetch a single `HealthDataPoint` by its UUID and type. Returns `null` if not found.
+
+```dart
+final dp = await health.getHealthDataByUUID(
+  uuid: '<record-uuid>',
+  type: HealthDataType.WORKOUT,
+);
+```
+
+## Duplicates
+
+The plugin removes duplicate points using a `LinkedHashSet`. You can also call `removeDuplicates(points)` on your own lists.
+
+## Recording method
+
+Each `HealthDataPoint` has a `recordingMethod`:
+
+- `automatic`, `manual`, `active`, or `unknown`
+- On iOS, only `automatic` or `manual` are valid for writes; reads map to those as available.
+- On Android, all four may be present based on Health Connect metadata.

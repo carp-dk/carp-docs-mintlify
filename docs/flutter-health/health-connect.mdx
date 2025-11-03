@@ -1,0 +1,607 @@
+# Health Connect (Android)
+
+Complete guide to Google Health Connect specific features and management.
+
+## Overview
+
+Google Health Connect (GHC) is Android's centralized health data repository. Unlike iOS's built-in HealthKit, Health Connect may not be pre-installed on all Android devices.
+
+## Checking Health Connect Status
+
+### getHealthConnectSdkStatus()
+
+Get the current Health Connect SDK availability status.
+
+```dart
+Future<HealthConnectSdkStatus?> getHealthConnectSdkStatus()
+```
+
+#### Returns
+
+Returns `HealthConnectSdkStatus` enum or `null` on error:
+
+| Status | Value | Description |
+|--------|-------|-------------|
+| `sdkAvailable` | 3 | Health Connect is installed and ready |
+| `sdkUnavailableProviderUpdateRequired` | 2 | Needs Health Connect provider update |
+| `sdkUnavailable` | 1 | Health Connect not available |
+
+#### Example
+
+```dart
+final status = await health.getHealthConnectSdkStatus();
+
+switch (status) {
+  case HealthConnectSdkStatus.sdkAvailable:
+    print('Health Connect is ready');
+    break;
+  case HealthConnectSdkStatus.sdkUnavailableProviderUpdateRequired:
+    print('Health Connect needs update');
+    break;
+  case HealthConnectSdkStatus.sdkUnavailable:
+    print('Health Connect not installed');
+    break;
+  case null:
+    print('Error checking status');
+}
+```
+
+#### Status Caching
+
+The plugin caches the status in `health.healthConnectSdkStatus`:
+
+```dart
+// Check cached status
+HealthConnectSdkStatus currentStatus = health.healthConnectSdkStatus;
+
+// Refresh status
+await health.getHealthConnectSdkStatus();
+HealthConnectSdkStatus updatedStatus = health.healthConnectSdkStatus;
+```
+
+## Checking Availability
+
+### isHealthConnectAvailable()
+
+Simple boolean check if Health Connect is available.
+
+```dart
+Future<bool> isHealthConnectAvailable()
+```
+
+#### Returns
+
+- `true`: Health Connect is installed and ready
+- `false`: Health Connect unavailable or needs update
+
+#### Example
+
+```dart
+bool available = await health.isHealthConnectAvailable();
+
+if (!available) {
+  // Prompt user to install
+  _showHealthConnectInstallDialog();
+}
+```
+
+#### Best Practice
+
+Always check before any health operations:
+
+```dart
+Future<void> ensureHealthConnectReady() async {
+  if (!await health.isHealthConnectAvailable()) {
+    throw HealthException(
+      null,
+      'Health Connect is not available. Please install it first.',
+    );
+  }
+}
+
+Future<void> fetchHealthData() async {
+  await ensureHealthConnectReady();
+  
+  // Now safe to proceed
+  final data = await health.getHealthDataFromTypes(...);
+}
+```
+
+## Installing Health Connect
+
+### installHealthConnect()
+
+Open the app store to install or update Health Connect.
+
+```dart
+Future<void> installHealthConnect()
+```
+
+#### Behavior
+
+- Opens Google Play Store to Health Connect app
+- User must manually install/update
+- Returns immediately after opening store
+- No return value or success indicator
+
+#### Example: Installation Flow
+
+```dart
+Future<void> setupHealthConnect() async {
+  // Check availability
+  final available = await health.isHealthConnectAvailable();
+  
+  if (!available) {
+    // Show dialog explaining Health Connect
+    final shouldInstall = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Install Health Connect'),
+        content: Text(
+          'This app requires Health Connect to access health data. '
+          'Would you like to install it now?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Install'),
+          ),
+        ],
+      ),
+    );
+    
+    if (shouldInstall == true) {
+      await health.installHealthConnect();
+    }
+  }
+}
+```
+
+#### Example: Status-Based Installation
+
+```dart
+Future<void> handleHealthConnectStatus() async {
+  final status = await health.getHealthConnectSdkStatus();
+  
+  switch (status) {
+    case HealthConnectSdkStatus.sdkAvailable:
+      // Ready to use
+      break;
+      
+    case HealthConnectSdkStatus.sdkUnavailableProviderUpdateRequired:
+      // Need update
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Update Required'),
+          content: Text('Please update Health Connect to continue.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                health.installHealthConnect();
+                Navigator.pop(context);
+              },
+              child: Text('Update'),
+            ),
+          ],
+        ),
+      );
+      break;
+      
+    case HealthConnectSdkStatus.sdkUnavailable:
+    case null:
+      // Need installation
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Health Connect Required'),
+          content: Text('Please install Health Connect to use this app.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                health.installHealthConnect();
+                Navigator.pop(context);
+              },
+              child: Text('Install'),
+            ),
+          ],
+        ),
+      );
+      break;
+  }
+}
+```
+
+## Historical Data Access
+
+Health Connect allows reading historical data beyond 30 days if explicitly authorized.
+
+### isHealthDataHistoryAvailable()
+
+Check if the device supports historical data access.
+
+```dart
+Future<bool> isHealthDataHistoryAvailable()
+```
+
+#### Returns
+
+- `true`: Device supports historical data permission
+- `false`: Feature not available (older devices/SDK)
+
+#### Example
+
+```dart
+bool historyAvailable = await health.isHealthDataHistoryAvailable();
+
+if (historyAvailable) {
+  print('Can request historical data access');
+} else {
+  print('Historical data not supported on this device');
+}
+```
+
+### isHealthDataHistoryAuthorized()
+
+Check if historical data permission has been granted.
+
+```dart
+Future<bool> isHealthDataHistoryAuthorized()
+```
+
+#### Returns
+
+- `true`: Historical data access granted
+- `false`: Not granted or feature unavailable
+
+#### Example
+
+```dart
+bool hasHistory = await health.isHealthDataHistoryAuthorized();
+
+if (!hasHistory) {
+  // Request permission
+  await health.requestHealthDataHistoryAuthorization();
+}
+```
+
+### requestHealthDataHistoryAuthorization()
+
+Request permission to access historical health data (>30 days old).
+
+```dart
+Future<bool> requestHealthDataHistoryAuthorization()
+```
+
+#### Returns
+
+- `true`: Permission granted
+- `false`: Permission denied or error
+
+#### Example: Complete Historical Data Setup
+
+```dart
+Future<bool> setupHistoricalAccess() async {
+  // 1. Check if feature is available
+  final available = await health.isHealthDataHistoryAvailable();
+  if (!available) {
+    print('Historical data not supported');
+    return false;
+  }
+  
+  // 2. Check current authorization
+  final authorized = await health.isHealthDataHistoryAuthorized();
+  if (authorized) {
+    print('Already authorized');
+    return true;
+  }
+  
+  // 3. Request permission
+  final granted = await health.requestHealthDataHistoryAuthorization();
+  
+  if (granted) {
+    print('Historical access granted');
+  } else {
+    print('User denied historical access');
+  }
+  
+  return granted;
+}
+```
+
+#### Use Case: Long-Term Analysis
+
+```dart
+Future<void> fetchLongTermData() async {
+  // Ensure historical access
+  final hasHistoricalAccess = await health.isHealthDataHistoryAuthorized();
+  
+  if (!hasHistoricalAccess) {
+    final granted = await health.requestHealthDataHistoryAuthorization();
+    if (!granted) {
+      throw Exception('Historical data access required for this feature');
+    }
+  }
+  
+  // Now can fetch data from any time period
+  final data = await health.getHealthDataFromTypes(
+    types: [HealthDataType.WEIGHT],
+    startTime: DateTime.now().subtract(Duration(days: 365)), // 1 year ago
+    endTime: DateTime.now(),
+  );
+  
+  print('Fetched ${data.length} historical data points');
+}
+```
+
+## Background Data Access
+
+Health Connect supports reading health data in the background.
+
+### isHealthDataInBackgroundAvailable()
+
+Check if background data access is supported.
+
+```dart
+Future<bool> isHealthDataInBackgroundAvailable()
+```
+
+#### Returns
+
+- `true`: Background access feature available
+- `false`: Not supported
+
+#### Example
+
+```dart
+bool backgroundAvailable = await health.isHealthDataInBackgroundAvailable();
+
+if (backgroundAvailable) {
+  print('Can request background data access');
+}
+```
+
+### isHealthDataInBackgroundAuthorized()
+
+Check if background data permission has been granted.
+
+```dart
+Future<bool> isHealthDataInBackgroundAuthorized()
+```
+
+#### Returns
+
+- `true`: Background access granted
+- `false`: Not granted or unavailable
+
+#### Example
+
+```dart
+bool hasBackground = await health.isHealthDataInBackgroundAuthorized();
+
+if (!hasBackground) {
+  await health.requestHealthDataInBackgroundAuthorization();
+}
+```
+
+### requestHealthDataInBackgroundAuthorization()
+
+Request permission to read health data in the background.
+
+```dart
+Future<bool> requestHealthDataInBackgroundAuthorization()
+```
+
+#### Returns
+
+- `true`: Permission granted
+- `false`: Permission denied or error
+
+#### Example: Background Sync Setup
+
+```dart
+Future<bool> setupBackgroundSync() async {
+  // 1. Check availability
+  final available = await health.isHealthDataInBackgroundAvailable();
+  if (!available) {
+    print('Background access not supported');
+    return false;
+  }
+  
+  // 2. Check current status
+  final authorized = await health.isHealthDataInBackgroundAuthorized();
+  if (authorized) {
+    print('Background access already granted');
+    return true;
+  }
+  
+  // 3. Request permission
+  final granted = await health.requestHealthDataInBackgroundAuthorization();
+  
+  if (granted) {
+    print('Background access granted');
+    // Initialize background worker
+    _initializeBackgroundWorker();
+  } else {
+    print('Background access denied');
+  }
+  
+  return granted;
+}
+```
+
+#### Use Case: Periodic Sync
+
+```dart
+Future<void> initializeHealthSync() async {
+  // Request background permission
+  final hasBackgroundAccess = 
+      await health.isHealthDataInBackgroundAuthorized();
+  
+  if (!hasBackgroundAccess) {
+    final granted = 
+        await health.requestHealthDataInBackgroundAuthorization();
+    if (!granted) {
+      print('Background sync not available - using foreground only');
+      return;
+    }
+  }
+  
+  // Setup WorkManager or similar for background tasks
+  Workmanager().registerPeriodicTask(
+    'health-sync',
+    'syncHealthData',
+    frequency: Duration(hours: 1),
+  );
+}
+```
+
+## Complete Health Connect Setup
+
+Comprehensive initialization flow:
+
+```dart
+class HealthConnectManager {
+  final Health health;
+  
+  HealthConnectManager(this.health);
+  
+  Future<HealthConnectSetupResult> initialize() async {
+    // Step 1: Check availability
+    final available = await health.isHealthConnectAvailable();
+    if (!available) {
+      return HealthConnectSetupResult.notInstalled;
+    }
+    
+    // Step 2: Request basic permissions
+    final types = [
+      HealthDataType.STEPS,
+      HealthDataType.HEART_RATE,
+      HealthDataType.WEIGHT,
+    ];
+    
+    final authorized = await health.requestAuthorization(types);
+    if (!authorized) {
+      return HealthConnectSetupResult.permissionsDenied;
+    }
+    
+    // Step 3: Request historical data (optional)
+    if (await health.isHealthDataHistoryAvailable()) {
+      await health.requestHealthDataHistoryAuthorization();
+    }
+    
+    // Step 4: Request background access (optional)
+    if (await health.isHealthDataInBackgroundAvailable()) {
+      await health.requestHealthDataInBackgroundAuthorization();
+    }
+    
+    return HealthConnectSetupResult.success;
+  }
+  
+  Future<void> promptInstallation(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text('Health Connect Required'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.health_and_safety, size: 64, color: Colors.blue),
+            SizedBox(height: 16),
+            Text(
+              'This app uses Health Connect to access and manage your health data securely.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Install Health Connect'),
+          ),
+        ],
+      ),
+    );
+    
+    if (result == true) {
+      await health.installHealthConnect();
+    }
+  }
+}
+
+enum HealthConnectSetupResult {
+  success,
+  notInstalled,
+  permissionsDenied,
+  error,
+}
+```
+
+## Error Handling
+
+All Health Connect operations should check availability first:
+
+```dart
+Future<T> withHealthConnectCheck<T>(
+  Future<T> Function() operation,
+) async {
+  // Check Health Connect availability
+  if (!await health.isHealthConnectAvailable()) {
+    throw UnsupportedError(
+      'Health Connect is not available. Please install it first.',
+    );
+  }
+  
+  // Perform operation
+  return await operation();
+}
+
+// Usage
+try {
+  final data = await withHealthConnectCheck(() {
+    return health.getHealthDataFromTypes(
+      types: [HealthDataType.STEPS],
+      startTime: DateTime.now().subtract(Duration(days: 7)),
+      endTime: DateTime.now(),
+    );
+  });
+} on UnsupportedError catch (e) {
+  // Handle Health Connect not available
+  await health.installHealthConnect();
+} catch (e) {
+  // Handle other errors
+  print('Error: $e');
+}
+```
+
+## Platform Type Detection
+
+Check if running on Health Connect platform:
+
+```dart
+HealthPlatformType platformType = health.platformType;
+
+if (platformType == HealthPlatformType.googleHealthConnect) {
+  // Android-specific code
+  final status = await health.getHealthConnectSdkStatus();
+  print('Health Connect status: ${status?.name}');
+} else if (platformType == HealthPlatformType.appleHealth) {
+  // iOS-specific code
+  print('Using Apple HealthKit');
+}
+```
+
+## See Also
+
+- [Permission Management](permissions) - Requesting and managing permissions
+- [Platform Setup (Android)](platform-android) - AndroidManifest configuration
+- [Reading Data](read-overview) - Fetching health data

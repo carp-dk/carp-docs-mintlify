@@ -1,0 +1,170 @@
+# Writing Data Overview
+
+Write health and fitness data to the platform's health store (iOS HealthKit / Android Health Connect).
+
+## Available Write Methods
+
+The Health plugin provides specialized methods for different data types:
+
+| Method | Data Types | Use Case |
+|--------|------------|----------|
+| `writeHealthData` | Most numeric types | General health metrics (weight, height, heart rate, blood glucose, etc.) |
+| `writeWorkoutData` | `WORKOUT` | Exercise sessions with activity types |
+| `writeBloodPressure` | `BLOOD_PRESSURE_*` | Systolic and diastolic readings |
+| `writeBloodOxygen` | `BLOOD_OXYGEN` | Blood oxygen saturation |
+| `writeMeal` | `NUTRITION` | Meals with macros and micronutrients |
+| `writeMenstruationFlow` | `MENSTRUATION_FLOW` | Menstrual cycle tracking |
+| `writeAudiogram` | `AUDIOGRAM` | Hearing test results |
+| `writeInsulinDelivery` | `INSULIN_DELIVERY` | Insulin doses |
+
+## Basic Writing Flow
+
+```dart
+// 1. Request write permissions
+final types = [HealthDataType.WEIGHT];
+final permissions = [HealthDataAccess.WRITE];
+
+await health.requestAuthorization(types, permissions: permissions);
+
+// 2. Write the data
+final success = await health.writeHealthData(
+  value: 70.5,
+  type: HealthDataType.WEIGHT,
+  startTime: DateTime.now(),
+);
+
+if (success) {
+  print('Weight saved successfully');
+} else {
+  print('Failed to save weight');
+}
+```
+
+## Common Patterns
+
+### Timestamping
+
+```dart
+// Current time (most common)
+await health.writeHealthData(
+  value: 72,
+  type: HealthDataType.HEART_RATE,
+  startTime: DateTime.now(),
+);
+
+// Specific past time
+await health.writeHealthData(
+  value: 98.6,
+  type: HealthDataType.BODY_TEMPERATURE,
+  startTime: DateTime(2024, 1, 15, 8, 30),
+);
+```
+
+### Error Handling
+
+```dart
+try {
+  final success = await health.writeHealthData(
+    value: 120,
+    type: HealthDataType.BLOOD_GLUCOSE,
+    startTime: DateTime.now(),
+  );
+  
+  if (success) {
+    print('Data saved');
+  } else {
+    print('Write failed - check permissions');
+  }
+} catch (e) {
+  print('Error: $e');
+}
+```
+
+### Batch Writing
+
+```dart
+Future<void> saveMultipleReadings() async {
+  final readings = [
+    {'type': HealthDataType.WEIGHT, 'value': 70.5},
+    {'type': HealthDataType.HEIGHT, 'value': 175.0},
+    {'type': HealthDataType.BODY_FAT_PERCENTAGE, 'value': 18.5},
+  ];
+  
+  for (var reading in readings) {
+    await health.writeHealthData(
+      value: reading['value'] as double,
+      type: reading['type'] as HealthDataType,
+      startTime: DateTime.now(),
+    );
+  }
+}
+```
+
+## Permission Requirements
+
+Always request **WRITE** permission before writing:
+
+```dart
+final writeTypes = [
+  HealthDataType.WEIGHT,
+  HealthDataType.HEIGHT,
+  HealthDataType.STEPS,
+];
+
+final granted = await health.requestAuthorization(
+  writeTypes,
+  permissions: List.filled(writeTypes.length, HealthDataAccess.WRITE),
+);
+```
+
+## Platform Differences
+
+<Tabs>
+  <Tab title="iOS (HealthKit)">
+    - Cannot read previously written data without READ permission
+    - Write operations return `true` on success
+    - Data appears immediately in Apple Health app
+    - Supports all value types
+  </Tab>
+  <Tab title="Android (Health Connect)">
+    - Requires Health Connect SDK to be available
+    - Write operations may return `false` if Health Connect is not installed
+    - Data syncs across connected apps
+    - Some specialized types may have limited support
+  </Tab>
+</Tabs>
+
+## Data Validation
+
+The plugin performs basic validation:
+
+```dart
+// ✅ Valid
+await health.writeHealthData(
+  value: 70.5,
+  type: HealthDataType.WEIGHT,
+  startTime: DateTime.now(),
+);
+
+// ❌ Invalid - negative weight
+await health.writeHealthData(
+  value: -70.5,
+  type: HealthDataType.WEIGHT,
+  startTime: DateTime.now(),
+); // May fail or be rejected by platform
+
+// ❌ Invalid - future timestamp
+await health.writeHealthData(
+  value: 70.5,
+  type: HealthDataType.WEIGHT,
+  startTime: DateTime.now().add(Duration(days: 1)),
+); // May fail or be rejected by platform
+```
+
+## See Also
+
+- [Basic Writing](write-basic) - Numeric health data
+- [Writing Workouts](write-workouts) - Exercise sessions
+- [Blood Pressure & Oxygen](write-blood) - Cardiovascular metrics
+- [Nutrition](write-nutrition) - Meal tracking
+- [Specialized Types](write-specialized) - Audiograms, insulin, menstruation

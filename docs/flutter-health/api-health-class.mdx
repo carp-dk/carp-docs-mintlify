@@ -1,0 +1,425 @@
+# Health Class API
+
+Complete reference for the `Health` class - the main interface for health data operations.
+
+## Constructor
+
+```dart
+Health()
+```
+
+Creates a new `Health` instance. Typically used as a singleton.
+
+```dart
+final health = Health();
+```
+
+## Permission Methods
+
+### hasPermissions
+
+Check if permissions have been granted.
+
+```dart
+Future<bool?> hasPermissions(
+  List<HealthDataType> types, {
+  List<HealthDataAccess>? permissions,
+})
+```
+
+**Returns**: `true` (granted), `false` (denied), or `null` (not determined)
+
+[See Permissions docs](permissions)
+
+### requestAuthorization
+
+Request user authorization for health data access.
+
+```dart
+Future<bool> requestAuthorization(
+  List<HealthDataType> types, {
+  List<HealthDataAccess>? permissions,
+})
+```
+
+**Returns**: `true` if authorization granted
+
+[See Permissions docs](permissions)
+
+### revokePermissions
+
+Revoke previously granted permissions.
+
+```dart
+Future<bool> revokePermissions()
+```
+
+**Returns**: `true` if permissions revoked successfully
+
+[See Permissions docs](permissions)
+
+## Reading Methods
+
+### getHealthDataFromTypes
+
+Read health data points for specified types and time range.
+
+```dart
+Future<List<HealthDataPoint>> getHealthDataFromTypes({
+  required List<HealthDataType> types,
+  required DateTime startDate,
+  required DateTime endDate,
+  bool includeManualEntry = true,
+})
+```
+
+[See Basic Reading docs](read-basic)
+
+### getHealthIntervalDataFromTypes
+
+Read health data aggregated into time intervals.
+
+```dart
+Future<List<HealthDataPoint>> getHealthIntervalDataFromTypes({
+  required DateTime startDate,
+  required DateTime endDate,
+  required List<HealthDataType> types,
+  required Duration interval,
+  bool includeManualEntry = true,
+})
+```
+
+[See Interval Reading docs](read-interval)
+
+### getHealthAggregateDataFromTypes
+
+Read pre-aggregated health data (primarily for workouts).
+
+```dart
+Future<List<HealthDataPoint>> getHealthAggregateDataFromTypes({
+  required List<HealthDataType> types,
+  required DateTime startDate,
+  required DateTime endDate,
+  int activitySegmentDuration = 1,
+  bool includeManualEntry = true,
+})
+```
+
+[See Aggregate Reading docs](read-aggregate)
+
+### getTotalStepsInInterval
+
+Get total step count for a time period.
+
+```dart
+Future<int?> getTotalStepsInInterval(
+  DateTime startDate,
+  DateTime endDate,
+)
+```
+
+**Returns**: Total steps or `null` if no data
+
+[See Steps Reading docs](read-steps)
+
+## Writing Methods
+
+### writeHealthData
+
+Write numeric health data.
+
+```dart
+Future<bool> writeHealthData({
+  required double value,
+  required HealthDataType type,
+  required DateTime startTime,
+  DateTime? endTime,
+  String? sourceId,
+  String? sourceName,
+  DateTime? recordingTime,
+})
+```
+
+[See Basic Writing docs](write-basic)
+
+### writeWorkoutData
+
+Write workout/exercise session data.
+
+```dart
+Future<bool> writeWorkoutData({
+  required HealthWorkoutActivityType activityType,
+  required DateTime start,
+  required DateTime end,
+  double? totalEnergyBurned,
+  int? totalEnergyBurnedUnit,
+  double? totalDistance,
+  int? totalDistanceUnit,
+})
+```
+
+[See Workout Writing docs](write-workouts)
+
+### writeBloodPressure
+
+Write blood pressure readings.
+
+```dart
+Future<bool> writeBloodPressure({
+  required double systolic,
+  required double diastolic,
+  required DateTime startTime,
+  DateTime? endTime,
+})
+```
+
+[See Blood Pressure docs](write-blood)
+
+### writeBloodOxygen
+
+Write blood oxygen saturation data.
+
+```dart
+Future<bool> writeBloodOxygen({
+  required double saturation,
+  required DateTime startTime,
+  DateTime? endTime,
+  double? flowRate,
+})
+```
+
+[See Blood Oxygen docs](write-blood)
+
+### writeMeal
+
+Write nutrition/meal data.
+
+```dart
+Future<bool> writeMeal({
+  required DateTime startTime,
+  DateTime? endTime,
+  MealType? mealType,
+  String? name,
+  double? calories,
+  double? protein,
+  double? carbs,
+  double? fat,
+  // ... many more micronutrient parameters
+})
+```
+
+[See Nutrition docs](write-nutrition)
+
+### writeMenstruationFlow
+
+Write menstrual flow data.
+
+```dart
+Future<bool> writeMenstruationFlow({
+  required MenstruationFlow flow,
+  required DateTime startTime,
+  DateTime? endTime,
+})
+```
+
+[See Specialized Writing docs](write-specialized)
+
+### writeAudiogram
+
+Write hearing test results.
+
+```dart
+Future<bool> writeAudiogram({
+  required List<double> frequencies,
+  required List<double> leftEarSensitivities,
+  required List<double> rightEarSensitivities,
+  required DateTime startTime,
+  DateTime? endTime,
+})
+```
+
+[See Specialized Writing docs](write-specialized)
+
+### writeInsulinDelivery
+
+Write insulin delivery data.
+
+```dart
+Future<bool> writeInsulinDelivery({
+  required double units,
+  required DateTime startTime,
+  DateTime? endTime,
+})
+```
+
+[See Specialized Writing docs](write-specialized)
+
+## Deletion Methods
+
+### delete
+
+Delete health data by type and time range.
+
+```dart
+Future<bool> delete({
+  required HealthDataType type,
+  required DateTime startTime,
+  required DateTime endTime,
+})
+```
+
+[See Deletion docs](delete-data)
+
+### deleteByUUID
+
+Delete specific data point by UUID (iOS only).
+
+```dart
+Future<bool> deleteByUUID({
+  required String uuid,
+})
+```
+
+[See Deletion docs](delete-data)
+
+### deleteByClientRecordId
+
+Delete data by custom record ID (Android only).
+
+```dart
+Future<bool> deleteByClientRecordId({
+  required String clientRecordId,
+})
+```
+
+[See Deletion docs](delete-data)
+
+## Health Connect Methods (Android)
+
+### getHealthConnectSdkStatus
+
+Check Health Connect SDK installation status.
+
+```dart
+Future<HealthConnectSdkStatus> getHealthConnectSdkStatus()
+```
+
+**Returns**: SDK status enum value
+
+[See Health Connect docs](health-connect)
+
+### isHealthConnectAvailable
+
+Check if Health Connect is available on device.
+
+```dart
+Future<bool> isHealthConnectAvailable()
+```
+
+[See Health Connect docs](health-connect)
+
+### installHealthConnect
+
+Open Health Connect installation in Play Store.
+
+```dart
+Future<void> installHealthConnect()
+```
+
+[See Health Connect docs](health-connect)
+
+### hasHistoricalAccessPermissions
+
+Check historical data access permissions.
+
+```dart
+Future<bool> hasHistoricalAccessPermissions(
+  List<HealthDataType> types,
+)
+```
+
+[See Health Connect docs](health-connect)
+
+### requestHistoricalAccessPermissions
+
+Request access to historical health data.
+
+```dart
+Future<bool> requestHistoricalAccessPermissions(
+  List<HealthDataType> types,
+)
+```
+
+[See Health Connect docs](health-connect)
+
+### revokeHistoricalAccessPermissions
+
+Revoke historical data access.
+
+```dart
+Future<void> revokeHistoricalAccessPermissions()
+```
+
+[See Health Connect docs](health-connect)
+
+### hasBackgroundAccessPermissions
+
+Check background data access permissions.
+
+```dart
+Future<bool> hasBackgroundAccessPermissions(
+  List<HealthDataType> types,
+)
+```
+
+[See Health Connect docs](health-connect)
+
+### requestBackgroundAccessPermissions
+
+Request background data access.
+
+```dart
+Future<bool> requestBackgroundAccessPermissions(
+  List<HealthDataType> types,
+)
+```
+
+[See Health Connect docs](health-connect)
+
+### revokeBackgroundAccessPermissions
+
+Revoke background data access.
+
+```dart
+Future<void> revokeBackgroundAccessPermissions()
+```
+
+[See Health Connect docs](health-connect)
+
+## Platform Configuration
+
+### configure (iOS)
+
+Configure iOS HealthKit background delivery.
+
+```dart
+Future<bool> configure()
+```
+
+## Method Summary
+
+| Category | Methods | Count |
+|----------|---------|-------|
+| **Permissions** | hasPermissions, requestAuthorization, revokePermissions | 3 |
+| **Reading** | getHealthDataFromTypes, getHealthIntervalDataFromTypes, getHealthAggregateDataFromTypes, getTotalStepsInInterval | 4 |
+| **Writing** | writeHealthData, writeWorkoutData, writeBloodPressure, writeBloodOxygen, writeMeal, writeMenstruationFlow, writeAudiogram, writeInsulinDelivery | 8 |
+| **Deletion** | delete, deleteByUUID, deleteByClientRecordId | 3 |
+| **Health Connect** | getHealthConnectSdkStatus, isHealthConnectAvailable, installHealthConnect, has/request/revokeHistoricalAccess, has/request/revokeBackgroundAccess | 9 |
+| **Configuration** | configure | 1 |
+| **Total** | | **28** |
+
+## See Also
+
+- [Data Models](api-data-models) - HealthDataPoint and value types
+- [Enums](api-enums) - All enumeration types
+- [Permissions](permissions) - Permission management guide
