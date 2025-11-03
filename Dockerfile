@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN chown -R node:node /app
 
-COPY . .
+COPY ./docs .
 
 RUN npm i mintlify && npm i --no-audit --no-fund
 
