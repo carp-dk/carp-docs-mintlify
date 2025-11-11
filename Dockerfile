@@ -1,12 +1,12 @@
-FROM oven/bun:latest
+FROM node:lts
 
 WORKDIR /app
 
-RUN chown -R bun:bun /app
+RUN chown -R node:node /app
 
 COPY docs .
 
-RUN bun install mintlify && bun install --no-audit --no-fund
+RUN npm i mintlify && npm i --no-audit --no-fund
 
 # Create a shim to mock localStorage
 RUN printf "global.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };\n" > /app/localstorage-shim.js
@@ -16,6 +16,6 @@ ENV NODE_OPTIONS="--require /app/localstorage-shim.js"
 # Run Mintlify with the shim preloaded
 EXPOSE 3333
 
-USER bun
+USER node
 
-CMD ["bunx", "mintlify", "dev", "--port", "3333"]
+CMD ["npx", "mintlify", "dev", "--port", "3333"]
