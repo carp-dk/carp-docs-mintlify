@@ -1,14 +1,11 @@
 ---
-title: Permission Management
+title: Permissions
 description: Learn how to request and manage health data permissions
-icon: "shield-halved"
 ---
 
 <Info>
   Health data is sensitive. Both iOS and Android require explicit user consent before your app can access or write health information.
 </Info>
-
-## Understanding Permissions
 
 Before your app can read or write health data, users must grant permission for each specific data type. Think of it like giving your app a key to access certain parts of the health data vault.
 
@@ -51,7 +48,7 @@ Before your app can read or write health data, users must grant permission for e
   </Tab>
 </Tabs>
 
-## For Beginners: Basic Permission Flow
+## Basic Permission Flow
 
 <Steps>
   <Step title="Request Permission">
@@ -89,8 +86,7 @@ Before your app can read or write health data, users must grant permission for e
   </Step>
 </Steps>
 
-### Simple Example
-
+Example:
 ```dart
 import 'package:health/health.dart';
 
@@ -146,7 +142,7 @@ final hasPermission = await health.hasPermissions(types);
 ```
 </CodeGroup>
 
-### Return Values
+The return values are as follow:
 
 | Value | Meaning |
 |-------|---------|
@@ -530,66 +526,6 @@ Future<bool> setupHealthPermissions() async {
   
   final granted = await health.requestAuthorization(types);
   return granted;
-}
-```
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Be Transparent" icon="eye">
-    Explain why you need each permission before requesting it
-  </Card>
-  <Card title="Request Minimally" icon="minimize">
-    Only ask for data types you actually use
-  </Card>
-  <Card title="Request Contextually" icon="lightbulb">
-    Ask for permissions when users try to use a feature
-  </Card>
-  <Card title="Handle Denials Gracefully" icon="circle-xmark">
-    Provide alternative functionality if permissions are denied
-  </Card>
-</CardGroup>
-
-### Example: Contextual Permission Request
-
-```dart
-class HealthFeatureScreen extends StatelessWidget {
-  Future<void> _showSteps() async {
-    // Check permission first
-    final hasPermission = await health.hasPermissions(
-      [HealthDataType.STEPS],
-    );
-    
-    if (hasPermission != true) {
-      // Show explanation dialog
-      final shouldRequest = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Permission Needed'),
-          content: Text(
-            'We need access to your step data to show your daily activity. '
-            'Your data is only stored on your device and never shared.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text('Not Now'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text('Grant Access'),
-            ),
-          ],
-        ),
-      );
-      
-      if (shouldRequest == true) {
-        await health.requestAuthorization([HealthDataType.STEPS]);
-      }
-    }
-    
-    // Proceed to show steps...
-  }
 }
 ```
 

@@ -1,10 +1,8 @@
-# Platform setup (Android)
+---
+title: Android
+---
 
-The plugin uses Google Health Connect (GHC) on Android. Health Connect may not be preinstalled.
-
-## Health Connect availability
-
-At runtime, check availability and guide the user if needed:
+The plugin uses Google Health Connect on Android. Health Connect may not be preinstalled. At runtime, check availability and guide the user if needed:
 
 ```dart
 final status = await health.getHealthConnectSdkStatus();
