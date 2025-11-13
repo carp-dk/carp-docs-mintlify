@@ -41,65 +41,65 @@
             "group": "Getting Started",
             "icon": "rocket",
             "pages": [
-              "flutter-health/overview",
-              "flutter-health/install",
-              "flutter-health/quickstart"
+              "flutter-health-plugin/overview",
+              "flutter-health-plugin/install",
+              "flutter-health-plugin/quickstart"
             ]
           },
           {
             "group": "Core Concepts",
             "icon": "lightbulb",
             "pages": [
-              "flutter-health/permissions",
-              "flutter-health/data-types",
-              "flutter-health/health-connect"
+              "flutter-health-plugin/permissions",
+              "flutter-health-plugin/data-types",
+              "flutter-health-plugin/health-connect"
             ]
           },
           {
             "group": "Reading Data",
             "icon": "book-open",
             "pages": [
-              "flutter-health/read-overview",
-              "flutter-health/read-basic",
-              "flutter-health/read-interval",
-              "flutter-health/read-aggregate",
-              "flutter-health/read-steps"
+              "flutter-health-plugin/read-overview",
+              "flutter-health-plugin/read-basic",
+              "flutter-health-plugin/read-interval",
+              "flutter-health-plugin/read-aggregate",
+              "flutter-health-plugin/read-steps"
             ]
           },
           {
             "group": "Writing Data",
             "icon": "pen-to-square",
             "pages": [
-              "flutter-health/write-overview",
-              "flutter-health/write-basic",
-              "flutter-health/write-workouts",
-              "flutter-health/write-blood",
-              "flutter-health/write-nutrition",
-              "flutter-health/write-specialized"
+              "flutter-health-plugin/write-overview",
+              "flutter-health-plugin/write-basic",
+              "flutter-health-plugin/write-workouts",
+              "flutter-health-plugin/write-blood",
+              "flutter-health-plugin/write-nutrition",
+              "flutter-health-plugin/write-specialized"
             ]
           },
           {
             "group": "Deleting Data",
             "icon": "trash",
             "pages": [
-              "flutter-health/delete-data"
+              "flutter-health-plugin/delete-data"
             ]
           },
           {
             "group": "Platform Setup",
             "icon": "mobile",
             "pages": [
-              "flutter-health/platform-android",
-              "flutter-health/platform-ios"
+              "flutter-health-plugin/platform-android",
+              "flutter-health-plugin/platform-ios"
             ]
           },
           {
             "group": "API Reference",
             "icon": "code",
             "pages": [
-              "flutter-health/api-health-class",
-              "flutter-health/api-data-models",
-              "flutter-health/api-enums"
+              "flutter-health-plugin/api-health-class",
+              "flutter-health-plugin/api-data-models",
+              "flutter-health-plugin/api-enums"
             ]
           }
         ]
@@ -136,27 +136,22 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/carp.svg",
+    "dark": "/logo/carp.svg"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@carp.dk"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/carp-dk",
+      "linkedin": "https://www.linkedin.com/company/carp-dk/",
+      "website": "https://carp.dk"
     }
   }
 }
