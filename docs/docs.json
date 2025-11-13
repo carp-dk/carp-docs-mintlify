@@ -35,71 +35,91 @@
         ]
       },
       {
-        "tab": "Flutter Health Plugin",
-        "groups": [
+        "tab": "Flutter Plugins",
+        "menu": [
           {
-            "group": "Getting Started",
-            "icon": "rocket",
-            "pages": [
-              "flutter-health-plugin/overview",
-              "flutter-health-plugin/install",
-              "flutter-health-plugin/quickstart"
-            ]
-          },
-          {
-            "group": "Core Concepts",
-            "icon": "lightbulb",
-            "pages": [
-              "flutter-health-plugin/permissions",
-              "flutter-health-plugin/data-types",
-              "flutter-health-plugin/health-connect"
-            ]
-          },
-          {
-            "group": "Reading Data",
-            "icon": "book-open",
-            "pages": [
-              "flutter-health-plugin/read-overview",
-              "flutter-health-plugin/read-basic",
-              "flutter-health-plugin/read-interval",
-              "flutter-health-plugin/read-aggregate",
-              "flutter-health-plugin/read-steps"
-            ]
-          },
-          {
-            "group": "Writing Data",
-            "icon": "pen-to-square",
-            "pages": [
-              "flutter-health-plugin/write-overview",
-              "flutter-health-plugin/write-basic",
-              "flutter-health-plugin/write-workouts",
-              "flutter-health-plugin/write-blood",
-              "flutter-health-plugin/write-nutrition",
-              "flutter-health-plugin/write-specialized"
-            ]
-          },
-          {
-            "group": "Deleting Data",
-            "icon": "trash",
-            "pages": [
-              "flutter-health-plugin/delete-data"
-            ]
-          },
-          {
-            "group": "Platform Setup",
-            "icon": "mobile",
-            "pages": [
-              "flutter-health-plugin/platform-android",
-              "flutter-health-plugin/platform-ios"
-            ]
-          },
-          {
-            "group": "API Reference",
-            "icon": "code",
-            "pages": [
-              "flutter-health-plugin/api-health-class",
-              "flutter-health-plugin/api-data-models",
-              "flutter-health-plugin/api-enums"
+            "item": "Health Plugin",
+            "icon": "heart-pulse",
+            "global": {
+              "anchors": [
+                {
+                  "anchor": "Health Github Page",
+                  "icon": "github",
+                  "href": "https://github.com/carp-dk/carp-health-flutter"
+                },
+                {
+                  "anchor": "Health Pub Page",
+                  "icon": "flutter",
+                  "href": "https://pub.dev/packages/health"
+                }
+              ]
+            },
+            "groups": [
+              {
+                "group": "Getting Started",
+                "icon": "rocket",
+                "pages": [
+                  "flutter-health-plugin/overview",
+                  "flutter-health-plugin/install",
+                  "flutter-health-plugin/quickstart"
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "icon": "lightbulb",
+                "pages": [
+                  "flutter-health-plugin/permissions",
+                  "flutter-health-plugin/data-types",
+                  "flutter-health-plugin/health-connect"
+                ]
+              },
+              {
+                "group": "Reading Data",
+                "icon": "book-open",
+                "pages": [
+                  "flutter-health-plugin/read-overview",
+                  "flutter-health-plugin/read-basic",
+                  "flutter-health-plugin/read-interval",
+                  "flutter-health-plugin/read-aggregate",
+                  "flutter-health-plugin/read-steps"
+                ]
+              },
+              {
+                "group": "Writing Data",
+                "icon": "pen-to-square",
+                "pages": [
+                  "flutter-health-plugin/write-overview",
+                  "flutter-health-plugin/write-basic",
+                  "flutter-health-plugin/write-workouts",
+                  "flutter-health-plugin/write-blood",
+                  "flutter-health-plugin/write-nutrition",
+                  "flutter-health-plugin/write-specialized"
+                ]
+              },
+              {
+                "group": "Deleting Data",
+                "icon": "trash",
+                "pages": [
+                  "flutter-health-plugin/delete-data"
+                ]
+              },
+              {
+                "group": "Platform Setup",
+                "icon": "mobile",
+                "pages": [
+                  "flutter-health-plugin/platform-android",
+                  "flutter-health-plugin/platform-ios"
+                ]
+              },
+              {
+                "group": "API Reference",
+                "icon": "code",
+                "pages": [
+                  "flutter-health-plugin/api-health-class",
+                  "flutter-health-plugin/api-data-models",
+                  "flutter-health-plugin/api-enums"
+                ]
+              }
             ]
           }
         ]
@@ -144,6 +164,10 @@
       {
         "label": "Support",
         "href": "mailto:support@carp.dk"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/carp-dk/"
       }
     ]
   },
@@ -153,5 +177,46 @@
       "linkedin": "https://www.linkedin.com/company/carp-dk/",
       "website": "https://carp.dk"
     }
+  },
+  "seo": {
+    "metatags": {
+      "charset": "UTF-8",
+      "viewport": "width=device-width, initial-scale=1.0",
+      "description": "CARP Documentation",
+      "keywords": "CARP, health, data, technology, flutter, plugin, API",
+      "author": "CARP Team",
+      "robots": "index, follow",
+      "googlebot": "index, follow",
+      "generator": "CARP Docs Generator",
+      "theme-color": "#C30E32",
+      "color-scheme": "light dark",
+      "canonical": "https://docs.carp.dk",
+      "format-detection": "telephone=no",
+      "referrer": "origin",
+      "refresh": "30",
+      "rating": "general",
+      "revisit-after": "7 days",
+      "language": "en",
+      "copyright": "Copyright 2025 Copenhagen Research Platform",
+      "reply-to": "support@carp.dk",
+      "distribution": "global",
+      "coverage": "Worldwide",
+      "category": "Technology",
+      "target": "all",
+      "HandheldFriendly": "True",
+      "MobileOptimized": "320",
+      "apple-mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-status-bar-style": "black",
+      "apple-mobile-web-app-title": "CARP Docs",
+      "application-name": "CARP Docs",
+      "msapplication-TileColor": "#C30E32",
+      "og:title": "CARP Documentation",
+      "og:type": "website",
+      "og:url": "https://docs.carp.dk",
+      "og:image": "https://docs.carp.dk/logo/carp.svg",
+      "og:description": "CARP Documentation",
+      "og:site_name": "CARP Documentation",
+      "og:locale": "en_US"
   }
+}
 }
