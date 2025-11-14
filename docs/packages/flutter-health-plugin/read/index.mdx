@@ -1,8 +1,7 @@
-# Reading Data - Overview
-
-The Health plugin provides multiple methods for reading health data with different levels of granularity and aggregation.
-
-## Reading Methods
+---
+title: "Overview"
+description: "The Health plugin provides multiple methods for reading health data with different levels of granularity and aggregation."
+---
 
 The plugin offers four primary reading approaches:
 
@@ -16,7 +15,7 @@ Fetch individual health data points for specified time ranges.
 - Displaying timelines
 - Export/backup operations
 
-**See:** [Basic Reading](read-basic)
+**See:** [Basic Reading](basic)
 
 ### 2. Interval/Bucketed Data (`getHealthIntervalDataFromTypes`)
 
@@ -28,7 +27,7 @@ Fetch data aggregated into fixed time intervals (e.g., hourly, daily).
 - Trend analysis
 - Statistical overviews
 
-**See:** [Interval Reading](read-interval)
+**See:** [Interval Reading](interval)
 
 ### 3. Aggregate Data (`getHealthAggregateDataFromTypes`)
 
@@ -40,7 +39,7 @@ Fetch pre-aggregated summaries across multiple types.
 - Performance analytics
 - Activity overviews
 
-**See:** [Aggregate Reading](read-aggregate)
+**See:** [Aggregate Reading](aggregate)
 
 ### 4. Steps Total (`getTotalStepsInInterval`)
 
@@ -52,7 +51,7 @@ Get the total step count for a time period.
 - Quick step queries
 - Activity badges
 
-**See:** [Reading Steps](read-steps)
+**See:** [Reading Steps](steps)
 
 ## Quick Comparison
 
@@ -360,7 +359,7 @@ Future<List<HealthDataPoint>> fetchHealthDataSafely({
 
 Choose the reading method that fits your use case:
 
-- **[Basic Reading](read-basic)** - Individual data points with full details
-- **[Interval Reading](read-interval)** - Time-bucketed aggregations
-- **[Aggregate Reading](read-aggregate)** - Multi-type summaries
-- **[Reading Steps](read-steps)** - Optimized step count queries
+- **[Basic Reading](basic)** - Individual data points with full details
+- **[Interval Reading](interval)** - Time-bucketed aggregations
+- **[Aggregate Reading](aggregate)** - Multi-type summaries
+- **[Reading Steps](steps)** - Optimized step count queries

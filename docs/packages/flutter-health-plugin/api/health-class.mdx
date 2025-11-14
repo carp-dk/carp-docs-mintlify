@@ -1,6 +1,7 @@
-# Health Class API
-
-Complete reference for the `Health` class - the main interface for health data operations.
+---
+title: "Health Class API"
+description: Complete reference for the `Health` class - the main interface for health data operations.
+---
 
 ## Constructor
 
@@ -73,7 +74,7 @@ Future<List<HealthDataPoint>> getHealthDataFromTypes({
 })
 ```
 
-[See Basic Reading docs](read-basic)
+[See Basic Reading docs](read/basic)
 
 ### getHealthIntervalDataFromTypes
 
@@ -89,7 +90,7 @@ Future<List<HealthDataPoint>> getHealthIntervalDataFromTypes({
 })
 ```
 
-[See Interval Reading docs](read-interval)
+[See Interval Reading docs](read/interval)
 
 ### getHealthAggregateDataFromTypes
 
@@ -105,7 +106,7 @@ Future<List<HealthDataPoint>> getHealthAggregateDataFromTypes({
 })
 ```
 
-[See Aggregate Reading docs](read-aggregate)
+[See Aggregate Reading docs](read/aggregate)
 
 ### getTotalStepsInInterval
 
@@ -120,7 +121,7 @@ Future<int?> getTotalStepsInInterval(
 
 **Returns**: Total steps or `null` if no data
 
-[See Steps Reading docs](read-steps)
+[See Steps Reading docs](read/steps)
 
 ## Writing Methods
 
@@ -140,7 +141,7 @@ Future<bool> writeHealthData({
 })
 ```
 
-[See Basic Writing docs](write-basic)
+[See Basic Writing docs](write/basic)
 
 ### writeWorkoutData
 
@@ -158,7 +159,7 @@ Future<bool> writeWorkoutData({
 })
 ```
 
-[See Workout Writing docs](write-workouts)
+[See Workout Writing docs](write/specialized)
 
 ### writeBloodPressure
 
@@ -173,7 +174,7 @@ Future<bool> writeBloodPressure({
 })
 ```
 
-[See Blood Pressure docs](write-blood)
+[See Blood Pressure docs](write/blood)
 
 ### writeBloodOxygen
 
@@ -188,7 +189,7 @@ Future<bool> writeBloodOxygen({
 })
 ```
 
-[See Blood Oxygen docs](write-blood)
+[See Blood Oxygen docs](write/blood)
 
 ### writeMeal
 
@@ -208,7 +209,7 @@ Future<bool> writeMeal({
 })
 ```
 
-[See Nutrition docs](write-nutrition)
+[See Nutrition docs](write/nutrition)
 
 ### writeMenstruationFlow
 
@@ -222,7 +223,7 @@ Future<bool> writeMenstruationFlow({
 })
 ```
 
-[See Specialized Writing docs](write-specialized)
+[See Specialized Writing docs](write/specialized)
 
 ### writeAudiogram
 
@@ -238,7 +239,7 @@ Future<bool> writeAudiogram({
 })
 ```
 
-[See Specialized Writing docs](write-specialized)
+[See Specialized Writing docs](write/specialized)
 
 ### writeInsulinDelivery
 
@@ -252,7 +253,7 @@ Future<bool> writeInsulinDelivery({
 })
 ```
 
-[See Specialized Writing docs](write-specialized)
+[See Specialized Writing docs](write/specialized)
 
 ## Deletion Methods
 
@@ -268,7 +269,7 @@ Future<bool> delete({
 })
 ```
 
-[See Deletion docs](delete-data)
+[See Deletion docs](delete)
 
 ### deleteByUUID
 
@@ -280,7 +281,7 @@ Future<bool> deleteByUUID({
 })
 ```
 
-[See Deletion docs](delete-data)
+[See Deletion docs](delete)
 
 ### deleteByClientRecordId
 
@@ -292,7 +293,7 @@ Future<bool> deleteByClientRecordId({
 })
 ```
 
-[See Deletion docs](delete-data)
+[See Deletion docs](delete)
 
 ## Health Connect Methods (Android)
 

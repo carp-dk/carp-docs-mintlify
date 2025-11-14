@@ -1,14 +1,12 @@
-# Health Connect (Android)
-
-Complete guide to Google Health Connect specific features and management.
-
-## Overview
-
-Google Health Connect (GHC) is Android's centralized health data repository. Unlike iOS's built-in HealthKit, Health Connect may not be pre-installed on all Android devices.
+---
+title: "Health Connect (Android)"
+description: Complete guide to Google Health Connect specific features and management.
+---
+Google Health Connect is Android's centralized health data repository. Unlike iOS's built-in HealthKit, Health Connect may not be pre-installed on all Android devices. The health plugin provides APIs to check availability, request installation, and manage Health Connect permissions.
 
 ## Checking Health Connect Status
 
-### getHealthConnectSdkStatus()
+### `getHealthConnectSdkStatus()`
 
 Get the current Health Connect SDK availability status.
 
@@ -61,7 +59,7 @@ HealthConnectSdkStatus updatedStatus = health.healthConnectSdkStatus;
 
 ## Checking Availability
 
-### isHealthConnectAvailable()
+### `isHealthConnectAvailable()`
 
 Simple boolean check if Health Connect is available.
 
@@ -109,7 +107,7 @@ Future<void> fetchHealthData() async {
 
 ## Installing Health Connect
 
-### installHealthConnect()
+### `installHealthConnect()`
 
 Open the app store to install or update Health Connect.
 
@@ -220,8 +218,7 @@ Future<void> handleHealthConnectStatus() async {
 
 Health Connect allows reading historical data beyond 30 days if explicitly authorized.
 
-### isHealthDataHistoryAvailable()
-
+### `isHealthDataHistoryAvailable()`
 Check if the device supports historical data access.
 
 ```dart
@@ -245,7 +242,7 @@ if (historyAvailable) {
 }
 ```
 
-### isHealthDataHistoryAuthorized()
+### `isHealthDataHistoryAuthorized()`
 
 Check if historical data permission has been granted.
 
@@ -269,7 +266,7 @@ if (!hasHistory) {
 }
 ```
 
-### requestHealthDataHistoryAuthorization()
+### `requestHealthDataHistoryAuthorization()`
 
 Request permission to access historical health data (>30 days old).
 
@@ -342,7 +339,7 @@ Future<void> fetchLongTermData() async {
 
 Health Connect supports reading health data in the background.
 
-### isHealthDataInBackgroundAvailable()
+### `isHealthDataInBackgroundAvailable()`
 
 Check if background data access is supported.
 
@@ -365,7 +362,7 @@ if (backgroundAvailable) {
 }
 ```
 
-### isHealthDataInBackgroundAuthorized()
+### `isHealthDataInBackgroundAuthorized()`
 
 Check if background data permission has been granted.
 
@@ -388,7 +385,7 @@ if (!hasBackground) {
 }
 ```
 
-### requestHealthDataInBackgroundAuthorization()
+### `requestHealthDataInBackgroundAuthorization()`
 
 Request permission to read health data in the background.
 
@@ -604,4 +601,4 @@ if (platformType == HealthPlatformType.googleHealthConnect) {
 
 - [Permission Management](permissions) - Requesting and managing permissions
 - [Platform Setup (Android)](platform-android) - AndroidManifest configuration
-- [Reading Data](read-overview) - Fetching health data
+- [Reading Data](read/overview) - Fetching health data

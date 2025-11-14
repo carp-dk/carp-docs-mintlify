@@ -41,7 +41,7 @@
                 "group": "Getting Started",
                 "icon": "rocket",
                 "pages": [
-                  "packages/flutter-health-plugin/overview",
+                  "packages/flutter-health-plugin/index",
                   "packages/flutter-health-plugin/install",
                   "packages/flutter-health-plugin/quickstart"
                 ]
@@ -59,47 +59,48 @@
                 "group": "Reading Data",
                 "icon": "book-open",
                 "pages": [
-                  "packages/flutter-health-plugin/read-overview",
-                  "packages/flutter-health-plugin/read-basic",
-                  "packages/flutter-health-plugin/read-interval",
-                  "packages/flutter-health-plugin/read-aggregate",
-                  "packages/flutter-health-plugin/read-steps"
+                  "packages/flutter-health-plugin/read/index",
+                  "packages/flutter-health-plugin/read/basic",
+                  "packages/flutter-health-plugin/read/interval",
+                  "packages/flutter-health-plugin/read/aggregate",
+                  "packages/flutter-health-plugin/read/steps"
                 ]
               },
               {
                 "group": "Writing Data",
                 "icon": "pen-to-square",
                 "pages": [
-                  "packages/flutter-health-plugin/write-overview",
-                  "packages/flutter-health-plugin/write-basic",
-                  "packages/flutter-health-plugin/write-workouts",
-                  "packages/flutter-health-plugin/write-blood",
-                  "packages/flutter-health-plugin/write-nutrition",
-                  "packages/flutter-health-plugin/write-specialized"
+                  "packages/flutter-health-plugin/write/index",
+                  "packages/flutter-health-plugin/write/basic",
+                  "packages/flutter-health-plugin/write/workouts",
+                  "packages/flutter-health-plugin/write/blood",
+                  "packages/flutter-health-plugin/write/nutrition",
+                  "packages/flutter-health-plugin/write/specialized"
                 ]
               },
               {
                 "group": "Deleting Data",
                 "icon": "trash",
                 "pages": [
-                  "packages/flutter-health-plugin/delete-data"
+                  "packages/flutter-health-plugin/delete/index"
                 ]
               },
               {
                 "group": "Platform Setup",
                 "icon": "mobile",
                 "pages": [
-                  "packages/flutter-health-plugin/platform-android",
-                  "packages/flutter-health-plugin/platform-ios"
+                  "packages/flutter-health-plugin/setup/android",
+                  "packages/flutter-health-plugin/setup/ios"
                 ]
               },
               {
                 "group": "API Reference",
                 "icon": "code",
                 "pages": [
-                  "packages/flutter-health-plugin/api-health-class",
-                  "packages/flutter-health-plugin/api-data-models",
-                  "packages/flutter-health-plugin/api-enums"
+                  "packages/flutter-health-plugin/api/index",
+                  "packages/flutter-health-plugin/api/health-class",
+                  "packages/flutter-health-plugin/api/data-models",
+                  "packages/flutter-health-plugin/api/enums"
                 ]
               }
             ]
