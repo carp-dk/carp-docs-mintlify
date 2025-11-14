@@ -12,30 +12,12 @@
     "tabs": [
       {
         "tab": "Home",
-        "groups": [
-          {
-            "group": "Get Started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
+        "pages": [
+              "index"
             ]
-          },
-          {
-            "group": "Essentials",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
-          }
-        ]
       },
       {
-        "tab": "Flutter Plugins",
+        "tab": "Flutter Packages",
         "menu": [
           {
             "item": "Health Plugin",
@@ -59,65 +41,65 @@
                 "group": "Getting Started",
                 "icon": "rocket",
                 "pages": [
-                  "flutter-health-plugin/overview",
-                  "flutter-health-plugin/install",
-                  "flutter-health-plugin/quickstart"
+                  "packages/flutter-health-plugin/overview",
+                  "packages/flutter-health-plugin/install",
+                  "packages/flutter-health-plugin/quickstart"
                 ]
               },
               {
                 "group": "Core Concepts",
                 "icon": "lightbulb",
                 "pages": [
-                  "flutter-health-plugin/permissions",
-                  "flutter-health-plugin/data-types",
-                  "flutter-health-plugin/health-connect"
+                  "packages/flutter-health-plugin/permissions",
+                  "packages/flutter-health-plugin/data-types",
+                  "packages/flutter-health-plugin/health-connect"
                 ]
               },
               {
                 "group": "Reading Data",
                 "icon": "book-open",
                 "pages": [
-                  "flutter-health-plugin/read-overview",
-                  "flutter-health-plugin/read-basic",
-                  "flutter-health-plugin/read-interval",
-                  "flutter-health-plugin/read-aggregate",
-                  "flutter-health-plugin/read-steps"
+                  "packages/flutter-health-plugin/read-overview",
+                  "packages/flutter-health-plugin/read-basic",
+                  "packages/flutter-health-plugin/read-interval",
+                  "packages/flutter-health-plugin/read-aggregate",
+                  "packages/flutter-health-plugin/read-steps"
                 ]
               },
               {
                 "group": "Writing Data",
                 "icon": "pen-to-square",
                 "pages": [
-                  "flutter-health-plugin/write-overview",
-                  "flutter-health-plugin/write-basic",
-                  "flutter-health-plugin/write-workouts",
-                  "flutter-health-plugin/write-blood",
-                  "flutter-health-plugin/write-nutrition",
-                  "flutter-health-plugin/write-specialized"
+                  "packages/flutter-health-plugin/write-overview",
+                  "packages/flutter-health-plugin/write-basic",
+                  "packages/flutter-health-plugin/write-workouts",
+                  "packages/flutter-health-plugin/write-blood",
+                  "packages/flutter-health-plugin/write-nutrition",
+                  "packages/flutter-health-plugin/write-specialized"
                 ]
               },
               {
                 "group": "Deleting Data",
                 "icon": "trash",
                 "pages": [
-                  "flutter-health-plugin/delete-data"
+                  "packages/flutter-health-plugin/delete-data"
                 ]
               },
               {
                 "group": "Platform Setup",
                 "icon": "mobile",
                 "pages": [
-                  "flutter-health-plugin/platform-android",
-                  "flutter-health-plugin/platform-ios"
+                  "packages/flutter-health-plugin/platform-android",
+                  "packages/flutter-health-plugin/platform-ios"
                 ]
               },
               {
                 "group": "API Reference",
                 "icon": "code",
                 "pages": [
-                  "flutter-health-plugin/api-health-class",
-                  "flutter-health-plugin/api-data-models",
-                  "flutter-health-plugin/api-enums"
+                  "packages/flutter-health-plugin/api-health-class",
+                  "packages/flutter-health-plugin/api-data-models",
+                  "packages/flutter-health-plugin/api-enums"
                 ]
               }
             ]
