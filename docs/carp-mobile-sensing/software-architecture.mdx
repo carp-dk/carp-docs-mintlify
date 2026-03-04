@@ -1,0 +1,59 @@
+---
+title: Software Architecture
+description: Runtime architecture and core layers in CARP Mobile Sensing
+icon: network-wired
+---
+
+CARP Mobile Sensing (CAMS) is organized in three runtime layers:
+
+- Client Manager layer (core runtime)
+- Service layer (deployment and data management)
+- Sampling layer (packages and probes)
+
+![CAMS architecture](https://github.com/cph-cachet/carp.sensing-flutter/assets/1196642/5ac4a4e7-2f7d-40ef-a6ab-2766e44738a8)
+
+## Client Manager Layer
+
+The core runtime is the [SmartPhoneClientManager](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartPhoneClientManager-class.html). It manages registries, controllers, and services used to execute studies.
+
+### Core registries and controllers
+
+- [DeploymentService](https://pub.dev/documentation/carp_core/latest/carp_core_deployment/DeploymentService-class.html)
+- [DataManagerRegistry](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/DataManagerRegistry-class.html)
+- [SamplingPackageRegistry](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SamplingPackageRegistry-class.html)
+- [DataTransformerSchemaRegistry](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformerSchema-class.html)
+- [DeviceController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/DeviceController-class.html)
+- [AppTaskController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/AppTaskController-class.html)
+- [NotificationController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/NotificationController-class.html)
+
+A study deployment runs through a [SmartphoneDeploymentController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneDeploymentController-class.html), which can be configured and controlled independently.
+
+## Service Layer
+
+The service layer provides:
+
+- Deployment through a [DeploymentService](https://pub.dev/documentation/carp_core/latest/carp_core_deployment/DeploymentService-class.html)
+- Data handling through [Data Managers](/carp-mobile-sensing/data-managers)
+
+Data managers can store, buffer, or upload collected measurements.
+
+## Sampling Layer
+
+Sampling is implemented through [SamplingPackage](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SamplingPackage-class.html) modules.
+
+- Built-in packages include device and sensor sampling
+- External packages can add context, survey, media, and wearable integrations
+- Each package exposes one or more [Probe](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/Probe-class.html) implementations
+
+A probe accesses data sources (sensors, wearables, APIs) and emits measurements for the runtime.
+
+## Control Flow
+
+At runtime, a typical flow is:
+
+1. Configure `SmartPhoneClientManager`
+2. Add study deployment(s)
+3. Configure deployment controller(s)
+4. Start/stop sampling per study or globally
+
+For implementation details, continue with [Domain Model](/carp-mobile-sensing/domain-model) and [Using CAMS](/carp-mobile-sensing/using-carp-mobile-sensing).

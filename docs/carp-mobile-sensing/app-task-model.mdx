@@ -1,0 +1,84 @@
+---
+title: The AppTask Model
+description: User-triggered tasks, queueing, UI integration, and notifications
+icon: list-check
+---
+
+An `AppTask` is a user-facing task type in CAMS. It follows the same trigger-task-measure model as passive sensing, but adds UX metadata such as title, description, instructions, and notifications.
+
+## Configure an AppTask
+
+```dart
+var environmentTask = AppTask(
+  type: AppTask.SENSING_TYPE,
+  name: 'Environment Task',
+  title: 'Weather & Air Quality',
+  description: 'Collect local weather and air quality',
+  notification: true,
+  measures: [
+    Measure(type: ContextSamplingPackage.WEATHER),
+    Measure(type: ContextSamplingPackage.AIR_QUALITY),
+  ],
+);
+```
+
+Common user-facing properties include:
+
+- `type`
+- `title`
+- `description`
+- `instructions`
+- `minutesToComplete`
+- `notification`
+- `expires`
+
+## Runtime Execution
+
+When an `AppTask` is triggered:
+
+1. CAMS creates a `UserTask`
+2. The task is enqueued in `AppTaskController`
+3. The app can render and manage it in UI
+4. User actions call task lifecycle methods
+
+## Access the User Task Queue
+
+```dart
+List<UserTask> get tasks => AppTaskController().userTaskQueue;
+```
+
+You can also subscribe to task lifecycle events:
+
+```dart
+AppTaskController().userTaskEvents.listen((event) {
+  // handle initialized, enqueued, started, done, etc.
+});
+```
+
+## UserTask Callbacks
+
+- `onStart()`
+- `onCancel()`
+- `onDone()`
+- `onExpired()`
+- `onNotification()`
+
+## Notifications
+
+If `notification: true`, CAMS can create local notifications (via `flutter_local_notifications`) with task title and description.
+
+For platform-specific setup, see [Best Practice](/carp-mobile-sensing/best-practice#notifications).
+
+## Supported AppTask Types
+
+- `SENSING_TYPE`
+- `SURVEY_TYPE`
+- `COGNITIVE_ASSESSMENT_TYPE`
+- `HEALTH_ASSESSMENT_TYPE`
+- `AUDIO_TYPE`, `VIDEO_TYPE`, `IMAGE_TYPE`
+
+## Extending AppTask
+
+You can create custom `UserTask` implementations and register a custom `UserTaskFactory` in `AppTaskController`.
+
+For full extension patterns, see [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing).

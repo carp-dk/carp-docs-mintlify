@@ -1,0 +1,172 @@
+---
+title: Overview
+description: Introduction to the CARP Mobile Sensing (CAMS) framework
+icon: "mobile"
+---
+
+The CARP Mobile Sensing (CAMS) Flutter package [carp_mobile_sensing](https://pub.dev/packages/carp_mobile_sensing) is a framework for adding digital phenotyping capabilities to mobile health apps.
+
+The overall goal of CAMS is to help developers build custom mobile sensing applications that can be adapted to very different health domains.
+
+CAMS focuses on a flexible engineering architecture that supports:
+
+- multiple wearable/device integrations
+- configurable data sampling and transformation
+- pluggable data management and upload strategies
+- long-term maintainability across mobile OS changes
+
+## What Data Can You Collect?
+
+<CardGroup cols={2}>
+  <Card title="Onboard Phone Sensors" icon="mobile-rotate">
+    Collect movement data (IMU), location, nearby devices, steps, screen events, and many other **measures**
+  </Card>
+  <Card title="Wearable Devices" icon="watch-apple">
+    Collect data from smartwatches (e.g. Apple Watch), heart rate monitors (e.g., Polar), ECG monitors, glucose monitors, iBeacons, and other **devices**.
+  </Card>
+  <Card title="User-generated Data" icon="person">
+    Collect surveys, questionnaires, ecological momentary assessments (EMAs), audio, video, and sound from participants
+  </Card>
+  <Card title="Cognitive Assessment" icon="brain">
+    Choose from 14 predefined cognitive assessment tools like trail-making, reaction time, recall, flanker, and object tracking tests
+  </Card>
+</CardGroup>
+
+## Documentation Map
+
+<CardGroup cols={2}>
+  <Card title="Software Architecture" icon="network-wired" href="/carp-mobile-sensing/software-architecture">
+    Runtime architecture with client manager, service, and sampling layers.
+  </Card>
+  <Card title="Domain Model" icon="diagram-project" href="/carp-mobile-sensing/domain-model">
+    Study protocols, triggers, tasks, measures, devices, and measurements.
+  </Card>
+  <Card title="Using CAMS" icon="play" href="/carp-mobile-sensing/using-carp-mobile-sensing">
+    End-to-end flow from protocol definition to runtime data streams.
+  </Card>
+  <Card title="AppTask Model" icon="list-check" href="/carp-mobile-sensing/app-task-model">
+    User-facing tasks, queueing, notifications, and execution lifecycle.
+  </Card>
+</CardGroup>
+
+
+## How It Works
+
+The code listing below shows a simple Dart example of how to add sampling to a Flutter app. This basic example illustrates how sampling is configured, deployed, initialized, and used in three basic steps;
+
+<Steps>
+  <Step title="Define Study Protocol">
+    Create a `SmartphoneStudyProtocol` which defines what **measures** to collect from different **devices**.
+  </Step>
+  
+  <Step title="Create and Configure Runtime">
+    Configure the `SmartPhoneClientManager` and add the study protocol to it. 
+  </Step>
+  
+  <Step title="Start Data Sampling">
+    Access the collected stream of **measurements** and use them in the app and control the execution of the data sampling.
+  </Step>
+</Steps>
+
+## Example
+
+Below is a simple example of how to set up a protocol that samples step counts, ambient light, screen events, and battery events.
+
+```dart
+import 'package:carp_core/carp_core.dart' hide Smartphone;
+import 'package:carp_mobile_sensing/carp_mobile_sensing.dart';
+
+// Create a protocol collecting steps, light, and screen and battery events
+// from the phone and store collected measurements in a local SQLite database
+final phone = Smartphone();
+final protocol =
+    SmartphoneStudyProtocol(
+        ownerId: 'AB',
+        name: 'Tracking steps, light, screen, and battery',
+        dataEndPoint: SQLiteDataEndPoint(),
+      )
+      ..addPrimaryDevice(phone)
+      ..addTaskControl(
+        DelayedTrigger(delay: const Duration(seconds: 10)),
+        BackgroundTask(
+          measures: [
+            Measure(type: SensorSamplingPackage.STEP_EVENT),
+            Measure(type: SensorSamplingPackage.AMBIENT_LIGHT),
+            Measure(type: DeviceSamplingPackage.SCREEN_EVENT),
+            Measure(type: DeviceSamplingPackage.BATTERY_STATE),
+          ],
+        ),
+        phone,
+      );
+
+// Create and configure a client manager for this phone.
+await SmartPhoneClientManager().configure();
+
+// Create a study based on the protocol.
+await SmartPhoneClientManager().addStudyFromProtocol(protocol);
+
+/// Start the study.
+SmartPhoneClientManager().start();
+
+/// Resume sampling.
+SmartPhoneClientManager().resume();
+
+// Listening on the measurements stream.
+SmartPhoneClientManager().measurements.listen((measurement) {
+  // Do something with the measurement, e.g. print the json.
+  print(toJsonString(measurement));
+});
+
+// Pause sampling.
+SmartPhoneClientManager().pause();
+
+// Resume sampling again.
+SmartPhoneClientManager().resume();
+
+// Dispose the client. Can not be used anymore.
+SmartPhoneClientManager().dispose();
+```
+## Minimalistic Example
+
+In the example above, the client manager is configured, the protocol is added, and sampling is started. This can actually be done in one line of code, like this:
+
+```dart
+SmartPhoneClientManager().configure().then(
+  (_) => SmartPhoneClientManager()
+      .addStudyFromProtocol(
+        SmartphoneStudyProtocol.local(
+          name: 'Tracking steps, light, screen, and battery',
+          measures: [
+            Measure(type: SensorSamplingPackage.STEP_EVENT),
+            Measure(type: SensorSamplingPackage.AMBIENT_LIGHT),
+            Measure(type: DeviceSamplingPackage.SCREEN_EVENT),
+            Measure(type: DeviceSamplingPackage.BATTERY_STATE),
+          ],
+        ),
+      )
+      .then(
+        (_) => SmartPhoneClientManager()
+          ..start()
+          ..resume(),
+      ),
+);
+```
+
+
+
+## Continue Reading
+
+<CardGroup cols={2}>
+  <Card title="Extending CAMS" icon="puzzle-piece" href="/carp-mobile-sensing/extending-carp-mobile-sensing">
+    Add custom triggers, probes, data managers, and transformer schemas.
+  </Card>
+  <Card title="Best Practice" icon="badge-check" href="/carp-mobile-sensing/best-practice">
+    Android/iOS setup recommendations, permissions, and troubleshooting.
+  </Card>
+  <Card title="Measure Types" icon="ruler-combined" href="/carp-mobile-sensing/measure-types">
+    Supported measure types across built-in and external sampling packages.
+  </Card>
+  <Card title="Data Managers" icon="database" href="/carp-mobile-sensing/data-managers">
+    File, SQLite, Firebase, and CAWS storage/upload options.
+  </Card>
+</CardGroup>

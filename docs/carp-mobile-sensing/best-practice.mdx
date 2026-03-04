@@ -1,0 +1,88 @@
+---
+title: Best Practice
+description: Platform-specific recommendations, permissions, and build troubleshooting
+icon: badge-check
+---
+
+This guide collects practical recommendations for reliable CAMS deployments on Android and iOS.
+
+## Background Sensing
+
+For background sensing, include and configure `carp_context_package` correctly.
+
+### Android
+
+- Disable aggressive battery optimization for the app
+- Verify manufacturer-specific background restrictions (see dontkillmyapp)
+- Ensure required location/background permissions are granted
+
+Resources:
+
+- [DontKillMyApp](https://dontkillmyapp.com)
+- [Background sensing discussion (Issue #97)](https://github.com/cph-cachet/carp.sensing-flutter/issues/97)
+
+### iOS
+
+- Ensure correct location/background modes are configured
+- Turn **Low Power Mode** off for long-running studies
+- Enable **Background App Refresh**
+- Follow `carp_context_package` setup requirements in `Info.plist` and AppDelegate
+
+## iOS Setup Notes
+
+### Podfile
+
+Recommended baseline:
+
+- set minimum iOS version (for example `platform :ios, '12.0'`)
+- ensure Swift version is configured
+- review `post_install` deployment target settings
+- if needed, enable `use_frameworks!` and `use_modular_headers!`
+
+### File Sharing
+
+To expose collected files on iOS, add to `Info.plist`:
+
+```xml
+<key>UIFileSharingEnabled</key>
+<true/>
+<key>LSSupportsOpeningDocumentsInPlace</key>
+<true/>
+```
+
+## Notifications
+
+CAMS commonly uses `FlutterLocalNotificationController` (built on `flutter_local_notifications`).
+Follow platform setup guides carefully for Android and iOS notification behavior.
+
+## Flutter Initialization
+
+Initialize platform channels before app startup:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(App());
+}
+```
+
+## Android Manifest Merge
+
+If restricted permissions from transitive packages must be removed, mark them with `tools:node="remove"` in your app manifest.
+
+## Permissions
+
+CAMS uses `permission_handler`; ensure both Android and iOS platform files are configured for the exact permissions you request.
+
+## Build Troubleshooting
+
+Typical recovery sequence:
+
+```bash
+flutter clean
+rm -rf build
+rm -rf ~/.pub-cache
+flutter pub get
+```
+
+Then re-check SDK/toolchain versions and compare with the CAMS example app if issues persist.

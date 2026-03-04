@@ -1,0 +1,99 @@
+---
+title: Extending CARP Mobile Sensing
+description: Add custom triggers, sampling packages, data managers, and transformers
+icon: puzzle-piece
+---
+
+CAMS is designed for extension. Typical extension points are:
+
+- New triggers
+- New sampling packages
+- New data managers/backends
+- New data/privacy transformer schemas
+
+## Add New Triggers
+
+Implement three elements:
+
+1. `TriggerConfiguration` subclass
+2. `TriggerExecutor` implementation
+3. `TriggerFactory` registration
+
+Register your trigger factory at app startup:
+
+```dart
+ExecutorFactory().registerTriggerFactory(RemoteTriggerFactory());
+```
+
+## Add New Sampling Capabilities
+
+Create a `SamplingPackage` with:
+
+- measure type constants
+- default `samplingSchemes`
+- `onRegister()` for JSON/data registration
+- `create(type)` to map measure type to probe
+
+Register package before creating studies:
+
+```dart
+SamplingPackageRegistry().register(DeviceSamplingPackage());
+```
+
+### Core building blocks
+
+- `SamplingPackage`
+- `SamplingConfiguration`
+- `Data`
+- `Probe`
+- `DeviceManager` (if external devices are used)
+
+Generate serialization helpers with:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+## Add a New Data Manager
+
+Implement:
+
+- `DataEndPoint` (config in protocol)
+- `DataManager` (runtime storage/upload)
+- `DataManagerFactory` (manager creation by endpoint type)
+
+Register your factory:
+
+```dart
+DataManagerRegistry().register(ConsoleDataManagerFactory());
+```
+
+## Add Data Transformer Schemas
+
+Transformers map one `Data` type to another (e.g., CARP → OMH).
+
+- Create `DataTransformerSchema`
+- Register schema in `TransformerSchemaRegistry`
+- Add per-type transformers
+
+```dart
+TransformerSchemaRegistry().register(OMHTransformerSchema());
+```
+
+## Add Privacy Transformers
+
+Privacy protection is implemented as transformer functions and registered in a privacy schema (for example `PrivacySchema.DEFAULT`).
+
+Example pattern:
+
+```dart
+TransformerSchemaRegistry()
+  .lookup(PrivacySchema.DEFAULT)!
+  .add(TEXT_MESSAGE, textMessageAnonymizer);
+```
+
+## Practical Advice
+
+- Make all protocol-level configuration classes JSON serializable
+- Register factories/schemas/packages before loading protocols
+- Keep extension code modular as standalone Dart/Flutter packages when possible

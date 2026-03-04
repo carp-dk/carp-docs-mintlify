@@ -1,0 +1,96 @@
+---
+title: Using CARP Mobile Sensing
+description: Configure, deploy, execute, and consume mobile sensing studies
+icon: play
+---
+
+A CAMS study typically runs in four steps:
+
+1. Define a `StudyProtocol`
+2. Deploy it to a `DeploymentService`
+3. Add deployment to `SmartPhoneClientManager`
+4. Start sampling and consume `measurements`
+
+## 1) Define a Study Protocol
+
+```dart
+final phone = Smartphone();
+
+final protocol = SmartphoneStudyProtocol(
+  ownerId: 'AB',
+  name: 'Tracking steps, light, screen, and battery',
+  dataEndPoint: SQLiteDataEndPoint(),
+)
+  ..addPrimaryDevice(phone)
+  ..addTaskControl(
+    DelayedTrigger(delay: const Duration(seconds: 10)),
+    BackgroundTask(measures: [
+      Measure(type: SensorSamplingPackage.STEP_COUNT),
+      Measure(type: SensorSamplingPackage.AMBIENT_LIGHT),
+      Measure(type: DeviceSamplingPackage.SCREEN_EVENT),
+      Measure(type: DeviceSamplingPackage.BATTERY_STATE),
+    ]),
+    phone,
+    Control.Start,
+  );
+```
+
+## 2) Deploy to a Deployment Service
+
+```dart
+DeploymentService deploymentService = SmartphoneDeploymentService();
+await deploymentService.createStudyDeployment(protocol);
+```
+
+## 3) Add and Configure a Study Runtime
+
+```dart
+SmartPhoneClientManager client = SmartPhoneClientManager();
+await client.configure(deploymentService: deploymentService);
+
+Study study = await client.addStudy(studyDeploymentId, deviceRoleName);
+SmartphoneDeploymentController? controller = client.getStudyRuntime(study);
+
+await controller?.tryDeployment();
+await controller?.configure();
+```
+
+## 4) Execute and Listen to Measurements
+
+```dart
+controller?.start();
+controller?.measurements.forEach(print);
+```
+
+Stop or dispose when done:
+
+```dart
+controller?.stop();
+controller?.dispose();
+```
+
+## Singleton Mode (single local study)
+
+For simple apps with one local protocol:
+
+```dart
+SmartPhoneClientManager().configure().then((_) => SmartPhoneClientManager()
+    .addStudyProtocol(protocol)
+    .then((_) => SmartPhoneClientManager().start()));
+```
+
+## Working with Streams
+
+The `measurements` stream is a standard Dart `Stream`, so filtering/mapping is straightforward:
+
+```dart
+controller?.measurements
+    .where((m) => m.data.format.toString() == SensorSamplingPackage.AMBIENT_LIGHT)
+    .listen(print);
+```
+
+## Data Transformation and Privacy
+
+CAMS supports transformer schemas for alternate output formats (e.g. OMH) and privacy protection via `privacySchemaName`.
+
+Implementation details are covered in [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing).

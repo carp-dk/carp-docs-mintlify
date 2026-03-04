@@ -13,11 +13,11 @@
       {
         "tab": "Home",
         "pages": [
-              "index"
-            ]
+          "index"
+        ]
       },
       {
-        "tab": "Flutter Packages",
+        "tab": "Flutter Plugins",
         "menu": [
           {
             "item": "Health Plugin",
@@ -108,7 +108,54 @@
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "CARP Mobile Sensing",
+        "global": {
+          "anchors": [
+            {
+              "anchor": "Github Page",
+              "icon": "github",
+              "href": "https://github.com/carp-dk/carp.sensing-flutter"
+            },
+            {
+              "anchor": "Pub Page",
+              "icon": "flutter",
+              "href": "https://pub.dev/packages/carp_mobile_sensing"
+            }
+          ]
+        },
+        "groups": [
+          {
+            "group": "Getting Started",
+            "icon": "rocket",
+            "pages": [
+              "carp-mobile-sensing/index",
+              "carp-mobile-sensing/software-architecture",
+              "carp-mobile-sensing/domain-model",
+              "carp-mobile-sensing/using-carp-mobile-sensing"
+            ]
+          },
+          {
+            "group": "Advanced Concepts",
+            "icon": "lightbulb-on",
+            "pages": [
+              "carp-mobile-sensing/app-task-model",
+              "carp-mobile-sensing/extending-carp-mobile-sensing",
+              "carp-mobile-sensing/best-practice"
+            ]
+          },
+          {
+            "group": "Appendices",
+            "icon": "books",
+            "pages": [
+              "carp-mobile-sensing/measure-types",
+              "carp-mobile-sensing/sampling-data-formats",
+              "carp-mobile-sensing/data-managers"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CAWS API",
         "groups": [
           {
             "group": "API Documentation",
@@ -200,6 +247,6 @@
       "og:description": "CARP Documentation",
       "og:site_name": "CARP Documentation",
       "og:locale": "en_US"
+    }
   }
-}
 }

@@ -1,0 +1,61 @@
+---
+title: Data Managers
+description: Storage and upload backends for CAMS measurements
+icon: database
+---
+
+CAMS supports multiple data managers for handling measurements.
+
+## Built-in Managers
+
+- [ConsoleDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/ConsoleDataManager-class.html)
+- [FileDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/FileDataManager-class.html)
+- [SQLiteDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/SQLiteDataManager-class.html)
+
+## External Backends
+
+- [carp_firebase_backend](https://pub.dev/packages/carp_firebase_backend)
+- [carp_backend](https://pub.dev/packages/carp_backend) for CARP Web Services (CAWS)
+
+## File Endpoint
+
+Configure a study to store JSON/ZIP files locally:
+
+```dart
+var protocol = SmartphoneStudyProtocol(
+  ownerId: 'AB',
+  name: 'Track patient movement',
+  dataEndPoint: FileDataEndPoint(bufferSize: 500 * 1000, zip: true),
+);
+```
+
+Data is stored under:
+
+```text
+<local_application_path>/carp/deployments/<study_deployment_id>/data
+```
+
+## SQLite Endpoint
+
+Use local SQLite storage:
+
+```dart
+var protocol = SmartphoneStudyProtocol(
+  ownerId: 'AB',
+  name: 'Track patient movement',
+  dataEndPoint: SQLiteDataEndPoint(),
+);
+```
+
+## CAWS Endpoint Example
+
+```dart
+protocol.dataEndPoint = CarpDataEndPoint(
+  uploadMethod: CarpUploadMethod.stream,
+  name: 'CARP Web Service (CAWS)',
+  uploadInterval: 10,
+  deleteWhenUploaded: false,
+);
+```
+
+For custom integrations, implement your own endpoint, manager, and factory as described in [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing).

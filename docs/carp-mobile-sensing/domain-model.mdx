@@ -1,0 +1,115 @@
+---
+title: Domain Model
+description: Study protocol, triggers, tasks, measures, devices, and measurements
+icon: diagram-project
+---
+
+The CAMS domain model extends [carp_core](https://pub.dev/packages/carp_core) with mobile sensing concepts.
+
+## Protocol Structure
+
+A `StudyProtocol` defines **when**, **how**, and **what** to collect:
+
+- **Trigger**: when sampling starts/stops
+- **Task**: how sampling is executed
+- **Measure**: what data type to collect
+- **Device**: where collection is performed
+
+```text
+StudyProtocol --* Trigger --* Task --* Measure
+      |                                |
+      *                                |
+    Device                   SamplingConfiguration
+```
+
+## Define a Study Protocol
+
+```dart
+SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
+  ownerId: 'AB',
+  name: 'Track patient movement',
+);
+
+var phone = Smartphone();
+protocol.addPrimaryDevice(phone);
+```
+
+Then add task controls:
+
+```dart
+protocol.addTaskControl(
+  DelayedTrigger(delay: const Duration(seconds: 10)),
+  BackgroundTask(measures: [
+    Measure(type: SensorSamplingPackage.STEP_COUNT),
+    Measure(type: SensorSamplingPackage.AMBIENT_LIGHT),
+    Measure(type: DeviceSamplingPackage.SCREEN_EVENT),
+    Measure(type: DeviceSamplingPackage.BATTERY_STATE),
+  ]),
+  phone,
+);
+```
+
+## Triggers
+
+Common built-in triggers include:
+
+- `ImmediateTrigger`
+- `DelayedTrigger`
+- `PeriodicTrigger`
+- `DateTimeTrigger`
+- `CronScheduledTrigger`
+- `SamplingEventTrigger`
+- `UserTaskTrigger`
+
+See [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing) for custom trigger implementations.
+
+## Tasks
+
+CAMS primarily uses:
+
+- `BackgroundTask` for passive sensing
+- `AppTask` for user-facing/interactive workflows
+
+Learn more in [AppTask Model](/carp-mobile-sensing/app-task-model).
+
+## Measures and Sampling Configuration
+
+A `Measure` defines data type and optional sampling configuration.
+
+```dart
+var lightMeasure = Measure(
+  type: SensorSamplingPackage.AMBIENT_LIGHT,
+  samplingConfiguration: PeriodicSamplingConfiguration(
+    interval: const Duration(minutes: 10),
+    duration: const Duration(seconds: 20),
+  ),
+);
+```
+
+Available measure types are listed in [Measure Types](/carp-mobile-sensing/measure-types).
+
+## Devices
+
+Two device categories are supported:
+
+- **Primary device** (typically smartphone)
+- **Connected devices** (wearables/services)
+
+Example with eSense:
+
+```dart
+var phone = Smartphone();
+var eSense = ESenseDevice(deviceName: 'eSense-0223', samplingRate: 10);
+
+protocol
+  ..addPrimaryDevice(phone)
+  ..addConnectedDevice(eSense, phone);
+```
+
+## Deployment and Measurements
+
+Protocols are deployed through a `DeploymentService`, and each client receives a device-specific deployment.
+
+Collected data is emitted as `Measurement` objects containing `Data` payloads. CAMS recommends microsecond timestamps for precision.
+
+Continue with [Using CAMS](/carp-mobile-sensing/using-carp-mobile-sensing) for the end-to-end runtime flow.
