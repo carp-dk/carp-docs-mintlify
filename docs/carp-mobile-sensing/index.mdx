@@ -4,6 +4,10 @@ description: Introduction to the CARP Mobile Sensing (CAMS) framework
 icon: "mobile"
 ---
 
+<Warning>
+This documentation is for CARP Mobile Sensing API level 2.x.
+</Warning>
+
 The CARP Mobile Sensing (CAMS) Flutter package [carp_mobile_sensing](https://pub.dev/packages/carp_mobile_sensing) is a framework for adding digital phenotyping capabilities to mobile health apps.
 
 The overall goal of CAMS is to help developers build custom mobile sensing applications that can be adapted to very different health domains.
@@ -52,7 +56,6 @@ CAMS focuses on a flexible engineering architecture that supports:
   </Card>
 </CardGroup>
 
-
 ## How It Works
 
 The code listing below shows a simple Dart example of how to add sampling to a Flutter app. This basic example illustrates how sampling is configured, deployed, initialized, and used in three basic steps;
@@ -63,7 +66,7 @@ The code listing below shows a simple Dart example of how to add sampling to a F
   </Step>
   
   <Step title="Create and Configure Runtime">
-    Configure the `SmartPhoneClientManager` and add the study protocol to it. 
+    Configure the `SmartPhoneClientManager` and add the study protocol to it.
   </Step>
   
   <Step title="Start Data Sampling">
@@ -129,6 +132,7 @@ SmartPhoneClientManager().resume();
 // Dispose the client. Can not be used anymore.
 SmartPhoneClientManager().dispose();
 ```
+
 ## Minimalistic Example
 
 In the example above, the client manager is configured, the protocol is added, and sampling is started. This can actually be done in one line of code, like this:
@@ -154,8 +158,6 @@ SmartPhoneClientManager().configure().then(
       ),
 );
 ```
-
-
 
 ## Continue Reading
 

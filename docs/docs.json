@@ -147,6 +147,7 @@
             "icon": "lightbulb-on",
             "pages": [
               "carp-mobile-sensing/app-task-model",
+              "carp-mobile-sensing/data-transformation-and-privacy",
               "carp-mobile-sensing/extending-carp-mobile-sensing",
               "carp-mobile-sensing/best-practice"
             ]

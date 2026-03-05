@@ -1,0 +1,45 @@
+---
+title: Data Transformation and Privacy
+description: Configure output transformations and privacy schemas in CAMS
+icon: shield-check
+---
+
+Use this page to configure output transformation formats and privacy behavior in your study protocols.
+
+## Data transformation
+
+CAMS supports transformation via:
+
+- [`DataTransformer`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformer.html)
+- [`DataTransformerSchema`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformerSchema-class.html)
+
+You can set output format in protocol endpoint config (for example OMH):
+
+```dart
+SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
+  ownerId: 'AB',
+  name: 'Track patient movement',
+  dataEndPoint: FileDataEndPoint(
+    bufferSize: 500 * 1000,
+    zip: true,
+    encrypt: false,
+    dataFormat: NameSpace.OMH,
+  ),
+);
+```
+
+For custom transformers, see [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing#adding-data-and-privacy-transformers).
+
+## Privacy transformer schemas
+
+To apply privacy transformations, configure a privacy schema:
+
+```dart
+SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
+  ownerId: 'AB',
+  name: 'Track patient movement',
+  privacySchemaName: PrivacySchema.DEFAULT,
+);
+```
+
+The default privacy schema can be [extended](/carp-mobile-sensing/extending-carp-mobile-sensing#creating-data-privacy) or replaced by your own.

@@ -611,6 +611,12 @@ A data endpoint is included in the study protocol and specifies what data manage
 Note that a data endpoint can be used in a study protocol and hence needs to be serializable. Hence, any new data endpoint needs to include support for `toJson` and `fromJson` methods, as [described above](#auto-generation-of-json-files). 
 
 
+## Handling Study Protocols via a Protocol Manager
+
+You can get a protocol by implementing the `getStudyProtocol` method in the [StudyProtocolManager](https://pub.dev/documentation/carp_mobile_sensing/latest/services/StudyProtocolManager-class.html) interface. This interface allows you to save and get protocols and is designed to allow you to create your own (server-based) protocol managers. Note that a `SmartphoneStudyProtocol` is serializable to/from JSON and can hence be send to/from a server. 
+
+
+
 ## Data Manager
 
 
