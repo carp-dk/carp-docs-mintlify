@@ -1,88 +1,203 @@
 ---
 title: Best Practice
-description: Platform-specific recommendations, permissions, and build troubleshooting
+description: Platform-specific guidance for Android and iOS
 icon: badge-check
 ---
 
-This guide collects practical recommendations for reliable CAMS deployments on Android and iOS.
+This page contains a set of best practice advice and tips on using CARP Mobile Sensing. It is in particular related to discussing differences between the two mobile platforms -- Android and iOS.
 
-## Background Sensing
+# Background Sensing
 
-For background sensing, include and configure `carp_context_package` correctly.
+To keep the app running in the background, the [`carp_context_package`](https://pub.dev/packages/carp_context_package) needs to be included. Please follow the instructions on how to use this package.
 
-### Android
+## Android
 
-- Disable aggressive battery optimization for the app
-- Verify manufacturer-specific background restrictions (see dontkillmyapp)
-- Ensure required location/background permissions are granted
+On Android version >= 9, battery management has been significantly improved. There are repeatedly reported issues with some Android devices not working in the background. Check if your device model is on [dontkillmyapp](https://dontkillmyapp.com) list before you report new issue. This means that an app will be put to sleep when in the background. This is less useful, if the app is using CAMS for passive data collection. 
 
-Resources:
+The [dontkillmyapp](https://dontkillmyapp.com) site provides suggestions for the different types of phone and OS versions. But a general approach is the following:
 
-- [DontKillMyApp](https://dontkillmyapp.com)
-- [Background sensing discussion (Issue #97)](https://github.com/cph-cachet/carp.sensing-flutter/issues/97)
+ * [enable 'Developer Options' in Android](https://wccftech.com/how-to-enable-android-9-0-pie-developer-options-tutorial/)
+ * go to 'Developers options' in Settings
+   * scroll down to 'Apps'
+   * make sure that 'Don't keep activities' is **disabled**
+   * make sure that 'Background process limit' is 'Standard limit'
+ * go to 'Apps' in Settings
+   * click on your app
+   * click on 'Battery'
+   * on Android 11:
+     * click on 'Optimise battery usage'
+     * make sure to show 'all' apps
+     * make sure your app is disabled, i.e. that it is **not** optimized for battery usage.
+   * on Android 12:
+     * use the 'Unrestricted' option
+ * go to 'Battery and device care'
+   * click the 'dot menu' in the top right corner and select 'Automation'
+   * turn off "Auto optimise daily' and 'Adaptive power saving'
 
-### iOS
+From version `0.30.0` the CAMS [`carp_context_package`](https://pub.dev/packages/carp_context_package) makes use of the [`location`](https://pub.dev/packages/location) plugin, which supports the collection of location "in the background". If you follow the instructions on how to modify the Android `Manifest.xml` file, this will help keep the app running in the background. Furthermore, the user needs to allow the app to access location "Always".
 
-- Ensure correct location/background modes are configured
-- Turn **Low Power Mode** off for long-running studies
-- Enable **Background App Refresh**
-- Follow `carp_context_package` setup requirements in `Info.plist` and AppDelegate
+### Resources
 
-## iOS Setup Notes
+* See [Issue #97](https://github.com/cph-cachet/carp.sensing-flutter/issues/97) for a discussion on background sensing.
+* See [this thread on Reddit](https://www.reddit.com/r/samsung/comments/1b0j8jg/s24_ultra_stop_closing_my_apps/) on how to keep an app running in the background on Samsung phones.
+* See the [Don't Kill My App](https://dontkillmyapp.com/) site and suggestions, e.g. for [Samsung](https://dontkillmyapp.com/samsung) phones.
+* This [setup page for the Cardata app](https://help.cardata.co/article/175-how-to-turn-off-your-androids-battery-optimizer) also have some simple guidelines for different phones.
 
-### Podfile
+## iOS
 
-Recommended baseline:
+To keep the app running in the background, the `carp_context_package` needs to be included. It is important to follow the instruction of the package, including modifying the `info.plist` and `AppDelegate.swift` files. Also make sure that "Allow location tracking always" is enabled for the app on the phone.
 
-- set minimum iOS version (for example `platform :ios, '12.0'`)
-- ensure Swift version is configured
-- review `post_install` deployment target settings
-- if needed, enable `use_frameworks!` and `use_modular_headers!`
+iOS tends to [aggressively kill apps](https://developer.apple.com/forums/thread/696275) (especially after iOS v. 15). There are a few things to do about this:
 
-### File Sharing
+ - Low Power Mode (Settings App - > Battery - > Low Power Mode) needs to be **OFF**.
 
-To expose collected files on iOS, add to `Info.plist`:
+ - Background App Refresh (Settings App -> Hushed - > Background App Refresh) needs to be **ON**. If Background refresh is greyed out in the ON position, go To Settings App - > General - > Background App Refresh - > Turn on the option for the system, and then you can turn on / off by app. 
 
-```xml
+### Guide Access
+
+You can also force the app to always be in the foreground by using the "[Guide Access](https://support.apple.com/en-us/HT202612)" feature in iOS. This feature forces the app to be the *only* app running in the foreground always and is hence not useful for background sensing. But it may be useful if the phone is dedicated to running an app for a specific study. For example, if a dedicated study phone is handed to a user to be used only for a specific study.
+
+### Audio Playing Hack
+
+Another "hack" to keep the app running in the background is to configure it as an audio player app. Audio playing apps are kept running in the background on iOS. See the [sensors](https://github.com/olafuroskar/Bridging-Labs/tree/main/apps/sensors) app for inspiration.
+
+# iOS Setup
+
+## Manually edit `Podfile`
+
+In a new Flutter project, the iOS `Podfile` is auto-generated in the `ios` folder. To make things work, there are a few edits to this file that need to be done:
+
+* Specify the platform version, like adding `platform :ios, '12.0'` (should be later than 9.3).
+  * Note that you might need to do this also manually in XCode also - see [this issue](https://github.com/tanersener/flutter-ffmpeg/issues/43).
+* In the `post_install` part, you should make sure that the `config.build_settings` is also set to the same platform version (see [here](https://stackoverflow.com/questions/63948739/flutter-could-not-build-the-precompiled-application-for-the-device-error-laun) and [here](https://stackoverflow.com/questions/61956166/flutter-module-not-found-in-xcode)).
+* Specify the Swift version by adding `ENV['SWIFT_VERSION'] = '5'`
+* In the `target 'RUNNER'` part, add the following lines `use_frameworks!` and `use_modular_headers!` (if not already added by Flutter)
+* In the `target 'RUNNER'` part, also **remove** the `target 'RunnerTests'` part (this may cause build issues).
+
+An example of the edited `Podfile` would look like:
+
+```
+# Uncomment this line to define a global platform for your project
+platform :ios, '12.0'
+
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+ENV['SWIFT_VERSION'] = '5'
+
+...
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  # target 'RunnerTests' do
+  #   inherit! :search_paths
+  # end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+    end
+  end
+end
+```
+
+## File Management
+
+If you want to store data using the `FileDataManager`, and want to grant the user of your app  (e.g. yourself during development and debugging) access to it on the phone or via the iTunes app, add the following two entries to `Info.plist`. 
+
+```
 <key>UIFileSharingEnabled</key>
 <true/>
 <key>LSSupportsOpeningDocumentsInPlace</key>
 <true/>
 ```
 
-## Notifications
+## WiFi
 
-CAMS commonly uses `FlutterLocalNotificationController` (built on `flutter_local_notifications`).
-Follow platform setup guides carefully for Android and iOS notification behavior.
+Note that on iOS>=12, collection of WiFi info has been restricted – please see
 
-## Flutter Initialization
+  * [connectivity](https://pub.dev/packages/connectivity)
+  * [CNCopyCurrentNetworkInfo](https://developer.apple.com/documentation/systemconfiguration/1614126-cncopycurrentnetworkinfo)
+  * [Access WiFi Information Entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_networking_wifi-info?language=objc)
+  * [How To Enable the WiFi Information Entitlement in iOS 13](https://medium.com/better-programming/wifi-permission-changes-for-ios-12-1-iphone-x-and-other-devices-c313e24f90ae)
 
-Initialize platform channels before app startup:
+## 'App.framework' Compatibility
+
+You may get this error:
+
+```
+Building for iOS, but the linked and embedded framework 'App.framework' was built for iOS Simulator.
+```
+
+or vice-versa. This is a well-known issue on iOS / XCode 11.4 for Flutter version less than v1.15.3. 
+See the Flutter [Xcode 11.4 Support](https://flutter.dev/docs/development/ios-project-migration) page.
+
+# Notifications
+
+The default notification controller used in CAMS is the [FlutterLocalNotificationController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/FlutterLocalNotificationController-class.html), which again used the [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) plugin. This plugin is pretty powerful and supports - amongst other things - scheduling and receiving notifications when the app is in the background or even killed. However, to make this happen, there is quite a lot of configuration needed. This is all very well explained in the [flutter_local_notifications plugin README](https://pub.dev/packages/awesome_notifications) on how to set up on [Android](https://pub.dev/packages/flutter_local_notifications#-android-setup) and [iOS](https://pub.dev/packages/flutter_local_notifications#-ios-setup). Please configure your app according to these guidelines.
+
+
+# Initializing WidgetsFlutterBinding
+
+To initialize the Flutter platform channels, you need to call `WidgetsFlutterBinding.ensureInitialized()` in your `main()` method, before creating the app. For example - this is the main method of the CAMS demo app:
 
 ```dart
 void main() async {
+  // makes sure to have an instance of the WidgetsBinding, which is required
+  // to use platform channels to call the native code.
   WidgetsFlutterBinding.ensureInitialized();
+
+  await bloc.initialize();
   runApp(App());
 }
 ```
 
-## Android Manifest Merge
+There is a StackOverflow description of [What Does `WidgetsFlutterBinding.ensureInitialized()` do?](https://stackoverflow.com/questions/63873338/what-does-widgetsflutterbinding-ensureinitialized-do/63873689).
 
-If restricted permissions from transitive packages must be removed, mark them with `tools:node="remove"` in your app manifest.
+# Android Manifest file merge
 
-## Permissions
+When building your app, the `AndroidManifest.xml` files from all packages are [merged](https://developer.android.com/studio/build/manage-manifests#merge-manifests). 
 
-CAMS uses `permission_handler`; ensure both Android and iOS platform files are configured for the exact permissions you request.
+When you want to publish your app, which uses various CARP package, to the Google Play Store, it can be rejected because it tries to collect SMS texts and call logs, which Google considers to be a [restricted group of permissions](https://support.google.com/googleplay/android-developer/answer/10208820?visit_id=637547856829628711-3104765488&rd=1&hl=en) for which you need a valid reason to access those. Unfortunately, research is not in the list of exceptions. Hence, we would like to remove collection of SMS texts and call logs while still keeping collection of calendar information (all in the `carp_communication_package`).
 
-## Build Troubleshooting
+Illegal permissions can be omitted by specifying that they should not be merged from a lower level manifest. This is done by adding the following lines to the `AndroidManifest.xml` file of your app, which prevents the restricted permissions from being added:
 
-Typical recovery sequence:
+```xml
+<uses-permission android:name="android.permission.READ_CALL_LOG" tools:node="remove"/>
+<uses-permission android:name="android.permission.READ_SMS" tools:node="remove"/>
+<uses-permission android:name="android.permission.SEND_SMS" tools:node="remove"/>
+<uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove"/>
+```
 
+See also [Issue #183](https://github.com/cph-cachet/carp.sensing-flutter/issues/183). Thanks to [koenniem](https://github.com/koenniem) for this update.
+
+# Permissions
+
+CAMS uses the [`permission_handler`](https://pub.dev/packages/permission_handler) plugin for handling permissions. Please see their description on how to configure permissions in both iOS and Android. Note in particular to change both the `Info.plist` and `Podfile` files  on iOS. Othervise you may have [problems getting your app approved by Apple](https://github.com/Baseflow/flutter-permission-handler/issues/26).
+
+# Build issues
+
+If you're experiencing any build issue, try these steps:
+
+1. Run this on your project and try again:
 ```bash
 flutter clean
 rm -rf build
 rm -rf ~/.pub-cache
+
 flutter pub get
 ```
 
-Then re-check SDK/toolchain versions and compare with the CAMS example app if issues persist.
+On Android, you might also want to run the ` ./gradlew clean` command. And on iOS, you might want to remove the `.symlink` folder. 
+
+1. Update Xcode, Android Studio, VS Studio, and Android SDKs, to the latest versions.
+1. If the issue persists, clone the carp_mobile_sensing repo and run the `example` app on the platform you are having issues. If it works, then there is something wrong with your project, and you can compare it to the `example` app to see what the problem is.
+1. If the problem still persists, and no existing (open or closed) issue on this repo, then you can open an issue. But you must follow the issue template and refer to the problem on the example app (or start with its code and make only the necessary modifications to trigger the issue), not on your own app, which we don't have access (because since step 2 the error must be reproducible on the example app).
+1. Again, only open an issue if you reach step 3 and follow the issue template closely. Build issues that do not follow these steps will be closed.
+
+

@@ -1,0 +1,8 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^python3 - <<'PY'\nimport json\nfrom pathlib import Path\n\nroot = Path\\('/Users/bardram/dev/carp-docs-mintlify/docs'\\)\nconfig = json\\.loads\\(\\(root / 'docs\\.json'\\)\\.read_text\\(\\)\\)\n\nmissing = \\[\\]\n\ndef check_page\\(page\\):\n    path = root / f\"\\{page\\}\\.mdx\"\n    if not path\\.exists\\(\\):\n        missing\\.append\\(page\\)\n\ndef walk_nav\\(node\\):\n    if isinstance\\(node, dict\\):\n        if 'pages' in node and isinstance\\(node\\['pages'\\], list\\):\n            for p in node\\['pages'\\]:\n                if isinstance\\(p, str\\):\n                    check_page\\(p\\)\n        for k in \\('tabs', 'menu', 'groups'\\):\n            if k in node and isinstance\\(node\\[k\\], list\\):\n                for item in node\\[k\\]:\n                    walk_nav\\(item\\)\n    elif isinstance\\(node, list\\):\n        for item in node:\n            walk_nav\\(item\\)\n\nwalk_nav\\(config\\.get\\('navigation', \\{\\}\\)\\)\n\nif missing:\n    print\\('MISSING_PAGES'\\)\n    for p in missing:\n        print\\(p\\)\nelse:\n    print\\('NAV_OK'\\)\nPY$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}

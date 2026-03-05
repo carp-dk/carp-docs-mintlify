@@ -1,61 +1,94 @@
 ---
 title: Data Managers
-description: Storage and upload backends for CAMS measurements
+description: Available data managers and backend options
 icon: database
 ---
 
-CAMS supports multiple data managers for handling measurements.
+The CAMS Framework contains the following data managers:
 
-## Built-in Managers
+* [ConsoleDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/ConsoleDataManager-class.html) - prints data to the Dart console.
+* [FileDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/FileDataManager-class.html) - a data manager that stores data to a local file as zipped JSON.
+* [SQLiteDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/SQLiteDataManager-class.html) - a data manager that stores data to a local SQLite database.
+* [carp_firebase_backend](https://pub.dartlang.org/packages/carp_firebase_backend) supporting upload of data both as raw JSON to the Firebase database as well as (zipped) files to the Firebase Storage endpoint.
+* [carp_backend](https://pub.dartlang.org/packages/carp_backend) supporting data streaming to the CARP Web Service (CAWS) backend.
 
-- [ConsoleDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/ConsoleDataManager-class.html)
-- [FileDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/FileDataManager-class.html)
-- [SQLiteDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/SQLiteDataManager-class.html)
 
-## External Backends
+# Files
 
-- [carp_firebase_backend](https://pub.dev/packages/carp_firebase_backend)
-- [carp_backend](https://pub.dev/packages/carp_backend) for CARP Web Services (CAWS)
-
-## File Endpoint
-
-Configure a study to store JSON/ZIP files locally:
+The `FileDataEndPoint` allows sensing data to be stored in a JSON file on the local device. A `FileDataEndPoint` endpoint can be created and added to a study protocol, like this:
 
 ```dart
-var protocol = SmartphoneStudyProtocol(
-  ownerId: 'AB',
-  name: 'Track patient movement',
-  dataEndPoint: FileDataEndPoint(bufferSize: 500 * 1000, zip: true),
-);
+    var protocol = SmartphoneStudyProtocol(
+        ownerId: 'AB',
+        name: 'Track patient movement',
+        dataEndPoint: FileDataEndPoint(bufferSize: 500 * 1000, zip: true));
 ```
 
-Data is stored under:
+CARP sensing data is stored in a subfolder called 
 
-```text
-<local_application_path>/carp/deployments/<study_deployment_id>/data
-```
+`<local_application_path>/carp/deployments/<study_deployment_id>/data`
 
-## SQLite Endpoint
+where `local_application_path` is the folder where an application can place files that are private to the application.
 
-Use local SQLite storage:
+On **Android**, Flutter files are stored in the `AppData` directory, which is located in the 
+`data/data/<<package_name>>/app_flutter` folder. Files can be accessed via AndroidStudio.
+
+On **iOS**, this is the `NSDocumentsDirectory`, which is the app's document folder on the phone. This folder and its files can be accessed via the macOS Finder when the phone is plugged into a laptop.
+
+> [!NOTE] 
+> You need to set the `UIFileSharingEnabled` key to `true` in the `info.plist` to get access to the app's files.
+
+
+Data files follow the schema of `carp-data-yyyy-mm-dd-hh-mm-ss-ms.json`. 
+`.zip` is added, if the JSON file is zipped.
+
+# SQLite
+
+This endpoint is very similar to the file endpoint, except that data is stored in an SQLite database instead of a file.
+This endpoint takes no configuration and can be added to a protocol like this:
 
 ```dart
-var protocol = SmartphoneStudyProtocol(
-  ownerId: 'AB',
-  name: 'Track patient movement',
-  dataEndPoint: SQLiteDataEndPoint(),
-);
+    var protocol = SmartphoneStudyProtocol(
+        ownerId: 'AB',
+        name: 'Track patient movement',
+        dataEndPoint: SQLiteDataEndPoint());
 ```
 
-## CAWS Endpoint Example
+The database files can be accessed like other files (see above). 
+
+* On Android, the SQLite db file is located in the `data/data/<<package_name>>/databases` folder.
+
+# Firebase
+
+The [`carp_firebase_backend`](https://pub.dev/packages/carp_firebase_backend) package is a separate Flutter package for supporting [Google Firebase](https://firebase.google.com) as a backend. 
+It supports uploading of data both as files in [Storage](https://firebase.google.com/products/storage/) as well as raw JSON in [Firestore](https://firebase.google.com/products/firestore/). Full documentation is provided as part of the plugin.
+
+
+> **NOTE -** The Firebase data manager has not (yet) been updated to API level 1.x.
+
+# CARP Web Services
+
+The [`carp_backend`](https://pub.dev/packages/carp_backend) package is a separate Flutter package supporting the [CARP Web Service (CAWS)](https://carp.cachet.dk/caws/) backend. It supports:
+
+ * user authentication and setting up a connection to CAWS.
+ * download of a study deployment configuration from CAWS
+ * streaming of sensing data from CAMS to CAWS
+ * upload/download of data like files and JSON documents from/to CAWS
+
+Full documentation is provided as part of the plugin, and an example of how this is used is part of the [CAMS Demo App](https://github.com/cph-cachet/carp.sensing-flutter/tree/main/apps/carp_mobile_sensing_app).
+
+The CAWS data endpoint can be added to a CAMS study protocol and further configured as a [`CarpDataEndpoint`](https://pub.dev/documentation/carp_backend/latest/carp_backend/CarpDataEndPoint-class.html), like this:
 
 ```dart
-protocol.dataEndPoint = CarpDataEndPoint(
-  uploadMethod: CarpUploadMethod.stream,
-  name: 'CARP Web Service (CAWS)',
-  uploadInterval: 10,
-  deleteWhenUploaded: false,
-);
+    // Add CAWS as the data endpoint using a stream (default)
+    protocol.dataEndPoint = CarpDataEndPoint(
+      uploadMethod: CarpUploadMethod.stream,
+      name: 'CARP Web Service (CAWS)',
+      // Upload data every 10 min
+      uploadInterval: 10,
+      // Keep data on the phone even though it is uploaded
+      deleteWhenUploaded: false,
+    );
 ```
 
-For custom integrations, implement your own endpoint, manager, and factory as described in [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing).
+ 
