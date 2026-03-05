@@ -37,13 +37,14 @@ A trigger configures *when* to collect data (e.g., every hour), a task configure
 
 ### Study Protocol
 
-A [`StudyProtocol`](https://pub.dev/documentation/carp_core/latest/protocols_carp_core_protocols/StudyProtocol-class.html) holds the entire definition of the study to be done, including the owner and name of the study, plus the "primary device" that is responsible for data collection.
+A [`StudyProtocol`](https://pub.dev/documentation/carp_core/latest/protocols_carp_core_protocols/StudyProtocol-class.html) holds the entire definition of the study to be done, including the owner and name of the study, where to store the data, and which "primary device" that is responsible for data collection.
 
 ````dart
-// Create a study protocol - owner ID and name are required
-SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
-  ownerId: 'AB',
+// Create a study protocol storing data in a local SQLite database.
+final protocol = SmartphoneStudyProtocol(
+  ownerId: 'abc@dtu.dk',
   name: 'Track patient movement',
+  dataEndPoint: SQLiteDataEndPoint(),
 );
 
 // Define which devices are used for data collection.
@@ -51,6 +52,14 @@ SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
 var phone = Smartphone();
 protocol.addPrimaryDevice(phone);
 ````
+
+<Note>
+See [Data Managers](/carp-mobile-sensing/data-managers) for a list of available data manager and endpoints.
+</Note>
+
+<Tip>
+You can specify more elaborate descriptions of a protocol and the nature of a study by specifying a [StudyDescription](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/StudyDescription-class.html) which includes information on study purpose, homepage, privacy, and responsible researcher.
+</Tip>
 
 ### Triggers
 
@@ -108,7 +117,7 @@ A list of available measure types in CAMS can be found in [Measure Types](/carp-
 ### Examples
 
 Now that we know the study protocol domain model, we're ready to create the study protocol - which basically just is a list of triggers of tasks with a set of measures.
-Examples are included below with increasing complexity.
+Examples are included below.
 
 <Tabs>
 
