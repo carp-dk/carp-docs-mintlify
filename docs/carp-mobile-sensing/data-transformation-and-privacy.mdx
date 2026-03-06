@@ -1,19 +1,27 @@
 ---
 title: Data Transformation and Privacy
 description: Configure output transformations and privacy schemas in CAMS
-icon: shield-check
+icon: chart-fft
 ---
 
-Use this page to configure output transformation formats and privacy behavior in your study protocols.
+
+<CardGroup cols={2}>
+  <Card title="Data Transformation" icon="shuffle">
+    Configure how sampled data is transformed before it is written to your endpoint.
+  </Card>
+  <Card title="Privacy Schemas" icon="shield-check">
+    Apply privacy transformation to measurements by assigning a privacy schema to the protocol.
+  </Card>
+</CardGroup>
 
 ## Data transformation
 
-CAMS supports transformation via:
+CAMS supports data transformation via two concepts:
 
-- [`DataTransformer`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformer.html)
-- [`DataTransformerSchema`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformerSchema-class.html)
+- [`DataTransformer`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformer.html) - can transform one type of `Data` to another type of `Data`.
+- [`DataTransformerSchema`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformerSchema-class.html) - holds a set of `DataTransformer`s that can map from the native CARP namespace to another namespace.
 
-You can set output format in protocol endpoint config (for example OMH):
+To use a transformer schema, specify it in the protocolø's endpoint config. The following protocol will save data as a file in the [Open mHealth](https://www.openmhealth.org/) (OMH) data format:
 
 ```dart
 SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
@@ -28,11 +36,13 @@ SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
 );
 ```
 
-For custom transformers, see [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing#adding-data-and-privacy-transformers).
+<Note>
+  You can make you own custom transformation implementations. See [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing#adding-data-and-privacy-transformers).
+</Note>
 
 ## Privacy transformer schemas
 
-To apply privacy transformations, configure a privacy schema:
+To apply privacy transformations, configure a privacy schema on the protocol:
 
 ```dart
 SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
@@ -42,4 +52,10 @@ SmartphoneStudyProtocol protocol = SmartphoneStudyProtocol(
 );
 ```
 
+<Tip>
+  `PrivacySchema.DEFAULT` holds default privacy schemas and is a practical starting point. You can extend or replace it with your own schema.
+</Tip>
+
+<Note>
 The default privacy schema can be [extended](/carp-mobile-sensing/extending-carp-mobile-sensing#creating-data-privacy) or replaced by your own.
+</Note>
