@@ -282,7 +282,7 @@ An app task can be configured with [`notification`](https://pub.dev/documentatio
 
 This notification setup uses [`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications) and requires app-level configuration. See [Install and Configure](/carp-mobile-sensing/install-and-configure).
 
-## Types of App Tasks
+## Types of app tasks
 
 Currently, CAMS supports different types of AppTasks, all enumerated in the [`AppTask`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/AppTask-class.html) class:
 
@@ -295,7 +295,7 @@ Currently, CAMS supports different types of AppTasks, all enumerated in the [`Ap
 | `HEALTH_ASSESSMENT_TYPE` | Collects health data via the [carp_health_package](https://pub.dev/packages/carp_health_package). |
 | `AUDIO_TYPE`, `VIDEO_TYPE`, `IMAGE_TYPE` | Collects media data via the [carp_audio_package](https://pub.dev/packages/carp_audio_package). |
 
-## Extending the App Task Model
+## Extending the app task model
 
 CAMS is extensible, so you can add custom app tasks by creating new `UserTask` types and registering them.
 This is similar to extending measures and probes, as described in [Extending CAMS](/carp-mobile-sensing/extending-carp-mobile-sensing).

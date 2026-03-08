@@ -10,13 +10,12 @@ The figure below illustrates the overall runtime architecture of CARP Mobile Sen
 * Deployment Services and Data Manager (top layer) - accessing deployment configurations and uploading data
 * Sampling Packages (bottom layer) - a set of sampling packages accessing data from the underlying layers
 
-CAMS builds on top of a set of Flutter plugins that access sensors and services in the underlying OS, external wearable devices, and cloud-based services. 
+CAMS builds on top of a set of Flutter plugins that access sensors and services in the underlying OS, external wearable devices, and cloud-based services.
 This architecture is designed to achieve the non-functional software architecture goals of being highly extensible, cross-platform, and maintainable.
 
 ![carp_mobile_sensing_architecture](https://github.com/cph-cachet/carp.sensing-flutter/assets/1196642/5ac4a4e7-2f7d-40ef-a6ab-2766e44738a8)
 
-
-# Client Manager Layer
+# Client manager layer
 
 This is the "core" CAMS runtime and comprises the following core runtime components:
 
@@ -34,25 +33,24 @@ This is the "core" CAMS runtime and comprises the following core runtime compone
 
 * Study deployments that should run on a SmartPhoneClientManager can be [added](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartPhoneClientManager/addStudy.html), which will create and host a [SmartphoneDeploymentController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneDeploymentController-class.html) for each study.
 
-   * The SmartphoneDeploymentController can be [configured](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneDeploymentController/configure.html) by optionally specifying a [DataEndPoint](https://pub.dev/documentation/carp_core/latest/carp_core_deployment/DataEndPoint-class.html) and a [DataTransformer](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformer.html).
+  * The SmartphoneDeploymentController can be [configured](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneDeploymentController/configure.html) by optionally specifying a [DataEndPoint](https://pub.dev/documentation/carp_core/latest/carp_core_deployment/DataEndPoint-class.html) and a [DataTransformer](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformer.html).
 
-   * The SmartphoneDeploymentController uses the set of registries in the SmartPhoneClientManager to look up an appropriate data manager, relevant sampling packages, data transformers, and sensing probes for executing the sensing study deployment protocol.
+  * The SmartphoneDeploymentController uses the set of registries in the SmartPhoneClientManager to look up an appropriate data manager, relevant sampling packages, data transformers, and sensing probes for executing the sensing study deployment protocol.
 
 When the SmartPhoneClientManager has been configured and the study has been added, data sampling can be controlled by [starting](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartPhoneClientManager/start.html) or [stopping](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartPhoneClientManager/stop.html) all studies on a client. This can also be done or a per-study level, by using the [start](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneDeploymentController/start.html) and [stop](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneDeploymentController/stop.html) methods on the SmartphoneDeploymentController.  
 
-# Service Layer
+# Service layer
 
-The service layer (top layer) holds 
+The service layer (top layer) holds
 
 * The [Deployment Service](https://pub.dev/documentation/carp_core/latest/carp_core_deployment/DeploymentService-class.html), which is able to manage and deploy the [StudyProtocol](https://pub.dev/documentation/carp_core/latest/carp_core_protocols/StudyProtocol-class.html).
 
 * [Data Managers](/carp-mobile-sensing/data-managers), which know how to store, save, or upload data, such as the [SQLiteDataManager](https://pub.dev/documentation/carp_mobile_sensing/latest/data_managers/SQLiteDataManager-class.html).
 
-# Sampling Layer
+# Sampling layer
 
-The sampling layer (bottom layer) holds 
+The sampling layer (bottom layer) holds
 
-* A set of [SamplingPackage](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SamplingPackage-class.html)s, which can collect a specific [type of measure](/carp-mobile-sensing/measure-types). CAMS comes with two built-in sampling packages (the [DeviceSamplingPackage](https://pub.dev/documentation/carp_mobile_sensing/latest/device/DeviceSamplingPackage-class.html) and [SensorSamplingPackage](https://pub.dev/documentation/carp_mobile_sensing/latest/sensors/SensorSamplingPackage-class.html)), but most sampling packages are available as external packages which are used in the app, as needed. In this way, an app only needs permissions to access probes (and hence sensors), which are needed in a specific app. A sampling package can also collect data from external devices (e.g., the [Polar heart rate monitors](https://pub.dev/packages/carp_polar_package)) and in this case, the sampling package holds a [DeviceManager](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/DeviceManager-class.html) which knows how to handle devices on runtime. Such devices can also be online services, such as a [WeatherServiceManager](https://pub.dev/documentation/carp_context_package/latest/carp_context_package/WeatherServiceManager-class.html). The [carp_context_package](https://pub.dev/packages/carp_context_package) is an example of an externally loaded sampling package, which are available on [pub.dev](https://pub.dev/). 
+* A set of [SamplingPackage](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SamplingPackage-class.html)s, which can collect a specific [type of measure](/carp-mobile-sensing/measure-types). CAMS comes with two built-in sampling packages (the [DeviceSamplingPackage](https://pub.dev/documentation/carp_mobile_sensing/latest/device/DeviceSamplingPackage-class.html) and [SensorSamplingPackage](https://pub.dev/documentation/carp_mobile_sensing/latest/sensors/SensorSamplingPackage-class.html)), but most sampling packages are available as external packages which are used in the app, as needed. In this way, an app only needs permissions to access probes (and hence sensors), which are needed in a specific app. A sampling package can also collect data from external devices (e.g., the [Polar heart rate monitors](https://pub.dev/packages/carp_polar_package)) and in this case, the sampling package holds a [DeviceManager](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/DeviceManager-class.html) which knows how to handle devices on runtime. Such devices can also be online services, such as a [WeatherServiceManager](https://pub.dev/documentation/carp_context_package/latest/carp_context_package/WeatherServiceManager-class.html). The [carp_context_package](https://pub.dev/packages/carp_context_package) is an example of an externally loaded sampling package, which are available on [pub.dev](https://pub.dev/).
 
 * Each sampling package contains one or more [Probe](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/Probe-class.html)s, which can access the underlying sensor and collect the data. Access to sensor data is typically done using a [Flutter plugin](https://flutter.dev/docs/resources/architectural-overview). Note that these Flutter plugins are external to CAMS and is loaded as needed by the sampling package. For example, the [carp_context_package](https://pub.dev/packages/carp_context_package) make use of the [weather](https://pub.dev/packages/weather) plugin to access weather data (as a web service).
-

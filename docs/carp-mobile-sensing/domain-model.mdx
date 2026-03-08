@@ -21,7 +21,7 @@ This includes domain classes related to a study protocol, data transformers, sam
   </Card>
 </CardGroup>
 
-## Defining a Study Protocol
+## Defining a study protocol
 
 Data collection is configured as a [`StudyProtocol`](https://pub.dev/documentation/carp_core/latest/carp_core_protocols/StudyProtocol-class.html).
 A study protocol is always executed by one or more [primary devices](https://pub.dev/documentation/carp_core/latest/carp_core_protocols/StudyProtocol/primaryDevices.html) (e.g., a smartphone) and can use a set of [connected devices](https://pub.dev/documentation/carp_core/latest/carp_core_protocols/StudyProtocol/connectedDevices.html) (e.g., a heart rate monitor).
@@ -35,7 +35,7 @@ A trigger configures *when* to collect data (e.g., every hour), a task configure
          Device                        SamplingConfiguration
 ```
 
-### Study Protocol
+### Study protocol
 
 A [`StudyProtocol`](https://pub.dev/documentation/carp_core/latest/protocols_carp_core_protocols/StudyProtocol-class.html) holds the entire definition of the study to be done, including the owner and name of the study, where to store the data, and which "primary device" that is responsible for data collection.
 
@@ -89,7 +89,7 @@ CAMS comes with a set of built-in triggers:
 Adding New Triggers](/carp-mobile-sensing/extending-carp-mobile-sensing#adding-new-triggers).
 </Note>
 
-### Tasks and Task Controls
+### Tasks and task controls
 
 A task is defined via a [`TaskConfiguration`](https://pub.dev/documentation/carp_core/latest/common_carp_core_common/TaskConfiguration-class.html) and configures what measures to collect. For example, a task can specify to sample accelerometer and gyroscope measures from the smartphone during a tremor assessment, or sample heart rate and ECG data from a wearable device.
 
@@ -225,7 +225,7 @@ protocol.addTaskControl(
 
 </Tabs>
 
-### Sampling Configuration and Schemas
+### Sampling configuration and schemas
 
 CAMS comes with a set of default sampling configurations for all measures. These configurations are collected in [DataTypeSamplingScheme](https://pub.dev/documentation/carp_core/latest/common_carp_core_common/DataTypeSamplingScheme-class.html) schemas for each sampling package.
 For example, the [`SensorSamplingPackage`](https://pub.dev/documentation/carp_mobile_sensing/latest/sensors/SensorSamplingPackage-class.html) provides a map of [samplingSchemes](https://pub.dev/documentation/carp_mobile_sensing/latest/sensors/SensorSamplingPackage/samplingSchemes.html).
@@ -308,7 +308,7 @@ Note that as a wearable device, the Polar device is a "connected device", i.e., 
 Connected devices needs to connect to the phone (e.g., using BLE) during runtime before data can be collected from them. This is handled by the [DeviceController](https://pub.dev/documentation/carp_mobile_sensing/latest/services/DeviceController-class.html). See [Handling Devices]().
 </Note>
 
-## Measurements and Data
+## Measurements and data
 
 CAMS models data according to the [data](https://github.com/cph-cachet/carp.core-kotlin/blob/develop/docs/carp-data.md) sub-system of the CARP Core domain model. Data collected during sampling is modeled as a [`Measurement`](https://pub.dev/documentation/carp_core/latest/data_carp_core_data/Measurement-class.html), which holds a [`Data`](https://pub.dev/documentation/carp_core/latest/common_carp_core_common/Data-class.html) object of a specific [`DataType`](https://pub.dev/documentation/carp_core/latest/common_carp_core_common/DataType-class.html).  
 

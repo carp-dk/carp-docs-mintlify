@@ -139,7 +139,8 @@
             "pages": [
               "carp-mobile-sensing/software-architecture",
               "carp-mobile-sensing/domain-model",
-              "carp-mobile-sensing/measure-types"
+              "carp-mobile-sensing/measure-types",
+              "carp-mobile-sensing/data-managers"
             ]
           },
           {
@@ -150,13 +151,6 @@
               "carp-mobile-sensing/data-transformation-and-privacy",
               "carp-mobile-sensing/extending-carp-mobile-sensing",
               "carp-mobile-sensing/best-practice"
-            ]
-          },
-          {
-            "group": "Appendices",
-            "icon": "books",
-            "pages": [
-              "carp-mobile-sensing/data-managers"
             ]
           }
         ]
