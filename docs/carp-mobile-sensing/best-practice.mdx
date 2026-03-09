@@ -4,66 +4,126 @@ description: Platform-specific guidance for Android and iOS
 icon: badge-check
 ---
 
-This page contains a set of best practice advice and tips on using CARP Mobile Sensing. It is in particular related to discussing differences between the two mobile platforms -- Android and iOS.
+This page contain misc. platform-specific guidance and tips when running CAMS in production apps.
 
-# Background Sensing
+<CardGroup cols={2}>
+  <Card title="Background sensing" icon="moon">
+    Keep sampling stable on Android and iOS under power-management constraints.
+  </Card>
+  <Card title="iOS setup" icon="apple">
+    Configure Podfile, file access, and platform-specific constraints.
+  </Card>
+  <Card title="Notifications" icon="bell">
+    Set up local notification behavior required by app tasks and background flows.
+  </Card>
+  <Card title="Build and permissions" icon="screwdriver-wrench">
+    Resolve common build issues and configure permissions correctly.
+  </Card>
+</CardGroup>
 
-To keep the app running in the background, the [`carp_context_package`](https://pub.dev/packages/carp_context_package) needs to be included. Please follow the instructions on how to use this package.
+## Background sensing
 
-## Android
+Starting from version 2.0, CAMS supports background sensing natively on Android using the [flutter_background](https://pub.dev/packages/flutter_background) plugin.
+iOS does not allow apps to run in the background as such, but there are a few things you can do to [optimize data sampling on iOS](/carp-mobile-sensing/best-practice#ios).
 
-On Android version >= 9, battery management has been significantly improved. There are repeatedly reported issues with some Android devices not working in the background. Check if your device model is on [dontkillmyapp](https://dontkillmyapp.com) list before you report new issue. This means that an app will be put to sleep when in the background. This is less useful, if the app is using CAMS for passive data collection. 
+### Android
 
-The [dontkillmyapp](https://dontkillmyapp.com) site provides suggestions for the different types of phone and OS versions. But a general approach is the following:
+To keep the app running in the background, configure the `SmartPhoneClientManager` like this, specifying the title and text for the background notification:
 
- * [enable 'Developer Options' in Android](https://wccftech.com/how-to-enable-android-9-0-pie-developer-options-tutorial/)
- * go to 'Developers options' in Settings
-   * scroll down to 'Apps'
-   * make sure that 'Don't keep activities' is **disabled**
-   * make sure that 'Background process limit' is 'Standard limit'
- * go to 'Apps' in Settings
-   * click on your app
-   * click on 'Battery'
-   * on Android 11:
-     * click on 'Optimise battery usage'
-     * make sure to show 'all' apps
-     * make sure your app is disabled, i.e. that it is **not** optimized for battery usage.
-   * on Android 12:
-     * use the 'Unrestricted' option
- * go to 'Battery and device care'
-   * click the 'dot menu' in the top right corner and select 'Automation'
-   * turn off "Auto optimise daily' and 'Adaptive power saving'
+```dart
+SmartPhoneClientManager().configure(
+  enableBackgroundMode: true,
+  backgroundNotificationTitle: 'CARP Mobile Sensing',
+  backgroundNotificationText:
+      'Data sampling will be running in the background',
+);
+```
 
-From version `0.30.0` the CAMS [`carp_context_package`](https://pub.dev/packages/carp_context_package) makes use of the [`location`](https://pub.dev/packages/location) plugin, which supports the collection of location "in the background". If you follow the instructions on how to modify the Android `Manifest.xml` file, this will help keep the app running in the background. Furthermore, the user needs to allow the app to access location "Always".
+When background mode is enabled, the app will show this battery optimization permission popup and the notification.
 
-### Resources
+<CardGroup>
+<Card title="Battery Optimization Permission">
+    ![Task List](images/battery_optimization_permission.jpg)
+</Card>
+<Card title="Background Notification">
+    ![Task List](images/background_notification.jpg)
+</Card>
+</CardGroup>
+
+On Android version >= 9, battery management has been significantly improved. There are repeatedly reported issues with some Android devices not working in the background. Check if your device model is on [dontkillmyapp](https://dontkillmyapp.com) list before you report new issue. This means that an app will be put to sleep when in the background. This is less useful, if the app is using CAMS for passive data collection.
+
+The [dontkillmyapp](https://dontkillmyapp.com) site provides suggestions for different phone vendors and OS versions. A general approach is configure settings for the battery and for the app itself.
+
+<AccordionGroup>
+  <Accordion title="App-specific Options">
+  In the Android Settings, you can optimize background mode for the app by allowing urestricted battery and background data usage.
+  <CardGroup>
+    <Card title="Unrestricted Battery Usage">
+      ![Task List](images/app_battery_unrestricted.jpg)
+    </Card>
+    <Card title="Background Data Usage">
+      ![Task List](images/app_background_data_usage.jpg)
+    </Card>
+  </CardGroup>
+  </Accordion>
+
+  <Accordion title="Battery Settings Options">
+  In the Android Settings, you can optimize the battery setting for background mode
+
+  <CardGroup>
+    <Card title="Power Savings Off">
+      ![Task List](images/battery_power_saving_off.jpg)
+    </Card>
+    <Card title="Background Usage Limits Off">
+      ![Task List](images/battery_background_usage.jpg)
+    </Card>
+  </CardGroup>
+  </Accordion>
+
+</AccordionGroup>
+
+#### Resources
 
 * See [Issue #97](https://github.com/cph-cachet/carp.sensing-flutter/issues/97) for a discussion on background sensing.
 * See [this thread on Reddit](https://www.reddit.com/r/samsung/comments/1b0j8jg/s24_ultra_stop_closing_my_apps/) on how to keep an app running in the background on Samsung phones.
 * See the [Don't Kill My App](https://dontkillmyapp.com/) site and suggestions, e.g. for [Samsung](https://dontkillmyapp.com/samsung) phones.
 * This [setup page for the Cardata app](https://help.cardata.co/article/175-how-to-turn-off-your-androids-battery-optimizer) also have some simple guidelines for different phones.
 
-## iOS
+### iOS
 
-To keep the app running in the background, the `carp_context_package` needs to be included. It is important to follow the instruction of the package, including modifying the `info.plist` and `AppDelegate.swift` files. Also make sure that "Allow location tracking always" is enabled for the app on the phone.
+On iOS, the best way to keep the app running somewhat in the background is to have the app fetch location in the background or keep a BLE connection to an external device.
+
+The [`carp_context_package`](https://pub.dev/packages/carp_context_package) makes use of the [`location`](https://pub.dev/packages/location) plugin, which supports the collection of location "in the background". It is important to follow the instruction of the package, including modifying the `info.plist` and `AppDelegate.swift` files. Also make sure that "Allow location tracking always" is enabled for the app on the phone.
 
 iOS tends to [aggressively kill apps](https://developer.apple.com/forums/thread/696275) (especially after iOS v. 15). There are a few things to do about this:
 
- - Low Power Mode (Settings App - > Battery - > Low Power Mode) needs to be **OFF**.
+<AccordionGroup>
+  <Accordion title="Disable Low Power Mode">
+    In **Settings → Battery**, ensure **Low Power Mode** is **OFF**.
+  </Accordion>
 
- - Background App Refresh (Settings App -> Hushed - > Background App Refresh) needs to be **ON**. If Background refresh is greyed out in the ON position, go To Settings App - > General - > Background App Refresh - > Turn on the option for the system, and then you can turn on / off by app. 
+  <Accordion title="Enable Background App Refresh">
+    In **Settings → [Your app] → Background App Refresh**, ensure it is **ON**.
 
-### Guide Access
+    If this option is greyed out, first enable it globally in **Settings → General → Background App Refresh**, then enable it per app.
+  </Accordion>
+</AccordionGroup>
+
+#### Guide Access
 
 You can also force the app to always be in the foreground by using the "[Guide Access](https://support.apple.com/en-us/HT202612)" feature in iOS. This feature forces the app to be the *only* app running in the foreground always and is hence not useful for background sensing. But it may be useful if the phone is dedicated to running an app for a specific study. For example, if a dedicated study phone is handed to a user to be used only for a specific study.
 
-### Audio Playing Hack
+#### Audio Playing Hack
 
 Another "hack" to keep the app running in the background is to configure it as an audio player app. Audio playing apps are kept running in the background on iOS. See the [sensors](https://github.com/olafuroskar/Bridging-Labs/tree/main/apps/sensors) app for inspiration.
 
-# iOS Setup
+#### Keeping a BLE connection open
 
-## Manually edit `Podfile`
+As presented in [this coverage study](https://carp.dk/coverage-analysis-on-android-14-and-ios-18/), iOS keeps the app running in the background if it samples data from a BLE device. Note, however, that this really drains the battery.
+
+## iOS setup
+
+### Manually edit `Podfile`
 
 In a new Flutter project, the iOS `Podfile` is auto-generated in the `ios` folder. To make things work, there are a few edits to this file that need to be done:
 
@@ -76,11 +136,11 @@ In a new Flutter project, the iOS `Podfile` is auto-generated in the `ios` folde
 
 An example of the edited `Podfile` would look like:
 
-```
+```ruby
 # Uncomment this line to define a global platform for your project
 platform :ios, '12.0'
 
-# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 ENV['SWIFT_VERSION'] = '5'
 
@@ -91,8 +151,9 @@ target 'Runner' do
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+
   # target 'RunnerTests' do
-  #   inherit! :search_paths
+  # inherit! :search_paths
   # end
 end
 
@@ -104,45 +165,51 @@ post_install do |installer|
     end
   end
 end
-```
-
-## File Management
-
-If you want to store data using the `FileDataManager`, and want to grant the user of your app  (e.g. yourself during development and debugging) access to it on the phone or via the iTunes app, add the following two entries to `Info.plist`. 
 
 ```
+
+### File management
+
+If you want to store data locally on the phone (using the `SQLiteDataManager` or `FileDataManager`), and want to grant the user of your app  (e.g. yourself during development and debugging) access to it on the phone or in a Mac Finder, add the following keys to `Info.plist`.
+
+```xml
 <key>UIFileSharingEnabled</key>
 <true/>
 <key>LSSupportsOpeningDocumentsInPlace</key>
 <true/>
 ```
 
-## WiFi
+### Wi-Fi
 
 Note that on iOS>=12, collection of WiFi info has been restricted – please see
 
-  * [connectivity](https://pub.dev/packages/connectivity)
-  * [CNCopyCurrentNetworkInfo](https://developer.apple.com/documentation/systemconfiguration/1614126-cncopycurrentnetworkinfo)
-  * [Access WiFi Information Entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_networking_wifi-info?language=objc)
-  * [How To Enable the WiFi Information Entitlement in iOS 13](https://medium.com/better-programming/wifi-permission-changes-for-ios-12-1-iphone-x-and-other-devices-c313e24f90ae)
+* [connectivity](https://pub.dev/packages/connectivity)
+* [CNCopyCurrentNetworkInfo](https://developer.apple.com/documentation/systemconfiguration/1614126-cncopycurrentnetworkinfo)
+* [Access WiFi Information Entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_networking_wifi-info?language=objc)
+* [How To Enable the WiFi Information Entitlement in iOS 13](https://medium.com/better-programming/wifi-permission-changes-for-ios-12-1-iphone-x-and-other-devices-c313e24f90ae)
 
-## 'App.framework' Compatibility
+### `App.framework` compatibility
 
 You may get this error:
 
 ```
+
 Building for iOS, but the linked and embedded framework 'App.framework' was built for iOS Simulator.
+
 ```
 
-or vice-versa. This is a well-known issue on iOS / XCode 11.4 for Flutter version less than v1.15.3. 
+or vice-versa. This is a well-known issue on iOS / XCode 11.4 for Flutter version less than v1.15.3.
 See the Flutter [Xcode 11.4 Support](https://flutter.dev/docs/development/ios-project-migration) page.
 
-# Notifications
+## Notifications
 
-The default notification controller used in CAMS is the [FlutterLocalNotificationController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/FlutterLocalNotificationController-class.html), which again used the [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) plugin. This plugin is pretty powerful and supports - amongst other things - scheduling and receiving notifications when the app is in the background or even killed. However, to make this happen, there is quite a lot of configuration needed. This is all very well explained in the [flutter_local_notifications plugin README](https://pub.dev/packages/awesome_notifications) on how to set up on [Android](https://pub.dev/packages/flutter_local_notifications#-android-setup) and [iOS](https://pub.dev/packages/flutter_local_notifications#-ios-setup). Please configure your app according to these guidelines.
+The default notification controller used in CAMS is [FlutterLocalNotificationController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/FlutterLocalNotificationController-class.html), which uses the [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) plugin. It supports scheduling and receiving notifications while the app is in foreground, background, or terminated, but requires platform-specific setup.
 
+<Info>
+Follow the [flutter_local_notifications README](https://pub.dev/packages/flutter_local_notifications) and platform setup guides for [Android](https://pub.dev/packages/flutter_local_notifications#-android-setup) and [iOS](https://pub.dev/packages/flutter_local_notifications#-ios-setup).
+</Info>
 
-# Initializing WidgetsFlutterBinding
+## Initializing `WidgetsFlutterBinding`
 
 To initialize the Flutter platform channels, you need to call `WidgetsFlutterBinding.ensureInitialized()` in your `main()` method, before creating the app. For example - this is the main method of the CAMS demo app:
 
@@ -157,13 +224,13 @@ void main() async {
 }
 ```
 
-There is a StackOverflow description of [What Does `WidgetsFlutterBinding.ensureInitialized()` do?](https://stackoverflow.com/questions/63873338/what-does-widgetsflutterbinding-ensureinitialized-do/63873689).
+Here is a description of [What Does `WidgetsFlutterBinding.ensureInitialized()` do?](https://stackoverflow.com/questions/63873338/what-does-widgetsflutterbinding-ensureinitialized-do/63873689).
 
-# Android Manifest file merge
+## Android manifest merge
 
-When building your app, the `AndroidManifest.xml` files from all packages are [merged](https://developer.android.com/studio/build/manage-manifests#merge-manifests). 
+When building your app, the `AndroidManifest.xml` files from all packages and their underlying plugins are [merged](https://developer.android.com/studio/build/manage-manifests#merge-manifests).
 
-When you want to publish your app, which uses various CARP package, to the Google Play Store, it can be rejected because it tries to collect SMS texts and call logs, which Google considers to be a [restricted group of permissions](https://support.google.com/googleplay/android-developer/answer/10208820?visit_id=637547856829628711-3104765488&rd=1&hl=en) for which you need a valid reason to access those. Unfortunately, research is not in the list of exceptions. Hence, we would like to remove collection of SMS texts and call logs while still keeping collection of calendar information (all in the `carp_communication_package`).
+When you want to publish your app, which uses various CARP packages and plugins, to the Google Play Store, it can be rejected because it e.g.., tries to collect SMS texts and call logs, which Google considers to be a [restricted group of permissions](https://support.google.com/googleplay/android-developer/answer/10208820?visit_id=637547856829628711-3104765488&rd=1&hl=en) for which you need a valid reason to access those. Unfortunately, research is not in the list of exceptions. Hence, we would like to remove collection of SMS texts and call logs while still keeping collection of calendar information (all in the `carp_communication_package`).
 
 Illegal permissions can be omitted by specifying that they should not be merged from a lower level manifest. This is done by adding the following lines to the `AndroidManifest.xml` file of your app, which prevents the restricted permissions from being added:
 
@@ -174,17 +241,18 @@ Illegal permissions can be omitted by specifying that they should not be merged 
 <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove"/>
 ```
 
-See also [Issue #183](https://github.com/cph-cachet/carp.sensing-flutter/issues/183). Thanks to [koenniem](https://github.com/koenniem) for this update.
+See also [issue #183](https://github.com/cph-cachet/carp.sensing-flutter/issues/183). Thanks to [koenniem](https://github.com/koenniem) for this update.
 
-# Permissions
+## Permissions
 
-CAMS uses the [`permission_handler`](https://pub.dev/packages/permission_handler) plugin for handling permissions. Please see their description on how to configure permissions in both iOS and Android. Note in particular to change both the `Info.plist` and `Podfile` files  on iOS. Othervise you may have [problems getting your app approved by Apple](https://github.com/Baseflow/flutter-permission-handler/issues/26).
+CAMS uses the [`permission_handler`](https://pub.dev/packages/permission_handler) plugin for handling permissions. Please see their documentation on how to configure permissions on both iOS and Android. In particular, update both `Info.plist` and `Podfile` on iOS; otherwise you may have [app review issues with Apple](https://github.com/Baseflow/flutter-permission-handler/issues/26).
 
-# Build issues
+## Build issues
 
 If you're experiencing any build issue, try these steps:
 
-1. Run this on your project and try again:
+1. Run this in your project and try again:
+
 ```bash
 flutter clean
 rm -rf build
@@ -193,11 +261,9 @@ rm -rf ~/.pub-cache
 flutter pub get
 ```
 
-On Android, you might also want to run the ` ./gradlew clean` command. And on iOS, you might want to remove the `.symlink` folder. 
+On Android, you might also want to run `./gradlew clean`. On iOS, you might want to remove the `.symlink` folder.
 
-1. Update Xcode, Android Studio, VS Studio, and Android SDKs, to the latest versions.
-1. If the issue persists, clone the carp_mobile_sensing repo and run the `example` app on the platform you are having issues. If it works, then there is something wrong with your project, and you can compare it to the `example` app to see what the problem is.
-1. If the problem still persists, and no existing (open or closed) issue on this repo, then you can open an issue. But you must follow the issue template and refer to the problem on the example app (or start with its code and make only the necessary modifications to trigger the issue), not on your own app, which we don't have access (because since step 2 the error must be reproducible on the example app).
-1. Again, only open an issue if you reach step 3 and follow the issue template closely. Build issues that do not follow these steps will be closed.
-
-
+1. Update Xcode, Android Studio, VS Code, and Android SDKs to the latest versions.
+2. If the issue persists, clone `carp_mobile_sensing` and run the `example` app on the same platform. If that works, compare your project with the example setup.
+3. If the issue still persists and there is no existing GitHub issue, open a new issue. Use the issue template and provide a reproducible case based on the `example` app.
+4. Only open an issue after step 3. Build issues without reproducible example details may be closed.
