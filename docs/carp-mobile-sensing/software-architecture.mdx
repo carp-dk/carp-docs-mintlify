@@ -8,9 +8,9 @@ The figure below illustrates the overall runtime architecture of CARP Mobile Sen
 
 | Layer | Main responsibility |
 | --- | --- |
-| Runtime | The main runtime layer of CAMS - orchestrates the client manager with study controllers, device managers, controllers, and registries. |
-| Infrastructure | Provides different services for deployment, background sensing, persistence, data management, and sampling packages. |
-| Plugins | A set of Flutter plugins used by CAMS for accessing the operating system (OS), online services, and connected BLE devices on Android and iOS. |
+| **Runtime** | The main runtime layer of CAMS - orchestrates the client manager with study controllers, device managers, controllers, and registries. |
+| **Infrastructure** | Provides different services for deployment, background sensing, persistence, data management, and sampling packages. |
+| **Plugins** | A set of Flutter plugins used by CAMS for accessing the operating system (OS), online services, and connected BLE devices on Android and iOS. |
 
 This architecture is designed to achieve the non-functional software architecture goals of being highly extensible, cross-platform, and maintainable.
 
@@ -89,7 +89,7 @@ Such devices can also be online services, such as [WeatherServiceManager](https:
 
 ## Plugins
 
-CAMS make heavy use of the [Flutter package & plugin architecture](https://docs.flutter.dev/packages-and-plugins/developing-packages) for accessing OS-level services and sensors. These packages and plugins are maintained independently of CAMS and is available from [pub.dev](https://pub.dev/).
+CAMS make heavy use of the [Flutter package & plugin architecture](https://docs.flutter.dev/packages-and-plugins/developing-packages) for **cross-platform** access to OS-level services and sensors. These packages and plugins are maintained independently of CAMS and is available from [pub.dev](https://pub.dev/).
 
 Plugins for data collections is typically used in probes.
 Each sampling package contains one or more [Probe](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/Probe-class.html)s that access underlying sensors and collect data. Note that the plugins are external to CAMS and loaded by the sampling package as needed. For example, access to location data (which is considered "sensitive" for both Android and iOS) is done in the [carp_context_package](https://pub.dev/packages/carp_context_package) which uses the [location](https://pub.dev/packages/location) plugin to access location data. But if you don't need this measure in your study, you can leave out the carp_context_package and avoid asking for location permissions.
