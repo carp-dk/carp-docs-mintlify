@@ -28,12 +28,9 @@ A study protocol is always executed by one or more [primary devices](https://pub
 Overall, a study protocol holds a set of triggers, which can trigger one or more tasks, which again hold a set of measures to collect. A measure can be configured using a sampling configuration. This is illustrated below.
 A trigger configures *when* to collect data (e.g., every hour), a task configures *how* to collect data (e.g., which device to use), and a measure configures *what* to collect (e.g., location).
 
-```
-     StudyProtocol --* Trigger --* Task --* Measure
-           |                                    |
-           *                                    |
-         Device                        SamplingConfiguration
-```
+<Frame>
+![carp_mobile_sensing_architecture](/carp-mobile-sensing/images/carp_protocol_domain.svg)
+</Frame>
 
 ### Study protocol
 

@@ -843,11 +843,11 @@ class OMHTransformerSchema extends DataTransformerSchema {
 }
 ````
 
-Each transformer schema must be registered in the [`TransformerSchemaRegistry`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformerSchemaRegistry-class.html) (which is a singleton).
+Each transformer schema must be registered in the [`DataTransformerSchemaRegistry`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformerSchemaRegistry-class.html) (which is a singleton).
 Hence, add the following line to your setup up part of the app:
 
 ````dart
-TransformerSchemaRegistry().register(OMHTransformerSchema());
+DataTransformerSchemaRegistry().register(OMHTransformerSchema());
 ````
 
 Once the schema is registered, transformers for each data type can be created.
@@ -892,7 +892,7 @@ The most important function to implement is the `transformer`, and to make sure 
 Once the mapper Data class is created, it must be added to the schema. This is done by calling;
 
 ````dart
- TransformerSchemaRegistry().lookup(NameSpace.OMH)!
+ DataTransformerSchemaRegistry().lookup(NameSpace.OMH)!
    ..add(LOCATION, OMHGeopositionDataPoint.transformer);
 ````
 
@@ -940,7 +940,7 @@ CAMS comes with a built-in schema with a transformer namespace specified in `Pri
 Hence, to add privacy protection, two things have to be implemented:
 
 1. A transformer function that knows how to transform a `Data` object so that its properties are privacy-protected.
-2. Register this function in the [`TransformerSchemaRegistry`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/TransformerSchemaRegistry-class.html) as part of the default `PrivacySchema.DEFAULT` schema.
+2. Register this function in the [`DataTransformerSchemaRegistry`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/DataTransformerSchemaRegistry-class.html) as part of the default `PrivacySchema.DEFAULT` schema.
 
 Below are examples of privacy functions that anonymize text messages and phone calls:
 
