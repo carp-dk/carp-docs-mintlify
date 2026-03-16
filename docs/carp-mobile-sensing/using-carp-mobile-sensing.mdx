@@ -35,10 +35,13 @@ Use this page as the practical runtime guide after [Install and Configure](/carp
     Use a `DeploymentService` (for example `SmartphoneDeploymentService`) to create a study deployment.
   </Step>
   <Step title="Initialize client runtime">
-    Configure a `SmartPhoneClientManager`, add the study, and deploy.
+    Configure a `SmartPhoneClientManager`, add the study, and deploy it.
   </Step>
-  <Step title="Start and observe measurements">
-    Start the study and listen on the `measurements` stream in the client manager or a study controller.
+  <Step title="Resume or pause data sampling">
+    Resume or pause data sampling in all studies or control each study.
+  </Step>  
+  <Step title="Consume or save collected measurements">
+    Listen on the `measurements` stream of one or more studies and use it in the app.
   </Step>
 </Steps>
 
@@ -112,7 +115,7 @@ DeploymentService deploymentService = SmartphoneDeploymentService();
 var status = await deploymentService.createStudyDeployment(protocol);
 ```
 
-## 3) Create a client runtime and add studies
+## 3) Create a client runtime, and add and deploy studies
 
 Runtime management of studies is handed by the client manager [`SmartPhoneClientManager`](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartPhoneClientManager-class.html).
 
@@ -120,27 +123,13 @@ Runtime management of studies is handed by the client manager [`SmartPhoneClient
 The `SmartPhoneClientManager` is a singleton and can always be accessed by `SmartPhoneClientManager()`.
 </Tip>
 
-The most simple use of the client manager is:
+The most simple configuration of the client manager is:
 
 ```dart
-SmartPhoneClientManager client = SmartPhoneClientManager();
-await client.configure();
-var study = await client.addStudyFromProtocol(protocol);
+await SmartPhoneClientManager().configure();
 ```
 
-This will configure the client manager and add a new study based on the specified protocol.
-
-Note that the client manager can handle **multiple** studies - just add more studies to the client:
-
-```dart
-var study_1 = await client.addStudyFromProtocol(protocol_1);
-var study_2 = await client.addStudyFromProtocol(protocol_2);
-var study_3 = await client.addStudyFromProtocol(protocol_3);
-```
-
-The client manager can be configured in different ways.
-
-### `configure(...)` options
+Howeverm, the client manager can be configured in different ways:
 
 - `registration`: unique device registration for this phone.
 - `deploymentService`: deployment backend (default is local `SmartphoneDeploymentService`).
@@ -181,41 +170,101 @@ await client.configure(
   Set `askForPermissions: false` when your app needs a custom permission flow or staged consent screens.
 </Tip>
 
-## 4) Run and control data sampling
-
-Studies are started by calling the `start()` method:
+Once the client is configured, you can deploy studies to it. This is done by getting a study deployment from the deployment service, based on the protocol. In order to do this, we need to configure the client to use this deployment service. If the protocol has been added as shown above, this will add and deploy the study on the client:
 
 ```dart
-  // Start the study.
-  //
-  // This will first deploy the study since it has not been deployed yet and
-  // then start the study. Data sampling will NOT be started, since the study's
-  // [samplingStatus] is still not resumed.
-  client.start();
+// Use the on-phone deployment service.
+DeploymentService deploymentService = SmartphoneDeploymentService();
+
+// Create a study deployment using a protocol.
+var status = await deploymentService.createStudyDeployment(protocol);
+
+// Create and configure a client manager to use the deploymentService.
+SmartPhoneClientManager client = SmartPhoneClientManager();
+await client.configure(deploymentService: deploymentService);
+
+// Add a study based on the deployed protocol to the client
+final study = await client.addStudy(
+  SmartphoneStudy(
+    studyDeploymentId: status.studyDeploymentId,
+    deviceRoleName: phone.roleName,
+  ),
+);
+
+/// Deploy the study to the client.
+SmartPhoneClientManager().tryDeployment(
+  study.studyDeploymentId,
+  study.deviceRoleName,
+);
 ```
 
-Calling `start()` on the client manager will start **all** studies added to the client. If any study has not yet been deployed, this will be done. If you want more fine-grained control over each study, you can control each study using its [`SmartphoneStudyController`](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneStudyController-class.html):
+This will configure the client manager and add a new study based on the specified protocol. However, if using the local `SmartphoneDeploymentService`, deploying and adding a study based on a protocol can be written more compact like this:
+
+```dart
+// Create and configure a client manager for this phone.
+await SmartPhoneClientManager().configure();
+
+// Create a study based on the protocol.
+var study = await SmartPhoneClientManager().addStudyFromProtocol(protocol);
+
+/// Deploy the study.
+await SmartPhoneClientManager().tryDeployment(
+  study.studyDeploymentId,
+  study.deviceRoleName,
+);
+```
+
+This can be written even more compact:
+
+```dart
+SmartPhoneClientManager().configure().then(
+  (_) => SmartPhoneClientManager()
+      .addStudyFromProtocol(protocol)
+      .then(
+        (study) => SmartPhoneClientManager().tryDeployment(
+          study.studyDeploymentId,
+          study.deviceRoleName,
+        ),
+      ),
+);
+```
+
+Note that the client manager can handle **multiple** studies - just add more studies to the client:
+
+```dart
+var study_1 = await client.addStudyFromProtocol(protocol_1);
+var study_2 = await client.addStudyFromProtocol(protocol_2);
+var study_3 = await client.addStudyFromProtocol(protocol_3);
+```
+
+## 4) Control data sampling
+
+Data sampling can be controlled by the `resume` and `pause` methods:
+
+```dart
+// Resume data sampling for all studies added to the client.
+SmartPhoneClientManager().resume();
+
+// .. and pause all data sampling for all studies again.
+SmartPhoneClientManager().pause();
+```
+
+Calling `resume()` or `pause()` on the client manager will resume or pause **all** studies added to the client. If you want more fine-grained control over each study, you can control each study using its [`SmartphoneStudyController`](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SmartphoneStudyController-class.html):
 
 ```dart
 SmartphoneStudyController? controller = client.getStudyController(study);
-controller?.start();
-```
-
-Once a study has been started, data sampling can be controlled by the `resume` and `pause` methods:
-
-```dart
-// Resume data sampling for all studies add to the client.
-client.resume();
-
-// .. or resume data sampling for a specific study.
 controller?.resume();
 ```
 
 You can stop a study by calling `stop` which will permanently stop the study - once stopped, and study cannot be (re)started. Call `dispose` to dispose of the client - typically in the Flutter dispose method.
 
 ```dart
-// Permanently stop a study.
-controller?.stop();
+// Permanently stop the study.
+// This will mark the study as stopped and remove it from the client manager.
+SmartPhoneClientManager().stopStudy(
+  study.studyDeploymentId,
+  study.deviceRoleName,
+);
 
 // Dispose of the client (e.g. in Flutter dispose())
 client.dispose();
@@ -226,20 +275,20 @@ client.dispose();
 If you just want to run one local protocol, you can use this compact style:
 
 ```dart
-  SmartPhoneClientManager().configure().then(
-    (_) => SmartPhoneClientManager()
-        .addStudyFromProtocol(protocol)
-        .then(
-          (_) => SmartPhoneClientManager()
-            ..start()
-            ..resume(),
-        ),
-  );
+SmartPhoneClientManager().configure().then(
+  (_) => SmartPhoneClientManager()
+    .addStudyFromProtocol(protocol)
+    .then(
+      (study) => SmartPhoneClientManager()
+        .tryDeployment(study.studyDeploymentId, study.deviceRoleName)
+        .then((_) => SmartPhoneClientManager().resume()),
+    ),
+);
 ```
 
 </Tip>
 
-### listening to `measurements`
+## 5) Consume or listening to `measurements`
 
 All sampling data is available in the `measurements` stream. This stream is available on both controller and client:
 

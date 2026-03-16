@@ -34,10 +34,10 @@ Use this page to choose where CAMS stores or uploads collected measurements.
 The `FileDataEndPoint` saves measurements in a JSON file on the local device. A `FileDataEndPoint` endpoint can be created and added to a study protocol, like this:
 
 ```dart
-    var protocol = SmartphoneStudyProtocol(
-        ownerId: 'AB',
-        name: 'Track patient movement',
-        dataEndPoint: FileDataEndPoint(bufferSize: 500 * 1000, zip: true));
+var protocol = SmartphoneStudyProtocol(
+    ownerId: 'AB',
+    name: 'Track patient movement',
+    dataEndPoint: FileDataEndPoint(bufferSize: 500 * 1000, zip: true));
 ```
 
 CARP measurements are stored in a subfolder called
@@ -68,10 +68,10 @@ This endpoint is very similar to the file endpoint, except that data is stored i
 This endpoint takes no configuration and can be added to a protocol like this:
 
 ```dart
-    var protocol = SmartphoneStudyProtocol(
-        ownerId: 'AB',
-        name: 'Track patient movement',
-        dataEndPoint: SQLiteDataEndPoint());
+var protocol = SmartphoneStudyProtocol(
+    ownerId: 'AB',
+    name: 'Track patient movement',
+    dataEndPoint: SQLiteDataEndPoint());
 ```
 
 The database files can be accessed like other files (see above).
@@ -103,13 +103,13 @@ Full documentation is provided as part of the plugin, and an example of how this
 The CAWS data endpoint can be added to a CAMS study protocol and further configured as a [`CarpDataEndpoint`](https://pub.dev/documentation/carp_backend/latest/carp_backend/CarpDataEndPoint-class.html), like this:
 
 ```dart
-    // Add CAWS as the data endpoint using a stream (default)
-    protocol.dataEndPoint = CarpDataEndPoint(
-      uploadMethod: CarpUploadMethod.stream,
-      name: 'CARP Web Service (CAWS)',
-      // Upload data every 10 min
-      uploadInterval: 10,
-      // Keep data on the phone even though it is uploaded
-      deleteWhenUploaded: false,
-    );
+// Add CAWS as the data endpoint using a stream (default)
+protocol.dataEndPoint = CarpDataEndPoint(
+    uploadMethod: CarpUploadMethod.stream,
+    name: 'CARP Web Service (CAWS)',
+    // Upload data every 10 min
+    uploadInterval: 10,
+    // Keep data on the phone even though it is uploaded
+    deleteWhenUploaded: false,
+);
 ```

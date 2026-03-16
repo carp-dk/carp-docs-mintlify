@@ -111,8 +111,11 @@ await SmartPhoneClientManager().configure();
 // Create a study based on the protocol.
 await SmartPhoneClientManager().addStudyFromProtocol(protocol);
 
-/// Start the study.
-SmartPhoneClientManager().start();
+/// Deploy the study.
+await SmartPhoneClientManager().tryDeployment(
+  study.studyDeploymentId,
+  study.deviceRoleName,
+);
 
 /// Resume sampling.
 SmartPhoneClientManager().resume();
@@ -152,12 +155,20 @@ SmartPhoneClientManager().configure().then(
         ),
       )
       .then(
-        (_) => SmartPhoneClientManager()
-          ..start()
-          ..resume(),
+        (study) => SmartPhoneClientManager()
+            .tryDeployment(study.studyDeploymentId, study.deviceRoleName)
+            .then((_) => SmartPhoneClientManager().resume()),
       ),
 );
 ```
+
+<Tip>
+CAMS support **persistent sampling**. This implies that once a study is defined (via a protocol), added and deployed on a client, and resumed, its entire state is persistently saved across app restart.
+
+Hence, when using CAMS in an app you do not need to consider restoring studies and restarting data sampling when the app is closed and restarted, even when killed by the OS.
+
+Read more on [background sensing](/carp-mobile-sensing/best-practice#background-sensing) in the Best Practice page.
+</Tip>
 
 ## Continue reading
 

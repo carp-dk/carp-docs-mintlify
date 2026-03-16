@@ -267,3 +267,7 @@ On Android, you might also want to run `./gradlew clean`. On iOS, you might want
 2. If the issue persists, clone `carp_mobile_sensing` and run the `example` app on the same platform. If that works, compare your project with the example setup.
 3. If the issue still persists and there is no existing GitHub issue, open a new issue. Use the issue template and provide a reproducible case based on the `example` app.
 4. Only open an issue after step 3. Build issues without reproducible example details may be closed.
+
+## MissingPluginException or PlatformException
+
+You may get `MissingPluginException` or `PlatformException` on plugins which are used by CAMS (like flutter_background). Even though the "pub get" and "pub upgrade" commands do get and update these transitive plugins, and the app compiles, you may still need to explicitly depend on them in you app's `pubspec.yaml` file. See issue [#530](http://localhost:3000/carp-mobile-sensing/best-practice#permissions).
