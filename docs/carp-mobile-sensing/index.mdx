@@ -109,15 +109,15 @@ final protocol =
 await SmartPhoneClientManager().configure();
 
 // Create a study based on the protocol.
-await SmartPhoneClientManager().addStudyFromProtocol(protocol);
+var study = await SmartPhoneClientManager().addStudyFromProtocol(protocol);
 
-/// Deploy the study.
+// Deploy the study.
 await SmartPhoneClientManager().tryDeployment(
   study.studyDeploymentId,
   study.deviceRoleName,
 );
 
-/// Resume sampling.
+// Resume sampling.
 SmartPhoneClientManager().resume();
 
 // Listening on the measurements stream.
@@ -163,7 +163,7 @@ SmartPhoneClientManager().configure().then(
 ```
 
 <Tip>
-CAMS support **persistent sampling**. This implies that once a study is defined (via a protocol), added and deployed on a client, and resumed, its entire state is persistently saved across app restart.
+CAMS support **persistent sampling**. This implies that once a study is defined (via a protocol), added, deployed, and resumed, its entire state is persistently saved across app restart.
 
 Hence, when using CAMS in an app you do not need to consider restoring studies and restarting data sampling when the app is closed and restarted, even when killed by the OS.
 
