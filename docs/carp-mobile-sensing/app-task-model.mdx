@@ -101,8 +101,8 @@ protocol.addTaskControl(
 );
 ````
 
-As shown above, an AppTask follows the [Trigger-Task-Measure domain model in CAMS](/carp-mobile-sensing/domain-model#defining-a-study-protocol); a trigger activates the task, and the task defines which measures to collect.
-In comparison to an [`BackgroundTask`](https://pub.dev/documentation/carp_core/latest/carp_core_protocols/BackgroundTask-class.html), an [`AppTask`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/AppTask-class.html) can be configured with user-facing properties:
+As shown above, an AppTask follows the [Trigger-Task-Measure domain model in CAMS](/carp-mobile-sensing/domain-model#defining-a-study-protocol) - a trigger activates the task, and the task defines which measures to collect.
+In comparison to an [`BackgroundTask`](https://pub.dev/documentation/carp_core/latest/common/BackgroundTask-class.html), an [`AppTask`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/AppTask-class.html) can be configured with user-facing properties:
 
 | Property | Purpose |
 | --- | --- |
@@ -115,7 +115,7 @@ In comparison to an [`BackgroundTask`](https://pub.dev/documentation/carp_core/l
 | `expire` | When the task expires and is no longer available. |
 
 The above code adds a [`NoUserTaskTrigger`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/NoUserTaskTrigger-class.html) with an [`AppTask`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/AppTask-class.html) of type `sensing` and measures `WEATHER` and `AIR_QUALITY`.
-When triggered, the task is enqueued and can be shown in the app UI. When the user starts it (for example by pressing *PRESS HERE TO FINISH TASK*), a background task is started and collects the measures, and the app task is marked as done.
+When triggered, the task is enqueued and can be shown in the app UI. When the user starts it (for example by pressing "*PRESS HERE TO FINISH TASK*"), a background task is started and collects the measures, and the app task is marked as done.
 
 For more setup details, see the [PulmonaryMonitor](https://github.com/cph-cachet/pulmonary_monitor_app).
 
@@ -135,7 +135,7 @@ When an AppTask is triggered, it is executed by an [AppTaskExecutor](https://pub
 
 ## The `AppTaskController` and user task queue
 
-In the PulmonaryMonitor, access to enqueued tasks is handled in [`sensing_bloc.dart`](https://github.com/cph-cachet/pulmonary_monitor_app/blob/master/lib/blocs/sensing_bloc.dart).
+In the PulmonaryMonitor, access to enqueued tasks is handled in [`sensing_bloc.dart`](https://github.com/carp-dk/pulmonary_monitor_app/blob/master/lib/bloc/sensing_bloc.dart).
 Use the [`userTaskQueue`](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/AppTaskController/userTaskQueue.html) property on `AppTaskController` to access the queue:
 
 ```dart
@@ -342,8 +342,8 @@ class AudioUserTask extends UserTask {
         _timer?.cancel();
         _countDownController.close();
 
-        // stop the background sensing and mark this task as done
-        backgroundTaskExecutor.stop();
+        // pause the background sensing and mark this task as done
+        backgroundTaskExecutor.pause();
         super.onDone();
       }
     });
@@ -369,13 +369,12 @@ class PulmonaryUserTaskFactory implements UserTaskFactory {
 ```
 
 <Check>
-
 Remember to register the custom factory in `AppTaskController`:
 
 ```dart
- AppTaskController().registerUserTaskFactory(PulmonaryUserTaskFactory());
+AppTaskController().registerUserTaskFactory(PulmonaryUserTaskFactory());
 ```
 
-This is typically done during the initialization of CAMS in the app. In PulmonaryMonitor, it happens when the `Sensing` class is created in [sensing.dart](https://github.com/cph-cachet/pulmonary_monitor_app/blob/master/lib/sensing/sensing.dart).
+This is typically done during the initialization of CAMS in the app. In PulmonaryMonitor, it happens when the `Sensing` class is created in [sensing.dart](https://github.com/carp-dk/pulmonary_monitor_app/blob/c2013a17a6e567be05490719e05d263cea18112b/lib/sensing/sensing.dart#L55).
 
 </Check>

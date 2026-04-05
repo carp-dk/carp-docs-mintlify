@@ -9,12 +9,18 @@ This list is constantly evolving as we release more and more support.
 
 ## Measure type format
 
-The `dataType` property of a [`Measure`](https://pub.dev/documentation/carp_core/latest/common_carp_core_common/Measure-class.html) specify what type of data to collect.
+The `dataType` property of a [`Measure`](https://pub.dev/documentation/carp_core/latest/common/Measure-class.html) specify what type of data to collect.
 The string version is typically a `namespace` + `name`. CAMS-native measure types have the namespace `dk.cachet.carp` and the name is the measure `type`:
 
 ```
 dk.cachet.carp.<type>
 ```
+
+<Note>
+The `cachet` part of the namespace is a legacy. The original vision and design of CARP was done as part of the [Copenhagen Center for Health Technology](https://www.cachet.dk/) (CACHET) and the namespace `dk.cachet.carp` was adopted back then. Now, CACHET has closed and the maintenance of CARP is now done by the [Section of Digital Health](https://www.healthtech.dtu.dk/research/research-sections/section-digital-health) at the Department of Health Technology at the [Technical University of Denmark](https://www.dtu.dk/english/).
+
+For now we keep the old namespace for backward compatibility. This will, however, be changed to `carp.dk` in the future.
+</Note>
 
 The different types is specified in the tables below.
 
@@ -60,8 +66,8 @@ The third task collects weather (one-time measure) periodically every 5 minutes.
       weatherService);
 ```
 
-Each [`SamplingPackage`](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SamplingPackage-class.html) provides a list of what types of measures it supports using the [`dataTypes`](https://pub.dartlang.org/documentation/carp_mobile_sensing/latest/runtime/SamplingPackage/dataTypes.html) property.
-Each sampling package also comes with a [default sampling schema](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/SamplingPackage/samplingSchemes.html) for each of its measure types.
+Each [`SamplingPackage`](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/SamplingPackage-class.html) provides a list of what types of measures it supports using the [`dataTypes`](https://pub.dartlang.org/documentation/carp_mobile_sensing/latest/domain/SamplingPackage/dataTypes.html) property.
+Each sampling package also comes with a [default sampling schema](https://pub.dev/documentation/carp_mobile_sensing/latest/domain/SamplingPackage/samplingSchemes.html) for each of its measure types.
 
 ## Available measure types
 
@@ -82,21 +88,21 @@ Measures marked with * are one-time measures.
 
 Type         | Android/iOS | Package | Description                                                  |
 :------------|:-----------:|:--------|------------------------------------------------------------- |
-`acceleration` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_sensors/) | Rate of change in velocity in x, y, z - including gravity |
-`nongravitational acceleration` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_sensors/) | Rate of change in velocity in x, y, z, - excluding gravity |
-`acceleration features` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_sensors/) | Acceleration events over a specific sampling period and calculates higher-order features |
-`rotation` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_sensors/) | Rotation of the device in x, y, z (typically measured by a gyroscope) |
-`magneticfield` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_sensors/) | Magnetic field around the device in x,y,z (typically measured by a magnetometer) |
-`stepevent` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_sensors/) | Step events from the device on-board sensor |
-`ambientlight` | **+ -** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_sensors/) | Ambient light from the phone's front light sensor |
-`deviceinformation`*| **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) | Basic device information |
-`application information`* | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) | Information about the app
-`batterystate` | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) | Battery charging status and battery level |
-`screenevent` | **+ -** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) |Screen events (on/off/unlock) |
-`applifecycleevent` | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) | App lifecycle state events (inactive, hidden, paused, resumed, detached) |
-`freememory` | **+ -** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) | Free memory |
-`timezone`* | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) | Timezone of the device |
-`heartbeat` | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure_sampling_packages_device/) | A heartbeat measurement every 15 minutes (default) telling if the app is running (and not killed by the OS) |
+`acceleration` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/SensorSamplingPackage-class.html) | Rate of change in velocity in x, y, z - including gravity |
+`nongravitational acceleration` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/SensorSamplingPackage-class.html) | Rate of change in velocity in x, y, z, - excluding gravity |
+`acceleration features` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/SensorSamplingPackage-class.html) | Acceleration events over a specific sampling period and calculates higher-order features |
+`rotation` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/SensorSamplingPackage-class.html) | Rotation of the device in x, y, z (typically measured by a gyroscope) |
+`magneticfield` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/SensorSamplingPackage-class.html) | Magnetic field around the device in x,y,z (typically measured by a magnetometer) |
+`stepevent` | **+ +** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/SensorSamplingPackage-class.html) | Step events from the device on-board sensor |
+`ambientlight` | **+ -** | [sensors](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/SensorSamplingPackage-class.html) | Ambient light from the phone's front light sensor |
+`deviceinformation`*| **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) | Basic device information |
+`application information`* | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) | Information about the app
+`batterystate` | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) | Battery charging status and battery level |
+`screenevent` | **+ -** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) |Screen events (on/off/unlock) |
+`applifecycleevent` | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) | App lifecycle state events (inactive, hidden, paused, resumed, detached) |
+`freememory` | **+ -** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) | Free memory |
+`timezone`* | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) | Timezone of the device |
+`heartbeat` | **+ +** | [device](https://pub.dev/documentation/carp_mobile_sensing/latest/sampling_packages/DeviceSamplingPackage-class.html) | A heartbeat measurement every 15 minutes (default) telling if the app is running (and not killed by the OS) |
 
 ### External sampling packages
 

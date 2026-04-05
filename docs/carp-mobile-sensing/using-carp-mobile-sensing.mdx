@@ -31,7 +31,7 @@ Use this page as the practical runtime guide after [Install and Configure](/carp
   <Step title="Define a study protocol">
     Configure a `StudyProtocol` with devices and measures to collect.
   </Step>
-  <Step title="Deploy protocol to a service">
+  <Step title="Deploy protocol to a deployment service">
     Use a `DeploymentService` (for example `SmartphoneDeploymentService`) to create a study deployment.
   </Step>
   <Step title="Initialize client runtime">
@@ -129,7 +129,7 @@ The most simple configuration of the client manager is:
 await SmartPhoneClientManager().configure();
 ```
 
-Howeverm, the client manager can be configured in different ways:
+However, the client manager can be configured in different ways:
 
 - `registration`: unique device registration for this phone.
 - `deploymentService`: deployment backend (default is local `SmartphoneDeploymentService`).

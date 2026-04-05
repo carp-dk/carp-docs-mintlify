@@ -109,9 +109,9 @@ iOS tends to [aggressively kill apps](https://developer.apple.com/forums/thread/
   </Accordion>
 </AccordionGroup>
 
-#### Guide Access
+#### Guided Access
 
-You can also force the app to always be in the foreground by using the "[Guide Access](https://support.apple.com/en-us/HT202612)" feature in iOS. This feature forces the app to be the *only* app running in the foreground always and is hence not useful for background sensing. But it may be useful if the phone is dedicated to running an app for a specific study. For example, if a dedicated study phone is handed to a user to be used only for a specific study.
+You can also force the app to always be in the foreground by using the [Guided Access](https://support.apple.com/en-us/HT202612) feature in iOS. This feature forces the app to be the *only* app running in the foreground always and is hence not useful for background sensing. But it may be useful if the phone is dedicated to running an app for a specific study. For example, if a dedicated study phone is handed to a user to be used only for a specific study.
 
 #### Audio Playing Hack
 
@@ -203,7 +203,7 @@ See the Flutter [Xcode 11.4 Support](https://flutter.dev/docs/development/ios-pr
 
 ## Notifications
 
-The default notification controller used in CAMS is [FlutterLocalNotificationController](https://pub.dev/documentation/carp_mobile_sensing/latest/runtime/FlutterLocalNotificationController-class.html), which uses the [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) plugin. It supports scheduling and receiving notifications while the app is in foreground, background, or terminated, but requires platform-specific setup.
+The default notification controller used in CAMS is [FlutterLocalNotificationManager](https://pub.dev/documentation/carp_mobile_sensing/latest/infrastructure/FlutterLocalNotificationManager-class.html), which uses the [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) plugin. It supports scheduling and receiving notifications while the app is in foreground, background, or terminated, but requires platform-specific setup.
 
 <Info>
 Follow the [flutter_local_notifications README](https://pub.dev/packages/flutter_local_notifications) and platform setup guides for [Android](https://pub.dev/packages/flutter_local_notifications#-android-setup) and [iOS](https://pub.dev/packages/flutter_local_notifications#-ios-setup).
@@ -270,4 +270,4 @@ On Android, you might also want to run `./gradlew clean`. On iOS, you might want
 
 ## MissingPluginException or PlatformException
 
-You may get `MissingPluginException` or `PlatformException` on plugins which are used by CAMS (like flutter_background). Even though the "pub get" and "pub upgrade" commands do get and update these transitive plugins, and the app compiles, you may still need to explicitly depend on them in you app's `pubspec.yaml` file. See issue [#530](http://localhost:3000/carp-mobile-sensing/best-practice#permissions).
+You may get `MissingPluginException` or `PlatformException` on plugins which are used by CAMS (like flutter_background). Even though the "pub get" and "pub upgrade" commands do get and update these transitive plugins, and the app compiles, you may still need to explicitly depend on them in you app's `pubspec.yaml` file. See issue [#530](https://github.com/carp-dk/carp.sensing-flutter/issues/530).
