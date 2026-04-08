@@ -1,0 +1,244 @@
+---
+title: Install and Configure
+description: Install the CARP Mobile Sensing package and configure Android and iOS
+icon: wrench
+---
+
+This guide shows how to install `carp_mobile_sensing` and configure a Flutter app on Android and iOS.
+
+<CardGroup cols={2}>
+  <Card title="Install Package" icon="download">
+    Add CAMS dependencies to `pubspec.yaml` and fetch packages.
+  </Card>
+  <Card title="Configure Android" icon="android">
+    Configure permissions, services, and Gradle settings.
+  </Card>
+  <Card title="Configure iOS" icon="apple">
+    Add Info.plist keys and AppDelegate notification setup.
+  </Card>
+  <Card title="Validate Setup" icon="circle-check">
+    Build and verify permissions on physical devices.
+  </Card>
+</CardGroup>
+
+## 1) Install the package
+
+Add dependencies in `pubspec.yaml`:
+
+```yaml
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.19.0"
+  
+dependencies:
+  flutter:
+    sdk: flutter
+  carp_serializable: ^latest
+  carp_core: ^latest
+  carp_mobile_sensing: ^latest
+```
+
+Then run:
+
+```bash
+flutter pub get
+```
+
+<Tip>
+  Use the example app as baseline:
+  - `/android/app/src/main/AndroidManifest.xml`
+  - `/android/app/build.gradle.kts`
+  - `/ios/Runner/Info.plist`
+  - `/ios/Runner/AppDelegate.swift`
+</Tip>
+
+## 2) Android configuration
+
+<Steps>
+  <Step title="Add required permissions">
+    Include permissions for activity recognition, notifications, foreground execution, and battery behavior.
+  </Step>
+  <Step title="Configure plugin services/receivers">
+    Add both [`flutter_background`](https://pub.dev/packages/flutter_background) and [`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications) declarations in `<application>`.
+  </Step>
+  <Step title="Enable desugaring in Gradle">
+    Add `isCoreLibraryDesugaringEnabled = true` and the desugar dependency in `android/app/build.gradle.kts`.
+  </Step>
+</Steps>
+
+### Android manifest permissions
+
+Add permissions for:
+
+- activity recognition
+- notifications (including scheduled notifications)
+- foreground/background execution
+- foreground service types used by [`flutter_background`](https://pub.dev/packages/flutter_background)
+
+```xml
+<uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+<uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
+
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+```
+
+<Note>
+  `FOREGROUND_SERVICE_SPECIAL_USE` must be aligned with the service subtype description shown to users.
+</Note>
+
+### Android services/receivers
+
+Inside `<application>`, declare both plugin services:
+
+#### [`flutter_background`](https://pub.dev/packages/flutter_background)
+
+```xml
+<service
+    android:name="de.julianassmann.flutter_background.IsolateHolderService"
+    android:exported="false"
+    android:foregroundServiceType="dataSync|specialUse">
+    <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+        android:value="Collection of data while app is in background."/>
+</service>
+```
+
+#### [`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications)
+
+```xml
+<service
+    android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
+    android:exported="false"
+    android:stopWithTask="false"/>
+
+<receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+
+<receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+        <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+    </intent-filter>
+</receiver>
+```
+
+### Android Gradle setup
+
+In `android/app/build.gradle.kts`, enable desugaring and add dependency (required by local notifications):
+
+```kotlin
+android {
+  compileOptions {
+    isCoreLibraryDesugaringEnabled = true
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+  }
+}
+
+dependencies {
+  coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}
+```
+
+### Android `ic_launcher.png`
+
+Both the flutter_local_notification and the flutter_background plugins use the `ic_launcher.png` as the icon for notifications. Hence, this icon should be added as a drawable resource to the the Android head project in the `android/app/src/main/res/drawable/` folder. You typically copy the `/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png` icon.
+
+## 3) iOS configuration
+
+<Steps>
+  <Step title="Add Info.plist permissions">
+    Add motion permission for step tracking and optional file-sharing keys.
+  </Step>
+  <Step title="Configure notifications in AppDelegate">
+    Register `flutter_local_notifications` callback and keep plugin registration.
+  </Step>
+</Steps>
+
+### Info.plist keys
+
+Add motion permission for step tracking:
+
+```xml
+<key>NSMotionUsageDescription</key>
+<string>This application tracks your steps</string>
+```
+
+Optional (used in example to expose files in Finder):
+
+```xml
+<key>UIFileSharingEnabled</key>
+<true/>
+<key>LSSupportsOpeningDocumentsInPlace</key>
+<true/>
+```
+
+### AppDelegate notification setup
+
+For [`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications), add plugin registrant callback:
+
+```swift
+import flutter_local_notifications
+
+FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
+  GeneratedPluginRegistrant.register(with: registry)
+}
+if #available(iOS 10.0, *) {
+  UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+}
+```
+
+Then keep:
+
+```swift
+GeneratedPluginRegistrant.register(with: self)
+```
+
+## 4) Final checks
+
+<Steps>
+  <Step title="Refresh and resolve dependencies">
+
+```bash
+flutter clean
+flutter pub get
+```
+
+  </Step>
+  <Step title="Build on each platform">
+
+```bash
+flutter run -d android
+flutter run -d ios
+```
+
+  </Step>
+  <Step title="Verify runtime permissions">
+    Grant notification and motion/activity permissions on device and confirm background behavior.
+  </Step>
+</Steps>
+
+<Note>
+  **Important: Explicit plugin dependencies may be needed**
+
+  As discussed in [Issue #530](https://github.com/carp-dk/carp.sensing-flutter/issues/530), some projects may need to explicitly add plugin dependencies that CAMS uses transitively.
+
+  If you see build/runtime plugin registration issues, add the required plugins directly in your app `pubspec.yaml` (for example [`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications) and [`flutter_background`](https://pub.dev/packages/flutter_background)) and run:
+
+  ```bash
+  flutter clean
+  flutter pub get
+  ```
+
+</Note>

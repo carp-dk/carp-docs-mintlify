@@ -7,17 +7,17 @@
     "light": "#FF6467",
     "dark": "#C30E32"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "images/favicon.svg",
   "navigation": {
     "tabs": [
       {
         "tab": "Home",
         "pages": [
-              "index"
-            ]
+          "index"
+        ]
       },
       {
-        "tab": "Flutter Packages",
+        "tab": "Flutter Plugins",
         "menu": [
           {
             "item": "Health Plugin",
@@ -108,35 +108,55 @@
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "CARP Mobile Sensing",
+        "global": {
+          "anchors": [
+            {
+              "anchor": "Github Page",
+              "icon": "github",
+              "href": "https://github.com/carp-dk/carp.sensing-flutter"
+            },
+            {
+              "anchor": "Pub Page",
+              "icon": "flutter",
+              "href": "https://pub.dev/packages/carp_mobile_sensing"
+            }
+          ]
+        },
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "Getting Started",
+            "icon": "rocket",
             "pages": [
-              "api-reference/introduction"
+              "carp-mobile-sensing/index",
+              "carp-mobile-sensing/install-and-configure",
+              "carp-mobile-sensing/using-carp-mobile-sensing"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "Core Concepts",
+            "icon": "lightbulb",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "carp-mobile-sensing/software-architecture",
+              "carp-mobile-sensing/domain-model",
+              "carp-mobile-sensing/measure-types",
+              "carp-mobile-sensing/data-managers"
+            ]
+          },
+          {
+            "group": "Advanced Concepts",
+            "icon": "lightbulb-on",
+            "pages": [
+              "carp-mobile-sensing/app-task-model",
+              "carp-mobile-sensing/data-transformation-and-privacy",
+              "carp-mobile-sensing/extending-carp-mobile-sensing",
+              "carp-mobile-sensing/best-practice"
             ]
           }
         ]
       }
     ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "CARP",
-          "href": "https://carp.dk",
-          "icon": "book-open-cover"
-        }
-      ]
-    }
+    "global": {}
   },
   "logo": {
     "light": "/logo/carp.svg",
@@ -145,11 +165,18 @@
   "navbar": {
     "links": [
       {
+        "label": "Home",
+        "href": "https://carp.dk",
+        "icon": "earth"
+      },
+      {
         "label": "Support",
+        "icon": "envelope",
         "href": "mailto:support@carp.dk"
       },
       {
         "label": "GitHub",
+        "icon": "github",
         "href": "https://github.com/carp-dk/"
       }
     ]
@@ -158,7 +185,8 @@
     "socials": {
       "github": "https://github.com/carp-dk",
       "linkedin": "https://www.linkedin.com/company/carp-dk/",
-      "website": "https://carp.dk"
+      "website": "https://carp.dk",
+      "discord": "https://discord.gg/PyxCmqS8"
     }
   },
   "seo": {
@@ -200,6 +228,6 @@
       "og:description": "CARP Documentation",
       "og:site_name": "CARP Documentation",
       "og:locale": "en_US"
+    }
   }
-}
 }
