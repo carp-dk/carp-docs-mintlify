@@ -154,37 +154,9 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "CAWS API",
-        "groups": [
-          {
-            "group": "API Documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint Examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
-        ]
       }
     ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "CARP",
-          "href": "https://carp.dk",
-          "icon": "book-open-cover"
-        }
-      ]
-    }
+    "global": {}
   },
   "logo": {
     "light": "/logo/carp.svg",
@@ -193,11 +165,18 @@
   "navbar": {
     "links": [
       {
+        "label": "Home",
+        "href": "https://carp.dk",
+        "icon": "earth"
+      },
+      {
         "label": "Support",
+        "icon": "envelope",
         "href": "mailto:support@carp.dk"
       },
       {
         "label": "GitHub",
+        "icon": "github",
         "href": "https://github.com/carp-dk/"
       }
     ]
@@ -206,7 +185,8 @@
     "socials": {
       "github": "https://github.com/carp-dk",
       "linkedin": "https://www.linkedin.com/company/carp-dk/",
-      "website": "https://carp.dk"
+      "website": "https://carp.dk",
+      "discord": "https://discord.gg/PyxCmqS8"
     }
   },
   "seo": {
