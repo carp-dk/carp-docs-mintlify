@@ -107,9 +107,14 @@
             "global": {
               "anchors": [
                 {
-                  "anchor": "Debug Toolkit GitHub Page",
+                  "anchor": "GitHub Repo",
                   "icon": "github",
-                  "href": "https://github.com/cph-cachet/carp-debug-flutter"
+                  "href": "https://github.com/carp-dk/carp-debug-flutter"
+                },
+                {
+                  "anchor": "Pub.dev",
+                  "icon": "flutter",
+                  "href": "https://pub.dev/packages/carp_debug_flutter"
                 }
               ]
             },
