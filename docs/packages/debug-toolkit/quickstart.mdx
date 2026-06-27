@@ -1,0 +1,161 @@
+---
+title: Quickstart
+description: Wire the toolkit in so it works in debug and is excluded from release
+icon: rocket
+---
+
+To make sure the toolkit is excluded from production archives you need to setup three parts: a launch-argument hook, a debug-only setup file, and a `kDebugMode` gate in `main()`.
+
+## 1. A launch-argument hook
+
+Create a file with **no dependency** on `carp_debug_flutter`. Production
+code reads launch arguments through this hook, so it never imports the package.
+
+```dart
+// lib/debug/debug_hooks.dart
+String? Function(String key)? debugLaunchOverride;
+```
+
+The read the configuration anywhere in your app like the following: (in release the hook is `null`, so the compile-time value is used):
+
+```dart
+final mode = debugLaunchOverride?.call('deployment-mode')
+    ?? const String.fromEnvironment('deployment-mode', defaultValue: 'production');
+```
+
+## 2. A debug-only setup file
+
+This is the **only** file that imports the package. The two tabs differ only in
+*where* the preferences and database come from.
+
+<Tabs>
+  <Tab title="CARP app">
+    ```dart
+    // lib/debug/debug_setup.dart
+    // ignore_for_file: depend_on_referenced_packages
+    import 'package:carp_debug_flutter/carp_debug_flutter.dart';
+    import 'package:carp_mobile_sensing/carp_mobile_sensing.dart' show Settings;
+    import 'package:flutter/widgets.dart';
+    import 'package:sembast/sembast.dart';
+    import 'debug_hooks.dart';
+
+    Future<void> initDebugTools() async {
+      await DebugEnv().initialize();
+      DebugEnv().registerAll(myEnvEntries);
+      debugLaunchOverride = DebugEnv().overrideOf; // install the hook
+    }
+
+    Widget wrapWithToolkit(Widget child, Database db) => CarpDebugToolkit(
+      config: DebugToolkitConfig(
+        title: 'My CARP App Debug',
+        envEntries: myEnvEntries,
+        keyValueStores: [
+          SharedPreferencesKeyValueStore(Settings().preferences!,
+              name: 'CARP Preferences'),
+        ],
+        databases: [SembastDebugDatabase(db, [
+          SembastStoreDescriptor('settings', StoreRef<String, Object?>.main()),
+          SembastStoreDescriptor('results', intMapStoreFactory.store('result_store')),
+        ])],
+        onApply: () => bloc.backend.reconfigure(),        // re-point CAWS live
+        onReinitialize: () => bloc.backend.reconfigure(), // iOS restart path
+      ),
+      child: child,
+    );
+    ```
+  </Tab>
+
+  <Tab title="Plain Flutter app">
+    ```dart
+    // lib/debug/debug_setup.dart
+    // ignore_for_file: depend_on_referenced_packages
+    import 'package:carp_debug_flutter/carp_debug_flutter.dart';
+    import 'package:flutter/widgets.dart';
+    import 'package:sembast/sembast.dart';
+    import 'package:shared_preferences/shared_preferences.dart';
+    import 'debug_hooks.dart';
+
+    Future<void> initDebugTools(SharedPreferences prefs) async {
+      await DebugEnv().initialize(preferences: prefs);
+      DebugEnv().registerAll(myEnvEntries);
+      debugLaunchOverride = DebugEnv().overrideOf;
+    }
+
+    Widget wrapWithToolkit(Widget child, SharedPreferences prefs, Database db) =>
+        CarpDebugToolkit(
+          config: DebugToolkitConfig(
+            title: 'My App Debug',
+            envEntries: myEnvEntries,
+            keyValueStores: [SharedPreferencesKeyValueStore(prefs)],
+            databases: [SembastDebugDatabase(db, [
+              SembastStoreDescriptor('main', StoreRef<String, Object?>.main()),
+            ])],
+            onApply: () async => myAppConfig.reload(),
+          ),
+          child: child,
+        );
+    ```
+  </Tab>
+</Tabs>
+
+## 3. Gate it in `main()`
+
+`main()` imports only the app-local `debug_setup.dart`, and calls it solely when
+`kDebugMode`. In release this folds to `runApp(app)` and the whole debug subtree
+(and the package) is tree-shaken away.
+
+```dart
+import 'package:flutter/foundation.dart';
+import 'debug/debug_setup.dart' as debug;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load overrides BEFORE the app reads its configuration.
+  if (kDebugMode) await debug.initDebugTools();
+
+  final db = await openAppDatabase();
+  final app = await buildApp(db);
+
+  runApp(kDebugMode ? debug.wrapWithToolkit(app, db) : app);
+}
+```
+
+<Note>
+See [Production Builds](/packages/debug-toolkit/production) for why this excludes
+the toolkit from release archives and how to verify it.
+</Note>
+
+## Define your launch arguments
+
+`myEnvEntries` is a list of [`EnvEntry`](/packages/debug-toolkit/environment)
+descriptors i.e. the values you normally pass via `--dart-define`:
+
+```dart
+const myEnvEntries = <EnvEntry>[
+  EnvEntry(
+    key: 'deployment-mode',
+    label: 'Deployment mode',
+    group: 'Server',
+    type: EnvValueType.enumeration,
+    options: ['production', 'test', 'dev'],
+    fallback: String.fromEnvironment('deployment-mode', defaultValue: 'production'),
+  ),
+  EnvEntry(key: 'server-host', label: 'App server host', group: 'Server'),
+];
+```
+
+<Tip>
+Everything in `DebugToolkitConfig` is optional. An empty config still shows the debug button, the **Device & App** tool and the **Logs & Errors** tool.
+</Tip>
+
+## Opening it
+
+You can either tap the bug icon in the app or just open and close it
+programmatically:
+
+```dart
+DebugController.instance.open();
+DebugController.instance.close();
+DebugController.instance.toggle();
+```

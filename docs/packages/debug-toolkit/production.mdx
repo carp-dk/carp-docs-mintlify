@@ -1,0 +1,111 @@
+---
+title: Production Builds
+description: Exclude the debug toolkit from release / production archives
+icon: shield-halved
+---
+
+It is a good practice to make sure that the debugging toolkit doesn't ship to end users. This page is guide of practices to ensure that.
+
+Declare `carp_debug_flutter` as a **`dev_dependency`** and reference it only
+from code that is gated behind `kDebugMode`. Flutter then strips dev-dependency
+plugins from release/profile builds, and Dart tree-shaking removes the
+unreachable debug code.
+
+<Steps>
+  <Step title="Move it to dev_dependencies">
+    ```yaml
+    # pubspec.yaml
+    dev_dependencies:
+      carp_debug_flutter:
+        git:
+          url: https://github.com/cph-cachet/carp-debug-flutter
+    ```
+  </Step>
+
+  <Step title="Keep production code free of the package">
+    No production-reachable file may import `carp_debug_flutter`. Read launch
+    arguments through a tiny **app-local hook** that has no dependency on the
+    package:
+
+    ```dart
+    // lib/core/debug/debug_hooks.dart  (no carp_debug_flutter import)
+    String? Function(String key)? debugLaunchOverride;
+    ```
+
+    ```dart
+    // anywhere config is read (BLoC, backend, ...)
+    final mode = debugLaunchOverride?.call('deployment-mode')
+        ?? const String.fromEnvironment('deployment-mode', defaultValue: 'production');
+    ```
+
+    In release the hook is `null`, so the `--dart-define` value is used and the
+    package is never referenced.
+  </Step>
+
+  <Step title="Isolate the toolkit wiring behind kDebugMode">
+    Put all package usage in one debug-only file, and call it only when
+    `kDebugMode`:
+
+    ```dart
+    // lib/core/debug/debug_setup.dart  (imports carp_debug_flutter)
+    // ignore_for_file: depend_on_referenced_packages
+    import 'package:carp_debug_flutter/carp_debug_flutter.dart';
+    // ...
+    Future<void> initializeDebugTools() async {
+      await DebugEnv().initialize();
+      DebugEnv().registerAll(myEnvEntries);
+      debugLaunchOverride = DebugEnv().overrideOf; // install the hook
+    }
+    Widget wrapWithDebugToolkit(Widget child, Database db) =>
+        CarpDebugToolkit(config: ..., child: child);
+    ```
+
+    ```dart
+    // lib/main.dart
+    import 'core/debug/debug_setup.dart' as debug;
+
+    Future<void> main() async {
+      WidgetsFlutterBinding.ensureInitialized();
+      if (kDebugMode) await debug.initializeDebugTools();
+      final app = await buildApp();
+      // Folds to `runApp(app)` in release; the wrapper is tree-shaken away.
+      runApp(kDebugMode ? debug.wrapWithDebugToolkit(app, db) : app);
+    }
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+Gate on `kDebugMode`, not `kReleaseMode`. Dev-dependency plugin natives are
+present only in **debug** builds; gating on `kDebugMode` keeps the Dart usage
+aligned with native availability, so **profile** builds never hit a
+`MissingPluginException`.
+</Warning>
+
+## What gets excluded, per platform
+
+| | Dart code | Native plugin |
+|---|---|---|
+| **Android (release/profile)** | Tree-shaken out | **Excluded** from the plugin registrant & build |
+| **iOS (release/profile)** | Tree-shaken out | Still linked but **inert** — see below |
+
+<Warning>
+On **iOS / macOS**, Flutter does not yet filter dev-dependency plugins out of
+the native build ([flutter#163874](https://github.com/flutter/flutter/issues/163874)).
+The toolkit's small native stub is still
+linked into the archive, but it is **inert**: the Dart that would call it is
+tree-shaken away, so it never runs and exposes no behavior.
+</Warning>
+
+## Verifying
+
+```bash
+# Android: the release registrant must NOT mention the plugin.
+flutter build apk --release
+grep -i carp_debug_flutter \
+  android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+# -> no matches (in a debug build the same grep finds it)
+
+# Confirm it is flagged as a dev dependency after `flutter pub get`:
+grep -A2 carp_debug_flutter .flutter-plugins-dependencies   # "dev_dependency": true
+```

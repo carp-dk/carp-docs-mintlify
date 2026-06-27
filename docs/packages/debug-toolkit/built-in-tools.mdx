@@ -1,0 +1,61 @@
+---
+title: Built-in Tools
+description: The tools that ship with the toolkit
+icon: toolbox
+---
+
+A tool only appears when it has something to show: the Environment tool needs
+registered launch arguments, and one Preferences / Database tool is added per
+configured data source.
+
+## Environment & Servers
+
+Edit launch-argument overrides grouped by `group`. Each row shows the effective
+value, the underlying key, and an **overridden** badge when it differs from the
+compile-time default. A **Revert** button clears a single override; the app-bar
+**Reset all** clears them all. The bottom bar has **Apply** (runs your `onApply`
+hook to reconfigure live) and **Restart app**.
+
+See [Environment & Servers](/packages/debug-toolkit/environment) for the full
+guide.
+
+## Shared Preferences
+
+<CardGroup cols={2}>
+  <Card title="Inspect & search" icon="magnifying-glass">
+    Lists every (visible) key with its runtime type and value; filter by key.
+  </Card>
+  <Card title="Edit & add" icon="pen">
+    Type-aware editor for `String`, `bool`, `int`, `double`, `List<String>`.
+  </Card>
+  <Card title="Delete" icon="trash">
+    Per-key delete (with confirmation) and "clear all".
+  </Card>
+  <Card title="CARP session data" icon="user">
+    The CARP user, participant and study are stored here — inspect or wipe them.
+  </Card>
+</CardGroup>
+
+## Database
+
+Browse the configured `sembast` stores, each with a live record count. Open a
+store to list its records, tap a record to view its full value, and delete individual records or clear a whole store.
+
+## Device & App
+
+Read-only metadata:
+
+- **Application**: name, package id, version, build number
+- **Device**: platform, OS version, model, device name, physical-vs-simulator
+- **Display**: screen size, pixel ratio, text scale, brightness
+
+## Logs & Errors
+
+A ring buffer that captures `debugPrint` output, framework errors
+(`FlutterError.onError`) and uncaught async errors (`PlatformDispatcher.onError`) so you can review what happened even after a screen has crashed.
+
+<Note>
+Capture is **non-destructive**: the previously installed `debugPrint` /
+error handlers are always invoked, so console logging and crash reporting keep
+working. Disable capture with `DebugToolkitConfig(captureLogs: false)`.
+</Note>
