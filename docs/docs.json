@@ -107,9 +107,9 @@
             "global": {
               "anchors": [
                 {
-                  "anchor": "GitHub Repo",
+                  "anchor": "GitHub Page",
                   "icon": "github",
-                  "href": "https://github.com/carp-dk/carp-debug-flutter"
+                  "href": "https://github.com/carp-dk/carp_debug_flutter"
                 },
                 {
                   "anchor": "Pub.dev",
