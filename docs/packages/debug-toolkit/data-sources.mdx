@@ -1,0 +1,84 @@
+---
+title: Data Sources
+description: Expose preferences and databases to the inspector tools
+icon: database
+---
+
+The **Shared Preferences** and **Database** tools are driven by two small
+interfaces. The toolkit contains adapters for the storage CARP apps use
+(`shared_preferences` and `sembast`), and you can implement your own interfaces for
+any other storage.
+
+## Key/value stores
+
+`KeyValueStore` powers the Preferences tool (inspect / search / edit / add /
+delete). Pass one or more via `DebugToolkitConfig.keyValueStores`.
+
+```dart
+keyValueStores: [
+  SharedPreferencesKeyValueStore(prefs, name: 'CARP Preferences'),
+],
+```
+
+<Accordion title="Hiding internal keys">
+`SharedPreferencesKeyValueStore` hides `DebugEnv`'s own override keys
+(`carp_debug_env.*`) from listing and "clear all" by default, so the inspector
+never clobbers the launch-argument override store. Customize with
+`hiddenPrefixes`:
+
+```dart
+SharedPreferencesKeyValueStore(prefs, hiddenPrefixes: ['carp_debug_env.', 'flutter.']);
+```
+</Accordion>
+
+### Custom key/value store
+
+```dart
+class MyKeyValueStore implements KeyValueStore {
+  @override String get name => 'Secure Storage';
+  @override Future<List<String>> keys() async => myStore.allKeys();
+  @override Future<Object?> read(String key) => myStore.read(key);
+  @override Future<void> write(String key, Object value) => myStore.write(key, '$value');
+  @override Future<void> delete(String key) => myStore.delete(key);
+  @override Future<void> clear() => myStore.deleteAll();
+}
+```
+
+Supported value types for `write` are `String`, `bool`, `int`, `double` and
+`List<String>`.
+
+## Databases
+
+`DebugDatabase` powers the Database tool (browse stores → records → delete).
+Pass one or more via `DebugToolkitConfig.databases`.
+
+```dart
+databases: [
+  SembastDebugDatabase(db, [
+    SembastStoreDescriptor('settings', StoreRef<String, Object?>.main()),
+    SembastStoreDescriptor('results', intMapStoreFactory.store('result_store')),
+  ]),
+],
+```
+
+Because sembast does not enumerate its stores at runtime, you list the
+`StoreRef`s you want to inspect. Any key/value types are accepted.
+
+### Custom database
+
+```dart
+class MyDebugDatabase implements DebugDatabase {
+  @override String get name => 'My DB';
+  @override List<String> get storeNames => ['users', 'events'];
+
+  @override
+  Future<List<DebugRecord>> records(String store) async =>
+      (await myDb.query(store)).map((row) => DebugRecord(row.id, row.toMap())).toList();
+
+  @override
+  Future<void> deleteRecord(String store, Object key) => myDb.delete(store, key);
+
+  @override
+  Future<void> clearStore(String store) => myDb.clear(store);
+}
+```

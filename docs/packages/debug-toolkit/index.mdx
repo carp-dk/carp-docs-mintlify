@@ -1,0 +1,57 @@
+---
+title: Overview
+description: An in-app debugging toolkit for CARP (and any) Flutter apps
+icon: "bug"
+---
+
+`carp_debug_flutter` adds a **floating button** to your app. 
+Tapping it opens a self-contained debug menu that is **independent of the
+host app's widget tree**. It renders in its own theme, localization and
+navigator, so it keeps working even when a screen throws or navigation breaks.
+
+<Tip>
+This package was mainly designed for CARP apps (it ships adapters for
+`shared_preferences` and the `sembast` database, and a runtime override layer
+for `--dart-define` launch arguments CARP apps rely on) but works in **any**
+Flutter app.
+</Tip>
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Environment & Servers" icon="server">
+    Switch the deployment server and override any launch argument
+    (`--dart-define`) at runtime, then apply live or restart
+  </Card>
+  <Card title="Shared Preferences" icon="sliders">
+    Inspect, search, edit, add and delete any keys including the CARP
+    user data
+  </Card>
+  <Card title="Database" icon="database">
+    Browse the local `sembast` database: stores, records, delete
+    records, clear stores
+  </Card>
+  <Card title="Device & App" icon="mobile">
+    Running device + app metadata (model, OS, version, build) and screen metrics
+  </Card>
+  <Card title="Logs & Errors" icon="receipt">
+    Captured `debugPrint` output, framework errors and uncaught async errors 
+  </Card>
+  <Card title="Custom tools" icon="puzzle-piece">
+    Expand the toolkit by adding your own screens by implementing `DebugTool`
+  </Card>
+</CardGroup>
+
+<Warning>
+A *synchronous* infinite loop on the UI isolate freezes all Dart rendering including the toolkit. The toolkit can handle exceptions, crashed screens and
+broken navigation.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/packages/debug-toolkit/installation" />
+  <Card title="Quickstart" icon="rocket" href="/packages/debug-toolkit/quickstart" />
+  <Card title="Environment & Servers" icon="server" href="/packages/debug-toolkit/environment" />
+  <Card title="Custom tools" icon="puzzle-piece" href="/packages/debug-toolkit/custom-tools" />
+</CardGroup>

@@ -1,0 +1,158 @@
+---
+title: Environment & Servers
+description: Override `--dart-define` launch arguments and switch servers at runtime
+icon: server
+---
+
+CARP apps select their environment with `String.fromEnvironment`
+(`--dart-define`), which is fixed at build time. `DebugEnv` adds a runtime
+override layer, persisted in `SharedPreferences`, so a tester can re-point the
+app at a different servers, change the deployment mode or
+debug level, and flip feature flags **without rebuilding**.
+
+## How it works
+
+<Steps>
+  <Step title="Initialize early (debug only)">
+    In your debug-only setup, load persisted overrides before anything reads
+    configuration: `await DebugEnv().initialize()` (optionally pass your
+    existing `SharedPreferences`), then install the hook with
+    `debugLaunchOverride = DebugEnv().overrideOf`.
+  </Step>
+  <Step title="Register the arguments">
+    `DebugEnv().registerAll([...])` tells the Environment tool which arguments
+    exist and how to edit them.
+  </Step>
+  <Step title="Read through the hook">
+    Replace `String.fromEnvironment('x')` reads with
+    `debugLaunchOverride?.call('x') ?? const String.fromEnvironment('x')`.
+  </Step>
+  <Step title="Apply or restart">
+    After editing, **Apply** runs your `onApply` hook (live reconfigure) or
+    **Restart** relaunches the app so the new values are read from scratch.
+  </Step>
+</Steps>
+
+## Reading values
+
+<Warning>
+Because the package is meant to be a `dev_dependency`, your production code
+must not call `DebugEnv` directly. Read through the app-local
+`debugLaunchOverride` hook instead (see
+[Production Builds](/packages/debug-toolkit/production)). `DebugEnv` itself is
+used only inside the debug-only setup file, where the hook is installed with
+`debugLaunchOverride = DebugEnv().overrideOf`.
+</Warning>
+
+```dart
+// In production-reachable code (BLoC, backend): read via the hook.
+final mode = debugLaunchOverride?.call('deployment-mode')
+    ?? const String.fromEnvironment('deployment-mode', defaultValue: 'production');
+final timeout = int.tryParse(debugLaunchOverride?.call('api-timeout') ?? '') ?? 30;
+```
+
+`DebugEnv` reads are synchronous (usable inside constructors) once
+`initialize()` has completed, and are convenient inside debug-only code:
+
+```dart
+DebugEnv().string('deployment-mode', fallback: 'production');
+DebugEnv().integer('api-timeout', fallback: 30);
+DebugEnv().boolean('analytics-enabled', fallback: false);
+```
+
+### CARP example: switching the CAWS server
+
+Read the host through the hook in your `CarpBackend`, and expose a
+`reconfigure()` that re-points every CAWS service:
+
+```dart
+String get host {
+  final override = debugLaunchOverride?.call('server-host') ?? '';
+  return override.isNotEmpty ? override : uris[deploymentMode]!;
+}
+Uri get uri => Uri(scheme: 'https', host: host);
+
+Future<void> reconfigure() async {
+  _readDeploymentModeDebugLevel();              // re-read launch args
+  await CarpAuthService().configure(authProperties);
+  CarpService().configure(app);
+  CarpParticipationService().configureFrom(CarpService());
+  CarpDeploymentService().configureFrom(CarpService());
+  CarpDataStreamService().configureFrom(CarpService());
+}
+```
+
+Wire it up with `onApply: () => bloc.backend.reconfigure()`.
+
+<Warning>
+Authentication tokens are server-specific. After switching servers, sign in
+again. The **Restart** action gives the cleanest slate.
+</Warning>
+
+## `EnvEntry` reference
+
+Each registered argument is described by an `EnvEntry`. The `type` decides which
+editor the tool renders.
+
+<ParamField path="key" type="String" required>
+  The `--dart-define` name and storage / lookup key (e.g. `deployment-mode`).
+</ParamField>
+<ParamField path="label" type="String" required>
+Label shown in the app page.
+</ParamField>
+<ParamField path="type" type="EnvValueType" default="text">
+  `text`, `enumeration`, `toggle` or `integer`.
+</ParamField>
+<ParamField path="options" type="List of String">
+  Allowed values when `type` is `enumeration` (rendered as a dropdown).
+</ParamField>
+<ParamField path="fallback" type="String">
+  The compile-time default, typically `String.fromEnvironment(...)`. Shown when
+  no override is set and used by **Revert to default**.
+</ParamField>
+<ParamField path="group" type="String">
+  Optional heading (e.g. `Server`, `Logging`) for visual grouping.
+</ParamField>
+<ParamField path="description" type="String">
+  Optional explanatory text shown under the editor.
+</ParamField>
+
+### Editor types
+
+<CodeGroup>
+```dart enumeration
+EnvEntry(key: 'deployment-mode', label: 'Deployment mode',
+    type: EnvValueType.enumeration, options: ['production', 'test', 'dev'],
+    fallback: 'production');
+```
+
+```dart text
+EnvEntry(key: 'server-host', label: 'App server host'); // free-form
+```
+
+```dart integer
+EnvEntry(key: 'api-timeout', label: 'API timeout (s)',
+    type: EnvValueType.integer, fallback: '30');
+```
+
+```dart toggle
+EnvEntry(key: 'analytics-enabled', label: 'Analytics',
+    type: EnvValueType.toggle, fallback: 'false');
+```
+</CodeGroup>
+
+## Managing overrides programmatically
+
+```dart
+DebugEnv().hasOverride('server-host');           // bool
+DebugEnv().overrideOf('server-host');            // String? (raw override)
+await DebugEnv().setOverride('server-host', 'dev.carp.dk');
+await DebugEnv().clearOverride('server-host');   // revert to default
+await DebugEnv().clearAll();                      // revert everything
+```
+
+<Note>
+Overrides are stored in `SharedPreferences` under the `carp_debug_env.` prefix.
+The **Shared Preferences** tool hides these keys so they are only managed from
+the Environment tool (editing them there would not update the in-memory state).
+</Note>

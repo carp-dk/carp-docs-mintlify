@@ -12,9 +12,7 @@
     "tabs": [
       {
         "tab": "Home",
-        "pages": [
-          "index"
-        ]
+        "pages": ["index"]
       },
       {
         "tab": "Flutter Plugins",
@@ -81,9 +79,7 @@
               {
                 "group": "Deleting Data",
                 "icon": "trash",
-                "pages": [
-                  "packages/flutter-health-plugin/delete/index"
-                ]
+                "pages": ["packages/flutter-health-plugin/delete/index"]
               },
               {
                 "group": "Platform Setup",
@@ -101,6 +97,46 @@
                   "packages/flutter-health-plugin/api/health-class",
                   "packages/flutter-health-plugin/api/data-models",
                   "packages/flutter-health-plugin/api/enums"
+                ]
+              }
+            ]
+          },
+          {
+            "item": "Debug Toolkit",
+            "icon": "bug",
+            "global": {
+              "anchors": [
+                {
+                  "anchor": "GitHub Repo",
+                  "icon": "github",
+                  "href": "https://github.com/carp-dk/carp-debug-flutter"
+                },
+                {
+                  "anchor": "Pub.dev",
+                  "icon": "flutter",
+                  "href": "https://pub.dev/packages/carp_debug_flutter"
+                }
+              ]
+            },
+            "groups": [
+              {
+                "group": "Getting Started",
+                "icon": "rocket",
+                "pages": [
+                  "packages/debug-toolkit/index",
+                  "packages/debug-toolkit/installation",
+                  "packages/debug-toolkit/quickstart",
+                  "packages/debug-toolkit/production"
+                ]
+              },
+              {
+                "group": "Guides",
+                "icon": "book-open",
+                "pages": [
+                  "packages/debug-toolkit/environment",
+                  "packages/debug-toolkit/data-sources",
+                  "packages/debug-toolkit/built-in-tools",
+                  "packages/debug-toolkit/custom-tools"
                 ]
               }
             ]
