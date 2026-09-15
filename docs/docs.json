@@ -140,6 +140,64 @@
                 ]
               }
             ]
+          },
+          {
+            "item": "Apple Watch Sensing",
+            "icon": "watch-smart",
+            "global": {
+              "anchors": [
+                {
+                  "anchor": "GitHub Page",
+                  "icon": "github",
+                  "href": "https://github.com/carp-dk/carp_aware_package"
+                },
+                {
+                  "anchor": "Pub.dev",
+                  "icon": "flutter",
+                  "href": "https://pub.dev/packages/carp_aware_package"
+                }
+              ]
+            },
+            "groups": [
+              {
+                "group": "Getting Started",
+                "icon": "rocket",
+                "pages": [
+                  "packages/apple-watch/index",
+                  "packages/apple-watch/installation",
+                  "packages/apple-watch/quickstart"
+                ]
+              },
+              {
+                "group": "The Watch App",
+                "icon": "watch-smart",
+                "pages": [
+                  "packages/apple-watch/watch-app/index",
+                  "packages/apple-watch/watch-app/xcode-setup",
+                  "packages/apple-watch/watch-app/permissions",
+                  "packages/apple-watch/watch-app/source-code",
+                  "packages/apple-watch/watch-app/build-and-verify"
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "icon": "lightbulb",
+                "pages": [
+                  "packages/apple-watch/concepts/architecture",
+                  "packages/apple-watch/concepts/configuration",
+                  "packages/apple-watch/concepts/data-types",
+                  "packages/apple-watch/concepts/runtime-state"
+                ]
+              },
+              {
+                "group": "Reference",
+                "icon": "code",
+                "pages": [
+                  "packages/apple-watch/reference/api",
+                  "packages/apple-watch/reference/watch-settings",
+                ]
+              }
+            ]
           }
         ]
       },

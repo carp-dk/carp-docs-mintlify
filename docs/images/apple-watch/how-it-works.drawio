@@ -1,0 +1,76 @@
+<mxfile host="Electron">
+  <diagram id="VxWJJAJo1GwrHaV5QI2I" name="Page-1">
+    <mxGraphModel dx="1065" dy="991" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="920" pageHeight="520" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="watch" parent="1" style="swimlane;html=0;rounded=1;arcSize=3;startSize=42;fillColor=#F4F5F7;strokeColor=#C9CDD3;fontColor=#1F2328;fontSize=18;fontStyle=1;verticalAlign=middle;fontFamily=SF Pro;" value="Apple Watch" vertex="1">
+          <mxGeometry height="378" width="330" x="40" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="wsub" parent="watch" style="text;html=0;align=center;verticalAlign=middle;fontSize=13;fontColor=#6B7280;fontFamily=SF Pro;" value="companion watchOS app" vertex="1">
+          <mxGeometry height="18" width="280" x="25" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="w1" parent="watch" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#8A9099;fontColor=#1F2328;fontSize=15;verticalAlign=top;spacingTop=9;fontFamily=SF Pro;" value="AWARE sensors" vertex="1">
+          <mxGeometry height="56" width="280" x="25" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="w1s" parent="w1" style="text;html=0;align=center;verticalAlign=middle;fontSize=13;fontColor=#6B7280;fontFamily=SF Pro;" value="motion · heart rate · audio · …" vertex="1">
+          <mxGeometry height="18" width="280" y="34" as="geometry" />
+        </mxCell>
+        <mxCell id="w2" parent="watch" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#8A9099;fontColor=#1F2328;fontSize=15;verticalAlign=top;spacingTop=9;fontFamily=SF Pro;" value="Database on the watch" vertex="1">
+          <mxGeometry height="56" width="280" x="25" y="181" as="geometry" />
+        </mxCell>
+        <mxCell id="w2s" parent="w2" style="text;html=0;align=center;verticalAlign=middle;fontSize=13;fontColor=#6B7280;fontFamily=SF Pro;" value="buffers while the phone is away" vertex="1">
+          <mxGeometry height="18" width="280" y="34" as="geometry" />
+        </mxCell>
+        <mxCell id="w3" parent="watch" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#8A9099;fontColor=#1F2328;fontSize=15;verticalAlign=top;spacingTop=9;fontFamily=SF Pro;" value="Compressed chunks" vertex="1">
+          <mxGeometry height="56" width="280" x="25" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="w3s" parent="w3" style="text;html=0;align=center;verticalAlign=middle;fontSize=13;fontColor=#6B7280;fontFamily=SF Pro;" value="one file per batch of records" vertex="1">
+          <mxGeometry height="18" width="280" y="34" as="geometry" />
+        </mxCell>
+        <mxCell id="we1" edge="1" parent="watch" source="w1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=0;strokeColor=#8A9099;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=SF Pro;strokeWidth=2;" target="w2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="we2" edge="1" parent="watch" source="w2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=0;strokeColor=#8A9099;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=SF Pro;strokeWidth=2;" target="w3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="phone" parent="1" style="swimlane;html=0;rounded=1;arcSize=3;startSize=42;fillColor=#F4F5F7;strokeColor=#C9CDD3;fontColor=#1F2328;fontSize=18;fontStyle=1;verticalAlign=middle;fontFamily=SF Pro;" value="iPhone" vertex="1">
+          <mxGeometry height="378" width="330" x="550" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="psub" parent="phone" style="text;html=0;align=center;verticalAlign=middle;fontSize=13;fontColor=#6B7280;fontFamily=SF Pro;" value="your Flutter app" vertex="1">
+          <mxGeometry height="18" width="280" x="25" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" parent="phone" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FBE9ED;strokeColor=#C30E32;fontColor=#7A0A20;fontSize=15;fontStyle=1;fontFamily=SF Pro;" value="carp_aware_package" vertex="1">
+          <mxGeometry height="44" width="280" x="25" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" parent="phone" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#8A9099;fontColor=#1F2328;fontSize=15;fontFamily=SF Pro;" value="AppleWatchDeviceManager" vertex="1">
+          <mxGeometry height="44" width="280" x="25" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" parent="phone" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#8A9099;fontColor=#1F2328;fontSize=15;fontFamily=SF Pro;" value="Probes → CAMS Measurements" vertex="1">
+          <mxGeometry height="44" width="280" x="25" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" parent="phone" style="rounded=1;arcSize=8;whiteSpace=wrap;html=0;fillColor=#FFFFFF;strokeColor=#8A9099;fontColor=#1F2328;fontSize=15;verticalAlign=top;spacingTop=7;fontFamily=SF Pro;" value="Data manager" vertex="1">
+          <mxGeometry height="52" width="280" x="25" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="p4s" parent="p4" style="text;html=0;align=center;verticalAlign=middle;fontSize=13;fontColor=#6B7280;fontFamily=SF Pro;" value="local storage or CARP Web Services" vertex="1">
+          <mxGeometry height="18" width="280" y="31" as="geometry" />
+        </mxCell>
+        <mxCell id="pe1" edge="1" parent="phone" source="p1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=0;strokeColor=#8A9099;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=SF Pro;strokeWidth=2;" target="p2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe2" edge="1" parent="phone" source="p2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=0;strokeColor=#8A9099;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=SF Pro;strokeWidth=2;" target="p3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pe3" edge="1" parent="phone" source="p3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=0;strokeColor=#8A9099;endArrow=blockThin;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontFamily=SF Pro;strokeWidth=2;" target="p4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="transfer" edge="1" parent="1" source="w3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=0;strokeColor=#C30E32;strokeWidth=2;endArrow=blockThin;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontColor=#7A0A20;fontSize=14;verticalAlign=middle;fontFamily=SF Pro;" target="p1" value="WatchConnectivity&#xa;file transfer&#xa;every 15 min by default">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=0;fillColor=#F4F5F7;strokeColor=#C9CDD3;fontColor=#3C4043;fontSize=14;align=center;verticalAlign=middle;fontFamily=SF Pro;" value="The watch keeps collecting while the phone app is closed and measurements arrive in bursts, timestamped by the watch." vertex="1">
+          <mxGeometry height="40" width="840" x="40" y="452" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

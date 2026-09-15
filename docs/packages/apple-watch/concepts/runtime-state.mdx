@@ -1,0 +1,127 @@
+---
+title: Runtime State
+description: Knowing whether the watch is paired, collecting, and delivering
+icon: gauge
+---
+
+ The `AppleWatchDeviceManager` exposes information about state of the watch and the phone.
+
+```dart
+final watchManager =
+    DeviceController().getDeviceManager(AppleWatchDevice.DEVICE_TYPE)
+        as AppleWatchDeviceManager;
+```
+
+## Is the watch ready?
+
+```dart
+if (!watchManager.watchStatus.isAvailable) {
+  // Tell the participant to install / open the watch app.
+}
+```
+
+`isAvailable` is true when `WatchConnectivity` is supported, a watch is paired,
+**and** the companion watch app is installed on it.
+
+<Warning>
+`isReachable` is **not** part of that check, and should not be. Reachability only matters
+for live messaging. Data files are queued by the operating system and delivered when the
+watch comes back into range, so collection works perfectly while the watch is
+unreachable - in the shower, on a run without the phone, overnight.
+</Warning>
+
+## `AppleWatchStatus`
+
+```dart
+print(watchManager.watchStatus);
+watchManager.watchStatusEvents.listen((status) => print(status));
+```
+
+| Field | Type | Meaning |
+|---|---|---|
+| `isSupported` | `bool` | `WatchConnectivity` is supported (false on Android and on iPads) |
+| `isPaired` | `bool` | A watch is paired with this phone |
+| `isWatchAppInstalled` | `bool` | The companion watch app is installed on it |
+| `isReachable` | `bool` | The watch app is reachable right now |
+| `isCollectingData` | `bool` | The watch app reported that it is sampling |
+| `activationState` | `String` | `notActivated`, `inactive`, or `activated` |
+| `outstandingFileTransferCount` | `int` | Transfers queued but not yet completed |
+| `phoneDeviceId` | `String?` | AWARE device id of this phone |
+| `watchDeviceId` | `String?` | AWARE device id of the watch, once exchanged |
+| `lastMessageAt` | `DateTime?` | Last message exchanged with the watch |
+| `lastFileTransferAt` | `DateTime?` | Last file received from the watch |
+| `lastError` | `String?` | Last communication error, if any |
+| `isAvailable` | `bool` | `isSupported && isPaired && isWatchAppInstalled` |
+
+<Note>
+`isCollectingData` is based on the last status message the watch app sent, so it is only
+meaningful after the watch app has run at least once. A recently installed watch app that
+has never been opened reports `false`.
+</Note>
+
+### Reading the state
+
+| What you see | What it means | What to tell the participant |
+|---|---|---|
+| `isSupported: false` | Not an iPhone, or an iPad | Nothing - the watch is not part of this deployment |
+| `isPaired: false` | No watch paired with the phone | "Pair your Apple Watch with this iPhone" |
+| `isWatchAppInstalled: false` | Companion app missing | "Install the study app on your watch from the Watch app" |
+| `isCollectingData: false` | Watch app installed but not sampling | "Open the study app on your watch and press Start" |
+| `isReachable: false` | Out of range or watch app not in foreground | Nothing - this is normal and harmless |
+| `outstandingFileTransferCount` climbing | Transfers queued, phone not receiving them | Check the phone app is running and the study is deployed |
+
+## Connection lifecycle
+
+`AppleWatchDeviceManager` follows the normal CAMS device status model, with a couple of
+specifics worth knowing:
+
+| Behaviour | Detail |
+|---|---|
+| `canConnect` | `true` only on iOS |
+| Permissions | None needed on the phone - the watch asks for its own on the watch |
+| Connecting | Configures the native sensor, starts listening, and verifies pairing and the companion app |
+| Losing the companion app | Status becomes `disconnecting` - recoverable, the participant may reinstall it |
+| Losing the pairing | Status becomes `disconnected` |
+| Disconnecting | Stops listening on the phone; **the watch keeps collecting** and delivers on the next transfer |
+
+## Battery level of the watch
+
+```dart
+print('Watch battery: ${watchManager.batteryLevel}%');
+watchManager.batteryEvents.listen((level) => print('Watch at $level%'));
+```
+
+## Transfer progress
+
+```dart
+watchManager.fileTransferEvents.listen((transfer) {
+  print('${transfer.chunkIndex}/${transfer.totalChunks} '
+        '(${transfer.table}): ${transfer.state.name}');
+});
+```
+
+`AppleWatchFileTransfer` carries `table`, `fileName`, `chunkIndex`, `totalChunks`,
+`state`, and an `error` message when something failed.
+
+| State | Meaning |
+|---|---|
+| `received` | The file arrived on the phone |
+| `processing` | Being decompressed and decoded |
+| `decoded` | Records decoded and emitted - the normal success state |
+| `saving` | Being written to the local AWARE database (only with `saveToLocalAwareDatabase`) |
+| `saved` | Written to the local AWARE database |
+| `failed` | Processing failed - see `error` |
+| `saveFailed` | Writing to the local AWARE database failed |
+| `unknown` | The native side reported a state this package does not know |
+
+## Information about the watch
+
+```dart
+final info = watchManager.watchInfo;      // AppleWatchDeviceInfo?
+print(watchManager.displayName);          // name, model, or 'Apple Watch'
+```
+
+`watchInfo` is populated once the watch has sent a device record. The same information is
+carried into the CAMS `AppleWatchDeviceRegistration` (`watchDeviceId`, `model`,
+`systemVersion`, and `isWatchAppInstalled`), so it is stored with the deployment and is
+available when analysing the data later.
