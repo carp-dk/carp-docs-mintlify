@@ -1,0 +1,162 @@
+---
+title: Quickstart
+description: A complete study protocol with an Apple Watch in it
+icon: rocket
+---
+
+This page builds a small but complete study: a phone, a watch paired with it, and a
+task that collects motion, heart rate, battery and sound from the watch.
+
+<Info>
+This assumes you have finished [Install & Configure](/packages/apple-watch/installation)
+and added the [companion watch app](/packages/apple-watch/watch-app).
+</Info>
+
+## The complete example
+
+```dart
+import 'package:carp_core/carp_core.dart' hide Smartphone;
+import 'package:carp_mobile_sensing/carp_mobile_sensing.dart';
+import 'package:carp_aware_package/carp_aware_package.dart';
+
+void main() async {
+  // 1. Register the package before anything else.
+  SamplingPackageRegistry().register(AppleWatchSamplingPackage());
+
+  // 2. Create a protocol.
+  final protocol = SmartphoneStudyProtocol(
+    ownerId: 'owner@dtu.dk',
+    name: 'Apple Watch Sensing Example',
+  );
+
+  // 3. The devices: a phone, and a watch connected to it.
+  final phone = Smartphone();
+
+  final watch = AppleWatchDevice(
+    motionSamplingRate: 10,
+    heartRateEnabled: true,
+    batteryEnabled: true,
+    audioEnabled: true,
+    fileTransferInterval: const Duration(minutes: 15),
+    transferMode: WatchTransferMode.incremental,
+    backgroundSessionType: WatchBackgroundSessionType.microphone,
+  );
+
+  protocol
+    ..addPrimaryDevice(phone)
+    ..addConnectedDevice(watch, phone);
+
+  // 4. What to collect — added to the watch, not to the phone.
+  protocol.addTaskControl(
+    ImmediateTrigger(),
+    BackgroundTask(measures: [
+      Measure(type: AppleWatchSamplingPackage.MOTION),
+      Measure(type: AppleWatchSamplingPackage.HEART_RATE),
+      Measure(type: AppleWatchSamplingPackage.BATTERY),
+      Measure(type: AppleWatchSamplingPackage.AMBIENT_NOISE),
+      Measure(type: AppleWatchSamplingPackage.AUDIO_LABEL),
+      Measure(type: AppleWatchSamplingPackage.DEVICE),
+    ]),
+    watch,
+  );
+
+  // 5. Deploy and start sampling.
+  final client = SmartPhoneClientManager();
+  await client.configure();
+  final study = await client.addStudyFromProtocol(protocol);
+  await client.tryDeployment(study.studyDeploymentId, study.deviceRoleName);
+  client.resume();
+
+  // 6. Everything collected — phone and watch alike — arrives here.
+  client.measurements.listen(print);
+}
+```
+
+<Steps>
+  <Step title="Registration" icon="plug">
+    `SamplingPackageRegistry().register(AppleWatchSamplingPackage())` makes the nine
+    watch measure types and the `AppleWatchDevice` known to CAMS.
+  </Step>
+  <Step title="Watch as a connected device" icon="link">
+    The watch is *connected to* the phone and the phone is the primary device that runs
+    the study and uploads the data, and the watch is a peripheral that sends data to it.
+
+    ```dart
+    protocol.addConnectedDevice(watch, phone);
+    ```
+  </Step>
+  <Step title="Watch configuration" icon="sliders">
+    Sampling rates and which sensors run are properties of the `AppleWatchDevice`, not
+    of the individual `Measure`. See
+    [Configuring the Watch](/packages/apple-watch/concepts/configuration).
+  </Step>
+  <Step title="Add measures" icon="ruler-combined">
+
+    ```dart
+    protocol.addTaskControl(ImmediateTrigger(), BackgroundTask(...), watch);
+    ```
+
+    If you add the measures to `phone`, the files still arrive from the watch but
+    nothing is converted into measurements.
+  </Step>
+</Steps>
+
+## Note
+
+<AccordionGroup>
+  <Accordion title="`fileTransferInterval` (why your data is 15 minutes old)" icon="clock">
+    The watch buffers records locally and hands them over on a timer. With the default
+    of 15 minutes, a measurement collected at 10:00 reaches your app around 10:15,
+    together with everything else from that quarter hour.
+
+    Lower the interval for faster data transfer but cause fast battery drain.
+  </Accordion>
+  <Accordion title="`backgroundSessionType` (how the watch keeps collecting)" icon="moon">
+    watchOS suspends an app shortly after the wrist is lowered, unless it holds a
+    background runtime session. The default, `microphone`, starts a silent capture
+    session that keeps the watch app alive without registering a workout.
+
+    The alternative, `workout`, runs longer and more reliably but appears in the
+    participant's fitness apps and affects their activity rings. This solution can
+    result in app store rejection.
+  </Accordion>
+</AccordionGroup>
+
+## Status of the Watch
+
+The `AppleWatchDeviceManager` holds the live state of the watch connection. Whether a
+watch is paired, if the companion app is installed, and how transfers are going:
+
+```dart
+final watchManager =
+    DeviceController().getDeviceManager(AppleWatchDevice.DEVICE_TYPE)
+        as AppleWatchDeviceManager;
+
+// Ready to collect? (paired + companion app installed)
+if (!watchManager.watchStatus.isAvailable) {
+  print('Ask the participant to install the watch app.');
+}
+
+watchManager.watchStatusEvents.listen((status) => print(status));
+watchManager.fileTransferEvents.listen((transfer) => print(transfer));
+```
+
+See [Runtime State](/packages/apple-watch/concepts/runtime-state) for details.
+
+## On the Watch App
+
+<Steps>
+  <Step title="Open app and press Start">
+    watchOS will not run a freshly installed app in the background before its first launch.
+  </Step>
+  <Step title="Grant the permissions">
+    HealthKit for heart rate, microphone for sound. The prompts appear **on the watch**.
+  </Step>
+  <Step title="Check the status">
+    `AppleWatchStatus` reports `paired: true, appInstalled: true, collecting: true`.
+  </Step>
+  <Step title="First transfer">
+    Wait up to `fileTransferInterval` to check for the first transfer.
+    Press **Send data to phone** on the watch to skip the wait while testing.
+  </Step>
+</Steps>

@@ -1,0 +1,54 @@
+---
+title: Overview
+description: The companion watchOS app, and what you need before building it
+icon: list-check
+---
+
+`carp_aware_package` **receives** data from an Apple Watch.
+The collecting is done by a companion watchOS app that runs the AWARE sensors. That
+app is a watchOS target inside your Flutter app's Xcode project, and you add it once.
+
+
+<Frame caption="One Xcode project, two targets — and where the AWARE binaries come from">
+  <img
+    src="/images/apple-watch/xcode-project.svg"
+    alt="Runner.xcodeproj holds two targets: the Runner iOS app, which gets the carp_aware_package plugin and its AWARE iOS binaries automatically, and the CarpWatch watchOS app that you add and link the carp-aware-watch product into."
+    className="mx-auto w-full"
+  />
+</Frame>
+
+Both halves of the AWARE framework ship inside the same Flutter plugin. There is no
+separate package to fetch and no AWARE source to check out. The iOS app links
+`carp-aware-package` automatically, and you link `carp-aware-watch` into the watch
+target manually.
+
+## How the two apps communicate
+
+<Frame caption="The watch asks; the phone answers from the deployed study protocol">
+  <img
+    src="/images/apple-watch/watch-phone-handshake.svg"
+    alt="Sequence: the watch app asks the phone for settings, the phone answers from the AppleWatchDevice in the deployed protocol, the AWARE sensors collect into the watch database, compressed chunk files are transferred every 15 minutes, and the phone turns the records into CAMS measurements."
+    className="mx-auto w-full"
+  />
+</Frame>
+
+The watch app carries no study configuration of its own. 
+It asks the phone app what to sample, and the phone answers from the `AppleWatchDevice`.
+
+## Watch app setup
+
+<CardGroup cols={2}>
+  <Card title="1. Add the target" icon="screwdriver-wrench" href="/packages/apple-watch/watch-app/xcode-setup">
+    Create the watchOS app target, set the bundle identifiers, and link the AWARE
+    framework into it
+  </Card>
+  <Card title="2. Capabilities & permissions" icon="shield-check" href="/packages/apple-watch/watch-app/permissions">
+    HealthKit, background modes, and the privacy strings watchOS requires before it
+    will ask the participant for anything
+  </Card>
+  <Card title="3. The watch app" icon="file-code" href="/packages/apple-watch/watch-app/source-code">
+      A simple SwiftUI app on the watch that asks the phone for settings and collects AWARE sensors
+  </Card>
+  <Card title="4. Build and verify" icon="circle-check" href="/packages/apple-watch/watch-app/build-and-verify">
+  </Card>
+</CardGroup>

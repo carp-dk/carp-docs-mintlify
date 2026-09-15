@@ -1,0 +1,255 @@
+---
+title: API Reference
+description: Every class, member and enum the package exposes
+icon: code
+---
+
+One import brings in the whole package:
+
+```dart
+import 'package:carp_aware_package/carp_aware_package.dart';
+```
+
+<Note>
+This page summarises the public API. The generated Dart API documentation on
+[pub.dev](https://pub.dev/documentation/carp_aware_package/latest/) has the full detail.
+</Note>
+
+## `AppleWatchSamplingPackage`
+
+The CAMS sampling package. Register it once, before creating or deploying a protocol.
+
+```dart
+SamplingPackageRegistry().register(AppleWatchSamplingPackage());
+```
+
+### Measure type constants
+
+| Constant | Value |
+|---|---|
+| `APPLE_WATCH_NAMESPACE` | `dk.carp.watch.aware` |
+| `MOTION` | `dk.carp.watch.aware.motion` |
+| `HEART_RATE` | `dk.carp.watch.aware.heartrate` |
+| `BATTERY` | `dk.carp.watch.aware.battery` |
+| `LOCATION` | `dk.carp.watch.aware.location` |
+| `HEADING` | `dk.carp.watch.aware.heading` |
+| `BLUETOOTH` | `dk.carp.watch.aware.bluetooth` |
+| `AMBIENT_NOISE` | `dk.carp.watch.aware.ambientnoise` |
+| `AUDIO_LABEL` | `dk.carp.watch.aware.audiolabel` |
+| `DEVICE` | `dk.carp.watch.aware.device` |
+
+### Members
+
+| Member | Type | Description |
+|---|---|---|
+| `watchSamplingSchemes` | `DataTypeSamplingSchemeMap` | Static. Sampling schemes for all nine types |
+| `samplingSchemes` | `DataTypeSamplingSchemeMap` | The same map, as required by `SamplingPackage` |
+| `dataTypes` | `List<DataTypeMetaData>` | Metadata for the supported types |
+| `deviceType` | `String` | `AppleWatchDevice.DEVICE_TYPE` |
+| `deviceManager` | `DeviceManager` | The shared `AppleWatchDeviceManager` |
+| `create(String type)` | `Probe?` | The probe for a measure type, or `null` |
+| `onRegister()` | `void` | Registers the device, registration and data classes for JSON |
+
+## `AppleWatchDevice`
+
+The device configuration placed in the study protocol. Extends
+`CamsDevice<AppleWatchDeviceRegistration>`.
+
+```dart
+final watch = AppleWatchDevice(
+  motionSamplingRate: 10,
+  heartRateEnabled: true,
+  fileTransferInterval: const Duration(minutes: 15),
+);
+```
+
+| Member | Type | Description |
+|---|---|---|
+| `DEVICE_TYPE` | `String` | Static. The device type identifier |
+| `DEFAULT_ROLE_NAME` | `String` | Static. `'Apple Watch'` |
+| `toWatchSettings()` | `Map<String, dynamic>` | This configuration as the settings dictionary sent to the watch |
+| `dataTypeSamplingSchemes` | `DataTypeSamplingSchemeMap?` | The data types this device can collect |
+| `fromJson` / `toJson` | | Standard CARP serialization |
+
+Every configuration property is documented in
+[Configuring the Watch](/packages/apple-watch/concepts/configuration).
+
+## `AppleWatchDeviceRegistration`
+
+The runtime registration of the watch, stored with the deployment. Extends
+`HardwareDeviceRegistration`.
+
+| Field | Type | Description |
+|---|---|---|
+| `watchDeviceId` | `String?` | AWARE device id of the watch, if exchanged |
+| `model` | `String?` | Watch model, if known |
+| `systemVersion` | `String?` | watchOS version, if known |
+| `isWatchAppInstalled` | `bool` | Whether the companion app is installed |
+
+## `AppleWatchDeviceManager`
+
+The CAMS device manager for the watch. Obtain it from the `DeviceController`:
+
+```dart
+final watchManager =
+    DeviceController().getDeviceManager(AppleWatchDevice.DEVICE_TYPE)
+        as AppleWatchDeviceManager;
+```
+
+| Member | Type | Description |
+|---|---|---|
+| `records` | `Stream<AppleWatchRecords>` | Batches of records received from the watch |
+| `watchStatus` | `AppleWatchStatus` | Last known state of the connection |
+| `watchStatusEvents` | `Stream<AppleWatchStatus>` | State changes as they happen |
+| `fileTransferEvents` | `Stream<AppleWatchFileTransfer>` | Progress of each transferred file |
+| `watchInfo` | `AppleWatchDeviceInfo?` | Information reported by the watch app |
+| `displayName` | `String?` | Watch name, model, or `'Apple Watch'` |
+| `batteryLevel` | `int?` | Watch battery in percent, from the last transfer |
+| `batteryEvents` | `Stream<int>` | Battery level changes |
+| `canConnect` | `bool` | `true` on iOS only |
+| `service` | `AppleWatchService` | The underlying native service |
+
+See [Runtime State](/packages/apple-watch/concepts/runtime-state) for how to use these.
+
+## `AppleWatchService`
+
+A singleton wrapping the three platform channels. The device manager uses it; use it
+directly only for low-level access, such as a debug screen.
+
+```dart
+final service = AppleWatchService();
+```
+
+| Member | Returns | Description |
+|---|---|---|
+| `isSupportedPlatform` | `bool` | `true` on iOS |
+| `configure(AppleWatchDevice)` | `Future<bool>` | Create and configure the native AWARE sensor |
+| `getStatus()` | `Future<AppleWatchStatus>` | Current connection status |
+| `exchangeDeviceId()` | `Future<String?>` | Exchange AWARE device ids with the watch. Requires the watch app to be reachable |
+| `close()` | `Future<void>` | Tear down the native sensor. Does **not** stop collection on the watch |
+| `records` | `Stream<AppleWatchRecords>` | Record batches from the watch |
+| `statusEvents` | `Stream<AppleWatchStatus>` | Status changes |
+| `fileTransferEvents` | `Stream<AppleWatchFileTransfer>` | File transfer progress |
+
+## `AppleWatchStatus`
+
+| Field | Type | Description |
+|---|---|---|
+| `isSupported` | `bool` | `WatchConnectivity` is supported on this phone |
+| `isPaired` | `bool` | A watch is paired |
+| `isWatchAppInstalled` | `bool` | The companion app is installed on it |
+| `isReachable` | `bool` | The watch app is reachable right now |
+| `isCollectingData` | `bool` | The watch app reported that it is sampling |
+| `activationState` | `String` | `notActivated`, `inactive`, or `activated` |
+| `outstandingFileTransferCount` | `int` | Transfers not yet completed |
+| `phoneDeviceId` | `String?` | AWARE device id of the phone |
+| `watchDeviceId` | `String?` | AWARE device id of the watch |
+| `lastMessageAt` | `DateTime?` | Last message exchanged |
+| `lastFileTransferAt` | `DateTime?` | Last file received |
+| `lastError` | `String?` | Last communication error |
+| `isAvailable` | `bool` | `isSupported && isPaired && isWatchAppInstalled` |
+
+## `AppleWatchRecords`
+
+One decoded chunk file: all records from one AWARE table.
+
+| Field | Type | Description |
+|---|---|---|
+| `table` | `String` | The AWARE table, see `AppleWatchTable` |
+| `chunkIndex` | `int` | 1-based index of this chunk in the transfer |
+| `totalChunks` | `int` | Number of chunks for this table in the transfer |
+| `records` | `List<Map<String, dynamic>>` | The raw AWARE rows |
+
+## `AppleWatchFileTransfer`
+
+| Field | Type | Description |
+|---|---|---|
+| `table` | `String` | The AWARE table the records come from |
+| `fileName` | `String` | Name of the transferred file |
+| `chunkIndex` | `int` | 1-based index in the transfer |
+| `totalChunks` | `int` | Number of files in the transfer |
+| `state` | `WatchFileTransferState` | How far the file has come |
+| `error` | `String?` | Set when the state is `failed` or `saveFailed` |
+
+## Data classes
+
+All extend `AppleWatchData`, which carries `deviceId`, `timestamp`, `label` and
+`recordId`. Fields per class are documented in
+[Measure Types & Data](/packages/apple-watch/concepts/data-types).
+
+| Class | Measure type |
+|---|---|
+| `AppleWatchMotion` | `MOTION` |
+| `AppleWatchHeartRate` | `HEART_RATE` |
+| `AppleWatchBattery` | `BATTERY` |
+| `AppleWatchLocation` | `LOCATION` |
+| `AppleWatchHeading` | `HEADING` |
+| `AppleWatchBluetooth` | `BLUETOOTH` |
+| `AppleWatchAmbientNoise` | `AMBIENT_NOISE` |
+| `AppleWatchAudioLabel` | `AUDIO_LABEL` |
+| `AppleWatchDeviceInfo` | `DEVICE` |
+
+## Probes
+
+One per measure type, all extending `AppleWatchProbe` (itself a `StreamProbe`). They are
+created by the sampling package and rarely used directly.
+
+`AppleWatchMotionProbe`, `AppleWatchHeartRateProbe`, `AppleWatchBatteryProbe`,
+`AppleWatchLocationProbe`, `AppleWatchHeadingProbe`, `AppleWatchBluetoothProbe`,
+`AppleWatchAmbientNoiseProbe`, `AppleWatchAudioLabelProbe`, `AppleWatchDeviceInfoProbe`.
+
+Each declares the AWARE `table` it reads and a `toData()` that converts one row into its
+data class — the extension point if you add a sensor of your own.
+
+## Enums
+
+<AccordionGroup>
+  <Accordion title="WatchBackgroundSessionType" icon="moon">
+    How the watch app keeps running when it is not in the foreground.
+
+    | Value | Meaning |
+    |---|---|
+    | `none` | No background session — foreground only |
+    | `workout` | An `HKWorkoutSession`; longest runtime, visible in fitness apps |
+    | `microphone` | A silent microphone capture session (default) |
+  </Accordion>
+  <Accordion title="WatchTransferMode" icon="arrows-rotate">
+    Which records the watch includes in a transfer.
+
+    | Value | Meaning |
+    |---|---|
+    | `all` | Every record, every time; duplicates discarded by record id |
+    | `incremental` | Only records since the last successful transfer (default) |
+  </Accordion>
+  <Accordion title="WatchBatteryState" icon="battery-half">
+    A 1:1 mapping of `WKInterfaceDeviceBatteryState`.
+
+    | Value | Meaning |
+    |---|---|
+    | `unknown` | The state cannot be determined |
+    | `unplugged` | Running on battery, discharging |
+    | `charging` | Plugged in, below 100% |
+    | `full` | Plugged in, at 100% |
+  </Accordion>
+  <Accordion title="WatchFileTransferState" icon="file-arrow-down">
+    The progress of one transferred file.
+
+    | Value | Meaning |
+    |---|---|
+    | `received` | Arrived on the phone |
+    | `processing` | Being decompressed and decoded |
+    | `decoded` | Records decoded and emitted |
+    | `saving` | Being written to the local AWARE database |
+    | `saved` | Written to the local AWARE database |
+    | `failed` | Processing failed |
+    | `saveFailed` | Writing to the local AWARE database failed |
+    | `unknown` | Unrecognised state from the native side |
+  </Accordion>
+  <Accordion title="AppleWatchTable" icon="table">
+    Constants for the AWARE table names, used to route records to probes.
+
+    `motion`, `heartRate`, `battery`, `location`, `heading`, `bluetooth`, `ambientNoise`,
+    `audioLabel`, `device` — mapping to `ios_watch_motion`, `ios_watch_heart_rate`, and so
+    on. See [How It Works](/packages/apple-watch/concepts/architecture#5-probes-turn-records-into-measurements).
+  </Accordion>
+</AccordionGroup>
