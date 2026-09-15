@@ -194,7 +194,7 @@
                 "icon": "code",
                 "pages": [
                   "packages/apple-watch/reference/api",
-                  "packages/apple-watch/reference/watch-settings",
+                  "packages/apple-watch/reference/watch-settings"
                 ]
               }
             ]
